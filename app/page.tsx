@@ -1,144 +1,74 @@
 'use client'
+import { useState, useEffect } from 'react'
 
-import { createClient } from '@supabase/supabase-js'
-import { useEffect, useState } from 'react'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-type Film = {
-  id: number
-  title: string
-  director: string
-  film_cast: string
-  genre: string
-  year: number
-  description: string
-  poster_url: string
-  bunny_library_id: string
-  trailer_video_id: string
-}
-
-export default function Home() {
-  const [film, setFilm] = useState<Film | null>(null)
-  const [showPlayer, setShowPlayer] = useState(false)
+export default function TestPage() {
+  const [movie, setMovie] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    async function getFilm() {
-      const { data, error } = await supabase
-        .from('films')
-        .select('*')
-        .eq('id', 1)
-        .single()
-      
-      if (error) setError(error.message)
-      else setFilm(data)
+    // Pull random movie + random photo
+    const fetchRandom = async () => {
+      try {
+        // 1. Random movie from TMDB
+        const randomPage = Math.floor(Math.random() * 500) + 1
+        const movieRes = await fetch(
+          `https://api.themoviedb.org/3/discover/movie?api_key=demo&sort_by=popularity.desc&page=${randomPage}`
+        )
+        const movieData = await movieRes.json()
+        const randomMovie = movieData.results[Math.floor(Math.random() * movieData.results.length)]
+
+        // 2. Random Unsplash photo as fallback poster
+        const photoUrl = `https://source.unsplash.com/random/1920x1080/?movie,cinema&${Date.now()}`
+
+        setMovie({
+          title: randomMovie.title,
+          description: randomMovie.overview,
+          poster: `https://image.tmdb.org/t/p/w1280${randomMovie.backdrop_path}` || photoUrl,
+          year: randomMovie.release_date?.split('-')[0],
+          rating: randomMovie.vote_average
+        })
+      } catch (e) {
+        // Fallback if API fails
+        setMovie({
+          title: 'Test Film',
+          description: 'Random test data loaded',
+          poster: `https://source.unsplash.com/random/1920x1080/?film&${Date.now()}`,
+          year: '2024',
+          rating: 8.5
+        })
+      }
       setLoading(false)
     }
-    getFilm()
+
+    fetchRandom()
   }, [])
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    )
-  }
-
-  if (error || !film) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Film not found</h1>
-          <p className="text-gray-400">{error || 'No film with id=1'}</p>
-        </div>
-      </div>
-    )
-  }
-
-  const videoUrl = `https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${film.trailer_video_id}?autoplay=true&responsive=true`
+  if (loading) return <div className="bg-black text-white h-screen flex items-center justify-center">Loading random film...</div>
 
   return (
-    <div className="relative min-h-screen bg-black text-white">
-      {/* Background Poster Image */}
-      <div className="fixed inset-0 w-full h-full">
-        <img
-          src={film.poster_url}
-          alt={film.title}
-          className="w-full h-full object-cover"
-        />
-      </div>
-
-      {/* Video Player Modal */}
-      {showPlayer && (
-        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
-          <button
-            onClick={() => setShowPlayer(false)}
-            className="absolute top-4 right-4 z-50 bg-black/60 backdrop-blur px-4 py-2 rounded-md font-bold hover:bg-black/80"
-          >
-            ✕ Close
-          </button>
-          <iframe
-            src={videoUrl}
-            className="w-full h-full"
-            allow="autoplay; fullscreen"
-            allowFullScreen
-          />
-        </div>
-      )}
-
-      {/* Gradient Overlays - Apple TV style */}
-      <div className="fixed inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-      <div className="fixed inset-0 bg-gradient-to-r from-black/90 via-black/30 to-transparent" />
-
-      {/* Content */}
-      <main className="relative z-10 flex items-end min-h-screen">
-        <div className="px-6 pb-16 md:px-16 md:pb-24 w-full">
-          <div className="max-w-2xl">
-            {/* Title */}
-            <h1 className="text-5xl md:text-8xl font-bold tracking-tight mb-6 drop-shadow-2xl">
-              {film.title}
-            </h1>
-
-            {/* Metadata row */}
-            <div className="flex items-center gap-3 text-sm md:text-base mb-5 text-gray-200 font-medium flex-wrap">
-              <span className="border border-gray-400 px-2 py-0.5 rounded text-xs">4K</span>
-              <span>{film.genre}</span>
-              <span>•</span>
-              <span>{film.year}</span>
-              <span>•</span>
-              <span>Dir. {film.director}</span>
-            </div>
-
-            {/* Description */}
-            <p className="text-base md:text-xl leading-relaxed mb-8 text-gray-100 max-w-xl drop-shadow-lg">
-              {film.description}
-            </p>
-
-            {/* Buttons */}
-            <div className="flex gap-3 flex-wrap">
-              <button 
-                onClick={() => setShowPlayer(true)}
-                className="bg-white text-black px-8 py-3 rounded-md font-bold text-lg hover:bg-gray-200 transition flex items-center gap-2"
-              >
-                ▶ Play Trailer
-              </button>
-              <button className="bg-gray-600/60 backdrop-blur-md border border-gray-500/50 px-8 py-3 rounded-md font-bold text-lg hover:bg-gray-600/80 transition">
-                + Watchlist
-              </button>
-            </div>
-
-            <p className="text-gray-400 text-sm mt-6">
-              Starring: {film.film_cast}
-            </p>
+    <div className="min-h-screen bg-black text-white">
+      <div 
+        className="h-screen w-full bg-cover bg-center relative"
+        style={{ backgroundImage: `url(${movie.poster})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+        
+        <div className="absolute bottom-0 left-0 p-8 md:p-16 max-w-3xl">
+          <h1 className="text-5xl md:text-7xl font-bold mb-4">{movie.title}</h1>
+          <div className="flex gap-4 text-lg mb-4 text-gray-300">
+            <span>{movie.year}</span>
+            <span>★ {movie.rating}</span>
           </div>
+          <p className="text-lg mb-8 text-gray-200 line-clamp-3">{movie.description}</p>
+          
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-white text-black px-8 py-3 rounded-md text-xl font-bold hover:bg-gray-300"
+          >
+            ▶ Load Another Random
+          </button>
         </div>
-      </main>
+      </div>
     </div>
   )
 }
