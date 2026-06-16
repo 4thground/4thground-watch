@@ -1,43 +1,50 @@
 import { createClient } from '@supabase/supabase-js'
 
+// Connect to Supabase
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
 export default async function Home() {
-  const { data: film } = await supabase
+  // Fetch the film with id = 1 from your database
+  const { data: film, error } = await supabase
     .from('films')
     .select('*')
     .eq('id', 1)
     .single()
 
-  if (!film) {
-    return <div className="min-h-screen bg-black text-white flex items-center justify-center">Film not found</div>
+  // Show error if film not found or Supabase fails
+  if (error || !film) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">Film not found</h1>
+          <p className="text-gray-400">Check your Supabase table and RLS policies</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <div className="relative h-screen">
+    <main className="min-h-screen bg-black text-white overflow-hidden">
+      {/* Trailer Video Background */}
+      <div className="relative h-screen w-full">
         <iframe
-          src={`https://www.youtube.com/embed/${film.trailer_youtube_id}?autoplay=1&mute=1&controls=0&loop=1&playlist=${film.trailer_youtube_id}`}
-          className="w-full h-full object-cover"
-          allow="autoplay"
+          src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${film.trailer_video_id}?autoplay=true&loop=true&muted=true&preload=true`}
+          loading="eager"
+          className="absolute top-1/2 left-1/2 w-full h-full -translate-x-1/2 -translate-y-1/2 object-cover scale-150"
+          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+          allowFullScreen={true}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-        <div className="absolute bottom-0 left-0 p-8 md:p-16">
-          <h1 className="text-5xl md:text-7xl font-bold mb-4">{film.title}</h1>
-          <p className="text-lg md:text-xl max-w-2xl mb-6">{film.description}</p>
-          <div className="flex gap-4">
-            <button className="bg-white text-black px-8 py-3 rounded font-bold hover:bg-gray-200">
-              ▶ Play
-            </button>
-            <button className="bg-gray-500/70 px-8 py-3 rounded font-bold hover:bg-gray-500/50">
-              More Info
-            </button>
-          </div>
-        </div>
-      </div>
-    </main>
-  )
-}
+        
+        {/* Dark Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent" />
+
+        {/* Film Info */}
+        <div className="absolute bottom-0 left-0 p-6 md:p-16 w-full">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl md:text-7xl font-bold mb-4 drop-shadow-lg">
+              {film.title}
+            </
