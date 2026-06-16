@@ -4,17 +4,35 @@
     "title": "Neon Horizon",
     "description": "A rogue detective in Neo-Kinshasa uncovers a conspiracy that reaches the orbital colonies. A 4th Ground original.",
     "poster_url": "https://mzone.b-cdn.net/vlcsnap-2026-06-01-04h48m45s377.png",
-    "trailer_video_id": "75a298a6-7517-4d6e-afea-9274e38081f6",
+    "video_id": "75a298a6-7517-4d6e-afea-9274e38081f6",
+    "genre": "Sci-Fi · Thriller",
+    "rating": "TV-MA",
     "rent_price_cents": 399,
-    "buy_price_cents": 1499
+    "buy_price_cents": 1499,
+    "tag": "New Release"
   },
   {
     "id": 2,
     "title": "Ghost Protocol",
     "description": "When AI memories start leaking into reality, one hacker must choose between truth and survival.",
     "poster_url": "https://mzone.b-cdn.net/vlcsnap-2026-06-01-04h48m45s377.png",
-    "trailer_video_id": "75a298a6-7517-4d6e-afea-9274e38081f6",
+    "video_id": "75a298a6-7517-4d6e-afea-9274e38081f6",
+    "genre": "Action · Crime",
+    "rating": "TV-MA",
     "rent_price_cents": 499,
-    "buy_price_cents": 1999
+    "buy_price_cents": 1999,
+    "tag": "Trending Now"
+  },
+  {
+    "id": 3,
+    "title": "Echo Chamber",
+    "description": "In a world where your thoughts are broadcast, silence is the ultimate rebellion.",
+    "poster_url": "https://mzone.b-cdn.net/vlcsnap-2026-06-01-04h48m45s377.png",
+    "video_id": "75a298a6-7517-4d6e-afea-9274e38081f6",
+    "genre": "Drama · Mystery",
+    "rating": "TV-MA",
+    "rent_price_cents": 399,
+    "buy_price_cents": 1499,
+    "tag": "4th Ground Original"
   }
 ]
