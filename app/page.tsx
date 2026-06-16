@@ -25,9 +25,9 @@ export default function WatchPage() {
     <div className="min-h-screen bg-black text-white">
       {showPlayer ? (
         <div className="fixed inset-0 bg-black z-50">
-          <button onClick={() => setShowPlayer(false)} className="absolute top-4 right-4 z-50 text-2xl">✕</button>
+          <button onClick={() => setShowPlayer(false)} className="absolute top-4 right-4 z-50 text-2xl bg-black/50 rounded-full w-10 h-10">✕</button>
           <iframe
-            src={`https://iframe.mediadelivery.net/embed/YOUR_BUNNY_LIBRARY_ID/${film.trailer_video_id}?autoplay=true`}
+            src={`https://iframe.mediadelivery.net/embed/684349/${film.trailer_video_id}?autoplay=true`}
             loading="lazy"
             className="w-full h-full border-0"
             allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
@@ -39,7 +39,7 @@ export default function WatchPage() {
           className="h-screen w-full bg-cover bg-center relative"
           style={{ backgroundImage: `url(${film.poster_url})` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
           
           <div className="absolute bottom-0 left-0 p-8 md:p-16 max-w-3xl">
             <h1 className="text-5xl md:text-7xl font-bold mb-4">{film.title}</h1>
