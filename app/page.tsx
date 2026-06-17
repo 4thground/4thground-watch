@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Script from 'next/script'
 import films from '../data/films.json'
 
@@ -7,58 +7,12 @@ export default function Home() {
   const BUNNY_LIBRARY_ID = '684349'
   const [activeFilm, setActiveFilm] = useState(films[0])
   const [isPlaying, setIsPlaying] = useState(false)
-  const [gumroadReady, setGumroadReady] = useState(false)
 
   const suggestedFilms = films.filter(f => f.id!== activeFilm.id)
 
-  useEffect(() => {
-    // Check if Gumroad loaded
-    const checkGumroad = () => {
-      // @ts-ignore
-      if (window.GumroadOverlay) {
-        setGumroadReady(true)
-        console.log('Gumroad loaded')
-      } else {
-        console.log('Gumroad not ready yet')
-      }
-    }
-
-    // Check immediately and after script loads
-    checkGumroad()
-    const timer = setTimeout(checkGumroad, 2000)
-    return () => clearTimeout(timer)
-  }, [])
-
-  const handleGumroadClick = (url: string, e: React.MouseEvent) => {
-    e.preventDefault()
-    console.log('Button clicked, url:', url)
-
-    // @ts-ignore
-    if (window.GumroadOverlay) {
-      console.log('Opening overlay')
-      // @ts-ignore
-      window.GumroadOverlay.open(url)
-    } else {
-      console.log('Overlay failed, opening in new tab')
-      // Fallback: open in new tab if overlay fails
-      window.open(url, '_blank')
-    }
-  }
-
   return (
     <>
-      <Script
-        src="https://gumroad.com/js/gumroad.js"
-        strategy="afterInteractive"
-        onLoad={() => {
-          console.log('Gumroad script loaded')
-          // @ts-ignore
-          if (window.GumroadOverlay) setGumroadReady(true)
-        }}
-        onError={() => {
-          console.error('Gumroad script failed to load')
-        }}
-      />
+      <Script src="https://gumroad.com/js/gumroad.js" />
 
       <main className="bg-black min-h-screen text-white">
         {/* Hero Section */}
@@ -120,19 +74,19 @@ export default function Home() {
                       Trailer
                     </button>
 
-                    <button
-                      onClick={(e) => handleGumroadClick(activeFilm.rent_link, e)}
-                      className="bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition"
+                    <a
+                      href={activeFilm.rent_link}
+                      className="gumroad-button bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition"
                     >
                       Rent ${(activeFilm.rent_price_cents / 100).toFixed(2)}
-                    </button>
+                    </a>
 
-                    <button
-                      onClick={(e) => handleGumroadClick(activeFilm.buy_link, e)}
-                      className="bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition"
+                    <a
+                      href={activeFilm.buy_link}
+                      className="gumroad-button bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition"
                     >
                       Buy ${(activeFilm.buy_price_cents / 100).toFixed(2)}
-                    </button>
+                    </a>
 
                     <button className="w-12 h-12 rounded-full bg-zinc-800/80 backdrop-blur hover:bg-zinc-700 transition flex items-center justify-center">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,7 +142,6 @@ export default function Home() {
                       </svg>
                     </div>
                   </div>
-                </div>
                 <h3 className="font-semibold text-sm">{film.title}</h3>
                 <p className="text-xs text-zinc-400">{film.genre}</p>
               </div>
@@ -197,12 +150,24 @@ export default function Home() {
         </div>
 
         <style jsx global>{`
-    .scrollbar-hide::-webkit-scrollbar {
+        .scrollbar-hide::-webkit-scrollbar {
             display: none;
           }
-    .scrollbar-hide {
+        .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
+          }
+
+          /* Kill Gumroad branding */
+        .gumroad-button.gumroad-logo,
+        .gumroad-button svg {
+            display: none!important;
+          }
+        .gumroad-button {
+            text-decoration: none!important;
+          }
+        .gumroad-button:before {
+            content: none!important;
           }
         `}</style>
       </main>
