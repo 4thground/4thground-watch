@@ -10,9 +10,20 @@ export default function Home() {
 
   const suggestedFilms = films.filter(f => f.id!== activeFilm.id)
 
+  const openGumroadOverlay = (url: string) => {
+    // @ts-ignore
+    if (window.GumroadOverlay) {
+      // @ts-ignore
+      window.GumroadOverlay.open(url);
+    }
+  }
+
   return (
     <>
-      <Script src="https://gumroad.com/js/gumroad.js" />
+      <Script
+        src="https://gumroad.com/js/gumroad.js"
+        strategy="beforeInteractive"
+      />
 
       <main className="bg-black min-h-screen text-white">
         {/* Hero Section */}
@@ -69,26 +80,30 @@ export default function Home() {
                       className="bg-white text-black font-semibold px-8 py-3 rounded-md hover:bg-zinc-200 transition flex items-center gap-2"
                     >
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                        <path d="M6.3 2.841A1.5 0 004 4.11V15.89a1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
                       </svg>
-                      Play Trailer
+                      Trailer
                     </button>
 
-                    <a
-                      href={activeFilm.rent_link}
-                      className="gumroad-button bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition"
-                      data-gumroad-overlay-checkout="true"
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openGumroadOverlay(activeFilm.rent_link);
+                      }}
+                      className="bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition"
                     >
                       Rent ${(activeFilm.rent_price_cents / 100).toFixed(2)}
-                    </a>
+                    </button>
 
-                    <a
-                      href={activeFilm.buy_link}
-                      className="gumroad-button bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition"
-                      data-gumroad-overlay-checkout="true"
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openGumroadOverlay(activeFilm.buy_link);
+                      }}
+                      className="bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition"
                     >
                       Buy ${(activeFilm.buy_price_cents / 100).toFixed(2)}
-                    </a>
+                    </button>
 
                     <button className="w-12 h-12 rounded-full bg-zinc-800/80 backdrop-blur hover:bg-zinc-700 transition flex items-center justify-center">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,7 +155,7 @@ export default function Home() {
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-center justify-center">
                     <div className="w-12 h-12 rounded-full bg-white/90 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                       <svg className="w-6 h-6 text-black ml-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                        <path d="M6.3 2.841A1.5 0 004 4.11V15.89a1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
                       </svg>
                     </div>
                   </div>
@@ -153,10 +168,10 @@ export default function Home() {
         </div>
 
         <style jsx global>{`
-        .scrollbar-hide::-webkit-scrollbar {
+      .scrollbar-hide::-webkit-scrollbar {
             display: none;
           }
-        .scrollbar-hide {
+      .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
           }
