@@ -7,7 +7,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://gumroad.com https://*.gumroad.com; frame-src 'self' https://iframe.mediadelivery.net https://player.mediadelivery.net https://gumroad.com https://*.gumroad.com; connect-src 'self' https://gumroad.com https://*.gumroad.com https://api.gumroad.com; img-src 'self' https: data:;"
+            value: "frame-src 'self' https://gumroad.com https://*.gumroad.com https://iframe.mediadelivery.net https://player.mediadelivery.net; connect-src 'self' https://gumroad.com https://*.gumroad.com https://api.gumroad.com; img-src 'self' https: data:; style-src 'self' 'unsafe-inline';"
           }
         ]
       }
