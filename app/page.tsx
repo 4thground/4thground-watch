@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Script from 'next/script'
 import films from '../data/films.json'
 
@@ -7,14 +7,32 @@ export default function Home() {
   const BUNNY_LIBRARY_ID = '684349'
   const [activeFilm, setActiveFilm] = useState(films[0])
   const [isPlaying, setIsPlaying] = useState(false)
+  const [gumroadReady, setGumroadReady] = useState(false)
 
   const suggestedFilms = films.filter(f => f.id!== activeFilm.id)
+
+  useEffect(() => {
+    // Check if Gumroad loaded every 500ms for 5 seconds
+    let attempts = 0;
+    const checkGumroad = setInterval(() => {
+      // @ts-ignore
+      if (window.GumroadOverlay) {
+        setGumroadReady(true)
+        clearInterval(checkGumroad)
+      }
+      attempts++
+      if (attempts > 10) clearInterval(checkGumroad)
+    }, 500)
+  }, [])
 
   const openGumroadOverlay = (url: string) => {
     // @ts-ignore
     if (window.GumroadOverlay) {
       // @ts-ignore
       window.GumroadOverlay.open(url);
+    } else {
+      console.error('Gumroad script not loaded yet')
+      alert('Checkout is loading. Please try again in a second.')
     }
   }
 
@@ -23,6 +41,10 @@ export default function Home() {
       <Script
         src="https://gumroad.com/js/gumroad.js"
         strategy="beforeInteractive"
+        onLoad={() => {
+          // @ts-ignore
+          if (window.GumroadOverlay) setGumroadReady(true)
+        }}
       />
 
       <main className="bg-black min-h-screen text-white">
@@ -90,7 +112,8 @@ export default function Home() {
                         e.preventDefault();
                         openGumroadOverlay(activeFilm.rent_link);
                       }}
-                      className="bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition"
+                      disabled={!gumroadReady}
+                      className="bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Rent ${(activeFilm.rent_price_cents / 100).toFixed(2)}
                     </button>
@@ -100,7 +123,8 @@ export default function Home() {
                         e.preventDefault();
                         openGumroadOverlay(activeFilm.buy_link);
                       }}
-                      className="bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition"
+                      disabled={!gumroadReady}
+                      className="bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Buy ${(activeFilm.buy_price_cents / 100).toFixed(2)}
                     </button>
@@ -168,10 +192,10 @@ export default function Home() {
         </div>
 
         <style jsx global>{`
-      .scrollbar-hide::-webkit-scrollbar {
+     .scrollbar-hide::-webkit-scrollbar {
             display: none;
           }
-      .scrollbar-hide {
+     .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
           }
