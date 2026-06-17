@@ -12,27 +12,36 @@ export default function Home() {
   const suggestedFilms = films.filter(f => f.id!== activeFilm.id)
 
   useEffect(() => {
-    // Check if Gumroad loaded every 500ms for 5 seconds
-    let attempts = 0;
-    const checkGumroad = setInterval(() => {
+    // Check if Gumroad loaded
+    const checkGumroad = () => {
       // @ts-ignore
       if (window.GumroadOverlay) {
         setGumroadReady(true)
-        clearInterval(checkGumroad)
+        console.log('Gumroad loaded')
+      } else {
+        console.log('Gumroad not ready yet')
       }
-      attempts++
-      if (attempts > 10) clearInterval(checkGumroad)
-    }, 500)
+    }
+
+    // Check immediately and after script loads
+    checkGumroad()
+    const timer = setTimeout(checkGumroad, 2000)
+    return () => clearTimeout(timer)
   }, [])
 
-  const openGumroadOverlay = (url: string) => {
+  const handleGumroadClick = (url: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    console.log('Button clicked, url:', url)
+
     // @ts-ignore
     if (window.GumroadOverlay) {
+      console.log('Opening overlay')
       // @ts-ignore
-      window.GumroadOverlay.open(url);
+      window.GumroadOverlay.open(url)
     } else {
-      console.error('Gumroad script not loaded yet')
-      alert('Checkout is loading. Please try again in a second.')
+      console.log('Overlay failed, opening in new tab')
+      // Fallback: open in new tab if overlay fails
+      window.open(url, '_blank')
     }
   }
 
@@ -40,10 +49,14 @@ export default function Home() {
     <>
       <Script
         src="https://gumroad.com/js/gumroad.js"
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
         onLoad={() => {
+          console.log('Gumroad script loaded')
           // @ts-ignore
           if (window.GumroadOverlay) setGumroadReady(true)
+        }}
+        onError={() => {
+          console.error('Gumroad script failed to load')
         }}
       />
 
@@ -108,23 +121,15 @@ export default function Home() {
                     </button>
 
                     <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        openGumroadOverlay(activeFilm.rent_link);
-                      }}
-                      disabled={!gumroadReady}
-                      className="bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={(e) => handleGumroadClick(activeFilm.rent_link, e)}
+                      className="bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition"
                     >
                       Rent ${(activeFilm.rent_price_cents / 100).toFixed(2)}
                     </button>
 
                     <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        openGumroadOverlay(activeFilm.buy_link);
-                      }}
-                      disabled={!gumroadReady}
-                      className="bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={(e) => handleGumroadClick(activeFilm.buy_link, e)}
+                      className="bg-zinc-800/80 backdrop-blur text-white font-semibold px-8 py-3 rounded-md hover:bg-zinc-700 transition"
                     >
                       Buy ${(activeFilm.buy_price_cents / 100).toFixed(2)}
                     </button>
@@ -192,10 +197,10 @@ export default function Home() {
         </div>
 
         <style jsx global>{`
-     .scrollbar-hide::-webkit-scrollbar {
+    .scrollbar-hide::-webkit-scrollbar {
             display: none;
           }
-     .scrollbar-hide {
+    .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
           }
