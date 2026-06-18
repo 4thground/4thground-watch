@@ -42,13 +42,13 @@ export default function Home() {
           className="absolute inset-0 w-full h-full object-cover object-top"
           alt={featured.title}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
-        <div className="absolute bottom-4 left-6 md:left-12 max-w-3xl pr-6">
-          <h1 className="text-6xl md:text-8xl font-bold mb-4 tracking-tight">{featured.title}</h1>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
+        <div className="absolute bottom-6 left-6 md:left-12 max-w-2xl pr-6">
+          <h1 className="text-4xl md:text-6xl font-bold mb-3 tracking-tight">{featured.title}</h1>
 
           {/* Metadata Row */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-300 mb-4">
-            {featured.rating && <span className="px-2 py-0.5 border border-zinc-500 rounded text-xs">{featured.rating}</span>}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-300 mb-3">
+            {featured.rating && <span className="px-1.5 py-0.5 border border-zinc-500 rounded text-xs">{featured.rating}</span>}
             {featured.year && <span>{featured.year}</span>}
             {featured.genre && <span>•</span>}
             {featured.genre && <span>{featured.genre}</span>}
@@ -60,21 +60,21 @@ export default function Home() {
 
           {/* Cast & Director */}
           {featured.director && (
-            <p className="text-zinc-300 mb-1">
+            <p className="text-zinc-300 mb-1 text-sm">
               <span className="text-zinc-500">Director:</span> {featured.director}
             </p>
           )}
           {featured.cast && featured.cast.length > 0 && (
-            <p className="text-zinc-300 mb-4">
+            <p className="text-zinc-300 mb-3 text-sm">
               <span className="text-zinc-500">Starring:</span> {featured.cast.join(', ')}
             </p>
           )}
 
-          <p className="text-lg text-zinc-200 mb-8 max-w-xl leading-relaxed">{featured.description}</p>
+          <p className="text-sm text-zinc-200 mb-5 max-w-xl leading-relaxed line-clamp-2">{featured.description}</p>
 
           <Link
             href={`/film/${featured.id}`}
-            className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg inline-block"
+            className="bg-white text-black font-semibold px-6 py-3 rounded-full hover:bg-zinc-200 transition text-base inline-block"
           >
             Watch Now
           </Link>
@@ -93,7 +93,7 @@ export default function Home() {
                 <Link
                   key={film.id}
                   href={`/film/${film.id}`}
-                  className="group flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start"
+                  className="group flex-shrink-0 w- sm:w- md:w- lg:w- snap-start"
                 >
                   <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105">
                     <img
@@ -122,7 +122,7 @@ export default function Home() {
               {comingSoonFilms.map((film: any) => (
                 <div
                   key={film.id}
-                  className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start"
+                  className="flex-shrink-0 w- sm:w- md:w- lg:w- snap-start"
                 >
                   <div className="rounded-lg overflow-hidden relative">
                     <img
@@ -155,10 +155,10 @@ export default function Home() {
       </div>
 
       <style jsx global>{`
-      .scrollbar-hide::-webkit-scrollbar {
+     .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
-      .scrollbar-hide {
+     .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
