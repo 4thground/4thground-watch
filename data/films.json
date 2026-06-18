@@ -7,8 +7,8 @@
   "description": "A 4th Ground thriller about...",
   "poster_url": "/posters/luselo.jpg",
   "bunny_library_id": "684349",
-  "bunny_video_id": "8c8e2b1a-4d5f-4c9e-9a1b-2c3d4e5f6a7b", // Real UUID from Bunny
-  "bunny_trailer_id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d", // Real UUID from Bunny
+  "bunny_video_id": "75a298a6-7517-4d6e-afea-9274e38081f6", // Real UUID from Bunny
+  "bunny_trailer_id": "75a298a6-7517-4d6e-afea-9274e38081f6", // Real UUID from Bunny
   "rent_price_cents": 3900,
   "buy_price_cents": 9900
 }
