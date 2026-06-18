@@ -3,6 +3,9 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import films from '@/data/films.json'
 
+// Rough ZAR to USD rate - update this manually or use an API later
+const ZAR_TO_USD_RATE = 18.5 
+
 export default function FilmPage({ params }: { params: {id: string} }) {
   const film = films.find(f => f.id === params.id)
   
@@ -13,6 +16,12 @@ export default function FilmPage({ params }: { params: {id: string} }) {
   const [showTrailerEnd, setShowTrailerEnd] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const playerRef = useRef<HTMLIFrameElement>(null)
+
+  // Helper: Convert ZAR cents to USD for display
+  const zarToUsd = (zarCents: number) => {
+    const usd = (zarCents / 100) / ZAR_TO_USD_RATE
+    return usd.toFixed(2)
+  }
 
   // Load email + check access from localStorage
   useEffect(() => {
@@ -30,20 +39,18 @@ export default function FilmPage({ params }: { params: {id: string} }) {
         if (expires > Date.now()) {
           setAccess({ type, expires, progress })
         } else {
-          localStorage.removeItem(key) // expired
+          localStorage.removeItem(key)
         }
       }
     }
   }, [film.id])
 
-  // Fullscreen detection for hiding "Watch More"
   useEffect(() => {
     const handleFullscreen = () => setIsFullscreen(!!document.fullscreenElement)
     document.addEventListener('fullscreenchange', handleFullscreen)
     return () => document.removeEventListener('fullscreenchange', handleFullscreen)
   }, [])
 
-  // Save watch progress + detect trailer end
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       if (e.origin !== 'https://iframe.mediadelivery.net') return
@@ -70,16 +77,15 @@ export default function FilmPage({ params }: { params: {id: string} }) {
     const handler = (window as any).PaystackPop.setup({
       key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
       email,
-      amount,
-      currency: 'USD', // Changed to USD
+      amount, // This is ZAR cents
+      currency: 'ZAR', // Charge in ZAR
       metadata: { film_id: film.id, type },
       callback: function(response: any) {
-        // Save to localStorage immediately - no server verify yet
         const key = `4g_access_${film.id}_${email}`
         localStorage.setItem(key, JSON.stringify({ 
           reference: response.reference, 
           type,
-          paidAt: Date.now() // Save time of payment locally
+          paidAt: Date.now()
         }))
         alert('Payment successful! Loading film...')
         setTimeout(() => window.location.reload(), 1000)
@@ -109,10 +115,10 @@ export default function FilmPage({ params }: { params: {id: string} }) {
     return (
       <div className="flex gap-3 justify-center">
         <button onClick={() => payWithPaystack('rent')} className="bg-[#2FEB74] text-black font-bold px-6 py-3 rounded-lg">
-          Rent ${film.rent_price_cents/100}
+          Rent ${zarToUsd(film.rent_price_cents)}
         </button>
         <button onClick={() => payWithPaystack('buy')} className="bg-zinc-800 text-white font-bold px-6 py-3 rounded-lg border border-zinc-700">
-          Buy ${film.buy_price_cents/100}
+          Buy ${zarToUsd(film.buy_price_cents)}
         </button>
       </div>
     )
@@ -126,7 +132,6 @@ export default function FilmPage({ params }: { params: {id: string} }) {
     <div className="max-w-6xl mx-auto px-4 py-8">
       <script src="https://js.paystack.co/v1/inline.js"></script>
       
-      {/* Player */}
       <div className="aspect-video bg-black rounded-xl overflow-hidden relative">
         <iframe 
           ref={playerRef}
@@ -136,7 +141,6 @@ export default function FilmPage({ params }: { params: {id: string} }) {
           allowFullScreen
         />
         
-        {/* Trailer End Overlay */}
         {showTrailerEnd && !access && (
           <div className="absolute inset-0 bg-black/90 flex items-center justify-center p-4">
             <div className="text-center max-w-md">
@@ -148,7 +152,6 @@ export default function FilmPage({ params }: { params: {id: string} }) {
         )}
       </div>
 
-      {/* Title + Email + Buttons */}
       <div className="mt-6 text-center">
         <h1 className="text-3xl font-bold mb-2">{film.title}</h1>
         <p className="text-zinc-400 mb-6 max-w-2xl mx-auto">{film.description}</p>
@@ -162,6 +165,7 @@ export default function FilmPage({ params }: { params: {id: string} }) {
         />
         
         {renderButton()}
+        <p className="text-xs text-zinc-500 mt-2">Charged in ZAR. Approx USD shown.</p>
         
         {access && access.expires !== Infinity && (
           <p className="text-xs text-zinc-500 mt-3">
@@ -170,7 +174,6 @@ export default function FilmPage({ params }: { params: {id: string} }) {
         )}
       </div>
 
-      {/* Watch More - hidden in fullscreen */}
       {!isFullscreen && otherFilms.length > 0 && (
         <div className="mt-16">
           <h3 className="text-2xl font-bold mb-6">Watch More from 4th Ground</h3>
@@ -181,7 +184,7 @@ export default function FilmPage({ params }: { params: {id: string} }) {
                   <img src={f.poster_url} alt={f.title} className="aspect-[2/3] object-cover group-hover:opacity-80" />
                   <div className="p-3">
                     <p className="font-semibold truncate">{f.title}</p>
-                    <p className="text-sm text-[#2FEB74]">From ${f.rent_price_cents/100}</p>
+                    <p className="text-sm text-[#2FEB74]">From ${zarToUsd(f.rent_price_cents)}</p>
                   </div>
                 </div>
               </Link>
