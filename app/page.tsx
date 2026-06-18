@@ -51,9 +51,7 @@ export default function Home() {
       }
     });
     handler.openIframe();
-  };
-
-  return (
+return (
     <main className="min-h-screen bg-[#141414] text-white">
       <div
         className="relative h-[60vh] w-full bg-cover bg-center"
