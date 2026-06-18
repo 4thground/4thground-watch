@@ -2,7 +2,7 @@ import Link from 'next/link'
 import films from '@/data/films.json'
 
 export default function Home() {
-  const featured = films[0] // first film as hero
+  const featured = films[0]
 
   return (
     <main className="min-h-screen bg-[#141414] text-white">
