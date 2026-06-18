@@ -1,14 +1,16 @@
-{
-  "id": "luselo",
-  "title": "Luselo",
-  "tag": "New Release",
-  "genre": "Thriller", 
-  "rating": "16",
-  "description": "A 4th Ground thriller about...",
-  "poster_url": "/posters/luselo.jpg",
-  "bunny_library_id": "684349",
-  "bunny_video_id": "75a298a6-7517-4d6e-afea-9274e38081f6", // Real UUID from Bunny
-  "bunny_trailer_id": "75a298a6-7517-4d6e-afea-9274e38081f6", // Real UUID from Bunny
-  "rent_price_cents": 3900,
-  "buy_price_cents": 9900
-}
+[
+  {
+    "id": "luselo",
+    "title": "Luselo",
+    "tag": "New Release",
+    "genre": "Thriller",
+    "rating": "16",
+    "description": "A 4th Ground thriller about...",
+    "poster_url": "/posters/luselo.jpg",
+    "bunny_library_id": "684349",
+    "bunny_video_id": "75a298a6-7517-4d6e-afea-9274e38081f6",
+    "bunny_trailer_id": "75a298a6-7517-4d6e-afea-9274e38081f6",
+    "rent_price_cents": 399,
+    "buy_price_cents": 999
+  }
+]
