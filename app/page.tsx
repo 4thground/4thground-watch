@@ -36,14 +36,14 @@ export default function Home() {
       </div>
 
       {/* Hero */}
-      <div className="relative h-screen w-full pt-16">
+      <div className="relative h-[100svh] w-full pt-16">
         <img
           src={featured.poster_url}
           className="absolute inset-0 w-full h-full object-cover object-top"
           alt={featured.title}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-        <div className="absolute top-[60%] left-6 md:left-12 max-w-3xl pr-6">
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+        <div className="absolute bottom-8 left-6 md:left-12 max-w-3xl pr-6">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 tracking-tight">{featured.title}</h1>
 
           {/* Metadata Row */}
@@ -93,7 +93,7 @@ export default function Home() {
                 <Link
                   key={film.id}
                   href={`/film/${film.id}`}
-                  className="group flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start"
+                  className="group flex-shrink-0 w- sm:w- md:w- lg:w- snap-start"
                 >
                   <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105">
                     <img
@@ -122,7 +122,7 @@ export default function Home() {
               {comingSoonFilms.map((film: any) => (
                 <div
                   key={film.id}
-                  className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start"
+                  className="flex-shrink-0 w- sm:w- md:w- lg:w- snap-start"
                 >
                   <div className="rounded-lg overflow-hidden relative">
                     <img
@@ -155,10 +155,10 @@ export default function Home() {
       </div>
 
       <style jsx global>{`
-      .scrollbar-hide::-webkit-scrollbar {
+     .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
-      .scrollbar-hide {
+     .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
