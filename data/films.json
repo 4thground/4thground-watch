@@ -1,11 +1,11 @@
 [
   {
     "id": "luselo",
-    "title": "Luselo",
-    "tag": "New Release",
-    "genre": "Thriller",
+    "title": "El Hombre De La Luz",
+    "tag": "Now Streaming",
+    "genre": "Sci-Fi",
     "rating": "16",
-    "description": "A 4th Ground thriller about...",
+    "description": "In the remote village of Los Nevados, Isidro Zambrano, a brilliant technologist, hides a dark past marked by the tragic loss of his parents and wife.",
     "poster_url": "/posters/luselo.jpg",
     "backdrop_url": "/posters/luselo-backdrop.jpg",
     "bunny_library_id": "684349",
@@ -15,13 +15,13 @@
     "buy_price_cents": 9900,
     "available": true,
     "year": 2026,
-    "language": "English",
-    "director": "Your Director Name",
-    "cast": ["Lead Actor", "Actor Two", "Actor Three"]
+    "language": "Spanish",
+    "director": "Christian Márquez",
+    "cast": ["Mariangel Davila"]
   },
   {
     "id": "coming-soon-1",
-    "title": "Next Film Title",
+    "title": "Smokers",
     "tag": "Coming Soon",
     "genre": "Drama",
     "rating": "13",
