@@ -1,82 +1,43 @@
-'use client';
-import { useState } from 'react';
-import filmsData from '@/data/films.json';
-
-type Film = {
-  id: string;
-  title: string;
-  tag: string;
-  genre: string;
-  rating: string;
-  description: string;
-  poster_url: string;
-  bunny_library_id: string;
-  bunny_video_id: string;
-  bunny_trailer_id: string;
-  rent_price_cents: number;
-  buy_price_cents: number;
-};
-
-const films: Film[] = filmsData;
+import Link from 'next/link'
+import films from '@/data/films.json'
 
 export default function Home() {
-  const [activeFilm, setActiveFilm] = useState<Film>(films[0]);
+  const featured = films[0] // first film as hero
 
-  const formatPrice = (cents: number) => {
-    return (cents / 100).toLocaleString('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    });
-  };
-
-  const handlePaystack = (priceInCents: number, type: 'Rent' | 'Buy') => {
-    const handler = window.PaystackPop.setup({
-      key: 'pk_test_a791af4cb2299bd3a6dd12c0469a4be5f466d8ef', // Replace with pk_live_... for production
-      email: 'customer@example.com', // TODO: Replace with actual user email input
-      amount: priceInCents,
-      currency: 'USD',
-      ref: `${activeFilm.id}-${type}-${Date.now()}`,
-      metadata: {
-        film_id: activeFilm.id,
-        film_title: activeFilm.title,
-        purchase_type: type,
-      },
-      callback: function(response: any) {
-        alert('Payment complete! Reference: ' + response.reference);
-        // TODO: Redirect to watch page or unlock content
-        // window.location.href = `/watch/${activeFilm.id}?ref=${response.reference}`;
-      },
-      onClose: function() {
-        alert('Transaction cancelled');
-      }
-    });
-    handler.openIframe();
-return (
+  return (
     <main className="min-h-screen bg-[#141414] text-white">
       <div
         className="relative h-[60vh] w-full bg-cover bg-center"
-        style={{ backgroundImage: `url(${activeFilm.poster_url})` }}
+        style={{ backgroundImage: `url(${featured.poster_url})` }}
       >
-        <div className="absolute inset-0 bg-black/60 bg-gradient-to-t from-[#141414] via-transparent to-black/30"></div>
-        <div className="relative z-10 flex h-full flex-col justify-end p-4 pb-20 md:p-16">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="bg-[#E50914] px-2 py-1 text-xs font-bold rounded">{activeFilm.tag}</span>
-            <span className="text-sm">{activeFilm.genre}</span>
-            <span className="border border-gray-400 px-2 py-0.5 text-xs">{activeFilm.rating}</span>
-          </div>
-          <h1 className="text-4xl md:text-6xl font-bold" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}>
-            {activeFilm.title}
-          </h1>
-          <p className="max-w-xl mt-4 text-lg" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.7)' }}>
-            {activeFilm.description}
-          </p>
-          <div className="mt-6 flex flex-wrap gap-4">
-            <button
-              onClick={() => handlePaystack(activeFilm.rent_price_cents, 'Rent')}
-              className="bg-[#E50914] text-white font-bold px-8 py-3 rounded-md hover:bg-red-700 transition"
-            >
-              Rent {formatPrice(activeFilm.rent_price_cents)}
-            </button>
-            <button
-              onClick={() => handlePaystack(activeFilm.buy_price_cents, 'Buy')}
-              className="bg-zinc-800/80 backdrop-blur text-white font-semibold px-8
+        <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/50 to-transparent" />
+        <div className="absolute bottom-10 left-10">
+          <h1 className="text-5xl font-bold mb-4">{featured.title}</h1>
+          <Link
+            href={`/film/${featured.id}`}
+            className="bg-[#2FEB74] text-black font-bold px-8 py-3 rounded-lg"
+          >
+            Watch Now
+          </Link>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <h2 className="text-2xl font-bold mb-6">All Films</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {films.map((film: any) => (
+            <Link key={film.id} href={`/film/${film.id}`} className="group">
+              <div className="bg-zinc-900 rounded-lg overflow-hidden">
+                <img src={film.poster_url} alt={film.title} className="aspect-[2/3] object-cover group-hover:opacity-80" />
+                <div className="p-3">
+                  <p className="font-semibold truncate">{film.title}</p>
+                  <p className="text-sm text-[#2FEB74]">From ${film.rent_price_cents/100}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </main>
+  )
+}
