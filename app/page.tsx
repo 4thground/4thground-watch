@@ -36,14 +36,14 @@ export default function Home() {
       </div>
 
       {/* Hero */}
-      <div className="relative h-screen w-full">
+      <div className="relative h-[100svh] w-full pt-16">
         <img
           src={featured.poster_url}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover object-top"
           alt={featured.title}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-        <div className="absolute bottom-24 left-6 md:left-12 max-w-3xl">
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+        <div className="absolute bottom-4 left-6 md:left-12 max-w-3xl pr-6">
           <h1 className="text-6xl md:text-8xl font-bold mb-4 tracking-tight">{featured.title}</h1>
 
           {/* Metadata Row */}
@@ -155,10 +155,10 @@ export default function Home() {
       </div>
 
       <style jsx global>{`
-       .scrollbar-hide::-webkit-scrollbar {
+      .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
-       .scrollbar-hide {
+      .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
