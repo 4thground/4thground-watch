@@ -1,8 +1,9 @@
 import './globals.css'
+import Script from 'next/script'
 
 export const metadata = {
   title: '4thground Watch',
-  description: 'Watch app',
+  description: 'Watch 4th Ground films',
 }
 
 export default function RootLayout({
@@ -12,7 +13,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Script 
+          src="https://js.paystack.co/v1/inline.js" 
+          strategy="beforeInteractive" 
+        />
+        {children}
+      </body>
     </html>
   )
 }
