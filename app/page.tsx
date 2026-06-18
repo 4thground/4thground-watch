@@ -43,8 +43,8 @@ export default function Home() {
           alt={featured.title}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-        <div className="absolute top-[70%] left-6 md:left-12 max-w-3xl pr-6">
-          <h1 className="text-6xl md:text-8xl font-bold mb-4 tracking-tight">{featured.title}</h1>
+        <div className="absolute top-[60%] left-6 md:left-12 max-w-3xl pr-6">
+          <h1 className="text-5xl md:text-7xl font-bold mb-4 tracking-tight">{featured.title}</h1>
 
           {/* Metadata Row */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-300 mb-4">
@@ -70,7 +70,7 @@ export default function Home() {
             </p>
           )}
 
-          <p className="text-lg text-zinc-200 mb-8 max-w-xl leading-relaxed">{featured.description}</p>
+          <p className="text-base text-zinc-200 mb-6 max-w-xl leading-relaxed line-clamp-3">{featured.description}</p>
 
           <Link
             href={`/film/${featured.id}`}
