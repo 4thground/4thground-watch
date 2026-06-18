@@ -43,7 +43,7 @@ export default function Home() {
           alt={featured.title}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-        <div className="absolute bottom-24 left-6 md:left-12 max-w-3xl">
+        <div className="absolute top-[65%] left-6 md:left-12 max-w-3xl">
           <h1 className="text-6xl md:text-8xl font-bold mb-4 tracking-tight">{featured.title}</h1>
 
           {/* Metadata Row */}
