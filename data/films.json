@@ -3,14 +3,28 @@
     "id": "luselo",
     "title": "Luselo",
     "tag": "New Release",
-    "genre": "Thriller",
+    "genre": "Thriller", 
     "rating": "16",
-    "description": "A 4th Ground thriller.",
+    "description": "A 4th Ground thriller about...",
     "poster_url": "/posters/luselo.jpg",
     "bunny_library_id": "684349",
-    "bunny_video_id": "abc-123-full",
-    "bunny_trailer_id": "abc-123-trailer",
+    "bunny_video_id": "your-full-film-id-here",
+    "bunny_trailer_id": "your-trailer-id-here",
     "rent_price_cents": 3900,
     "buy_price_cents": 9900
+  },
+  {
+    "id": "another-film",
+    "title": "Another Film",
+    "tag": "Featured",
+    "genre": "Drama",
+    "rating": "13",
+    "description": "Description here...",
+    "poster_url": "/posters/another.jpg",
+    "bunny_library_id": "684349", 
+    "bunny_video_id": "full-id-2",
+    "bunny_trailer_id": "trailer-id-2",
+    "rent_price_cents": 2900,
+    "buy_price_cents": 7900
   }
 ]
