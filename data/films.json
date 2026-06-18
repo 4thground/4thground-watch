@@ -7,10 +7,36 @@
     "rating": "16",
     "description": "A 4th Ground thriller about...",
     "poster_url": "/posters/luselo.jpg",
+    "backdrop_url": "/posters/luselo-backdrop.jpg",
     "bunny_library_id": "684349",
     "bunny_video_id": "75a298a6-7517-4d6e-afea-9274e38081f6",
     "bunny_trailer_id": "75a298a6-7517-4d6e-afea-9274e38081f6",
     "rent_price_cents": 3900,
-    "buy_price_cents": 9900
+    "buy_price_cents": 9900,
+    "available": true,
+    "year": 2026,
+    "language": "English",
+    "director": "Your Director Name",
+    "cast": ["Lead Actor", "Actor Two", "Actor Three"]
+  },
+  {
+    "id": "coming-soon-1",
+    "title": "Next Film Title",
+    "tag": "Coming Soon",
+    "genre": "Drama",
+    "rating": "13",
+    "description": "Coming soon to 4th Ground...",
+    "poster_url": "/posters/next-film.jpg",
+    "backdrop_url": "/posters/next-film-backdrop.jpg",
+    "bunny_library_id": "684349",
+    "bunny_video_id": "",
+    "bunny_trailer_id": "",
+    "rent_price_cents": 3900,
+    "buy_price_cents": 9900,
+    "available": false,
+    "year": 2026,
+    "language": "English",
+    "director": "Another Director",
+    "cast": ["Star One", "Star Two"]
   }
 ]
