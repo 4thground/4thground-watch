@@ -14,16 +14,16 @@
     "rent_price_cents": 3900,
     "buy_price_cents": 9900,
     "available": true,
-    "year": 2026,
+    "year": 2025,
     "language": "Spanish",
     "director": "Christian Márquez",
-    "cast": ["Mariangel Davila"]
+    "cast": ["Leónidas Urbina","Mariángel Dávila","Juvel Vielma"]
   },
   {
     "id": "coming-soon-1",
     "title": "Smokers",
     "tag": "Coming Soon",
-    "genre": "Drama",
+    "genre": "Thriller/Crime",
     "rating": "13",
     "description": "Coming soon to 4th Ground...",
     "poster_url": "/posters/2.png",
@@ -36,7 +36,7 @@
     "available": false,
     "year": 2026,
     "language": "English",
-    "director": "Another Director",
-    "cast": ["Star One", "Star Two"]
+    "director": "Scott Greenland",
+    "cast": ["Alison Sherwood", ""]
   }
 ]
