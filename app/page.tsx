@@ -1,6 +1,6 @@
 'use client'
-import { useState } from 'react'
-import films from '../data/films.json'
+import { useState, useEffect } from 'react'
+import films from '@/data/films.json'
 
 export default function Home() {
   const BUNNY_LIBRARY_ID = '684349'
@@ -9,48 +9,52 @@ export default function Home() {
 
   const suggestedFilms = films.filter(f => f.id!== activeFilm.id)
 
-  const handleGumroadClick = (e: React.MouseEvent<HTMLAnchorElement>, url: string) => {
+  const handlePaystackClick = (e: React.MouseEvent<HTMLButtonElement>, type: 'rent' | 'buy') => {
     e.preventDefault()
     e.stopPropagation()
 
-    // 1. Force embed mode + strip redirect flags
-    const cleanUrl = url.replace(/[?&]wanted=true/g, '').replace(/[?&]want=true/g, '')
-    const embedUrl = cleanUrl + (cleanUrl.includes('?')? '&' : '?') + 'embed=true'
-
-    // 2. Kill any existing overlays
-    document.getElementById('gumroad-overlay')?.remove()
-
-    // 3. Create backdrop
-    const backdrop = document.createElement('div')
-    backdrop.id = 'gumroad-overlay'
-    backdrop.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.9);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px'
-
-    // 4. Create iframe
-    const iframe = document.createElement('iframe')
-    iframe.src = embedUrl
-    iframe.style.cssText = 'width:100%;max-width:500px;height:90vh;max-height:700px;border:0;border-radius:12px;background:#fff'
-    iframe.allow = 'payment'
-    iframe.setAttribute('scrolling', 'yes')
-
-    // 5. Close handlers
-    const closeOverlay = () => {
-      backdrop.remove()
-      document.body.style.overflow = 'auto'
+    if (!window.PaystackPop) {
+      alert('Payment system loading. Try again in 2 seconds.')
+      return
     }
-    backdrop.onclick = (evt) => { if (evt.target === backdrop) closeOverlay() }
 
-    // 6. Close button
-    const closeBtn = document.createElement('button')
-    closeBtn.innerHTML = '×'
-    closeBtn.style.cssText = 'position:absolute;top:12px;right:12px;width:44px;height:44px;border-radius:50%;background:#fff;border:0;font-size:32px;line-height:1;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.4)'
-    closeBtn.onclick = closeOverlay
+    const price = type === 'rent'? activeFilm.rent_price_cents : activeFilm.buy_price_cents
+    const reference = `4thground_${activeFilm.id}_${type}_${Date.now()}`
 
-    // 7. Lock body scroll
-    document.body.style.overflow = 'hidden'
+    const handler = window.PaystackPop.setup({
+      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
+      email: 'customer@4thground.com', // swap with user email input if you have it
+      amount: price,
+      currency: 'ZAR',
+      ref: reference,
+      metadata: {
+        film_id: activeFilm.id,
+        type: type
+      },
+      callback: function(response: any) {
+        // Save unlock to localStorage
+        const expiry = type === 'rent'? Date.now() + 48*60*60*1000 : null
+        const unlocks = JSON.parse(localStorage.getItem('4g_unlocks') || '{}')
+        unlocks[activeFilm.id] = { type, expiry, ref: response.reference }
+        localStorage.setItem('4g_unlocks', JSON.stringify(unlocks))
 
-    backdrop.appendChild(iframe)
-    backdrop.appendChild(closeBtn)
-    document.body.appendChild(backdrop)
+        // Play full film
+        setIsPlaying(true)
+      },
+      onClose: function() {
+        console.log('Payment closed')
+      }
+    })
+    handler.openIframe()
+  }
+
+  const getVideoId = () => {
+    const unlocks = typeof window!== 'undefined'? JSON.parse(localStorage.getItem('4g_unlocks') || '{}') : {}
+    const unlock = unlocks[activeFilm.id]
+    if (unlock && (!unlock.expiry || unlock.expiry > Date.now())) {
+      return activeFilm.bunny_video_id // full film
+    }
+    return activeFilm.bunny_trailer_id // trailer
   }
 
   return (
@@ -59,8 +63,8 @@ export default function Home() {
         {isPlaying? (
           <>
             <iframe
-              key={activeFilm.video_id}
-              src={`https://iframe.mediadelivery.net/embed/${BUNNY_LIBRARY_ID}/${activeFilm.video_id}?autoplay=true&preload=true&controls=true`}
+              key={getVideoId()}
+              src={`https://iframe.mediadelivery.net/embed/${BUNNY_LIBRARY_ID}/${getVideoId()}?autoplay=true&preload=true&controls=true`}
               className="absolute inset-0 w-full h-full border-0"
               allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
               allowFullScreen={false}
@@ -123,21 +127,19 @@ export default function Home() {
                       Trailer
                     </button>
 
-                    <a
-                      href={activeFilm.rent_link}
-                      onClick={(e) => handleGumroadClick(e, activeFilm.rent_link)}
+                    <button
+                      onClick={(e) => handlePaystackClick(e, 'rent')}
                       className="bg-zinc-800/90 backdrop-blur text-white font-semibold px-6 py-3 rounded-md hover:bg-zinc-700 transition"
                     >
-                      Rent ${(activeFilm.rent_price_cents / 100).toFixed(2)}
-                    </a>
+                      Rent R{(activeFilm.rent_price_cents / 100).toFixed(2)}
+                    </button>
 
-                    <a
-                      href={activeFilm.buy_link}
-                      onClick={(e) => handleGumroadClick(e, activeFilm.buy_link)}
+                    <button
+                      onClick={(e) => handlePaystackClick(e, 'buy')}
                       className="bg-zinc-800/90 backdrop-blur text-white font-semibold px-6 py-3 rounded-md hover:bg-zinc-700 transition"
                     >
-                      Buy ${(activeFilm.buy_price_cents / 100).toFixed(2)}
-                    </a>
+                      Buy R{(activeFilm.buy_price_cents / 100).toFixed(2)}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -168,7 +170,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-center justify-center">
                   <div className="w-12 h-12 rounded-full bg-white/90 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                     <svg className="w-6 h-6 text-black ml-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M6.3 2.841A1.5 0 004 4.11V15.89a1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                      <path d="M6.3 2.841A1.5 0 004 4.11V15.89a1.5 0 002.3 1.269l9.344-5.89a1.5 0 000-2.538L6.3 2.84z" />
                     </svg>
                   </div>
                 </div>
@@ -181,8 +183,8 @@ export default function Home() {
       </div>
 
       <style jsx global>{`
-      .scrollbar-hide::-webkit-scrollbar { display: none; }
-      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+     .scrollbar-hide::-webkit-scrollbar { display: none; }
+     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </main>
   )
