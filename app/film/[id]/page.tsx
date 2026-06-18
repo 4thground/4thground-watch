@@ -1,38 +1,29 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-
-// Store your films as JSON in repo: /data/films.json
 import films from '@/data/films.json'
 
 export default function FilmPage({ params }: { params: {id: string} }) {
   const film = films.find(f => f.id === params.id)
+  
+  if (!film) return <div className="text-center p-8">Film not found</div>
+
   const [email, setEmail] = useState('')
   const [access, setAccess] = useState<{type: string, expires: number, progress: number} | null>(null)
   const [showTrailerEnd, setShowTrailerEnd] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const playerRef = useRef<HTMLIFrameElement>(null)
 
-  // Load email + check access from localStorage + verify with Paystack
+  // Load email + check access from localStorage
   useEffect(() => {
     const savedEmail = localStorage.getItem('4g_email')
-    if (savedEmail) setEmail(savedEmail)
-    
-    const checkAccess = async () => {
+    if (savedEmail) {
+      setEmail(savedEmail)
+      
       const key = `4g_access_${film.id}_${savedEmail}`
       const saved = localStorage.getItem(key)
-      if (!saved) return
-      
-      const { reference, type } = JSON.parse(saved)
-      
-      // Verify with Paystack that payment is real + get expiry
-      const res = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
-        headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_PAYSTACK_SECRET_KEY}` }
-      })
-      const data = await res.json()
-      
-      if (data.status && data.data.status === 'success') {
-        const paidAt = new Date(data.data.paid_at).getTime()
+      if (saved) {
+        const { type, paidAt } = JSON.parse(saved)
         const expires = type === 'buy' ? Infinity : paidAt + 48 * 60 * 60 * 1000 // 48hr
         const progress = Number(localStorage.getItem(`4g_progress_${film.id}_${savedEmail}`) || 0)
         
@@ -43,9 +34,7 @@ export default function FilmPage({ params }: { params: {id: string} }) {
         }
       }
     }
-    
-    if (savedEmail) checkAccess()
-  }, [film.id, email])
+  }, [film.id])
 
   // Fullscreen detection for hiding "Watch More"
   useEffect(() => {
@@ -60,7 +49,7 @@ export default function FilmPage({ params }: { params: {id: string} }) {
       if (e.origin !== 'https://iframe.mediadelivery.net') return
       const { event, currentTime } = e.data
       
-      if (event === 'timeupdate' && access) {
+      if (event === 'timeupdate' && access && email) {
         localStorage.setItem(`4g_progress_${film.id}_${email}`, Math.floor(currentTime).toString())
       }
       
@@ -82,15 +71,22 @@ export default function FilmPage({ params }: { params: {id: string} }) {
       key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
       email,
       amount,
-      currency: 'ZAR',
+      currency: 'USD', // Changed to USD
       metadata: { film_id: film.id, type },
       callback: function(response: any) {
-        // Save reference to localStorage immediately
+        // Save to localStorage immediately - no server verify yet
         const key = `4g_access_${film.id}_${email}`
-        localStorage.setItem(key, JSON.stringify({ reference: response.reference, type }))
+        localStorage.setItem(key, JSON.stringify({ 
+          reference: response.reference, 
+          type,
+          paidAt: Date.now() // Save time of payment locally
+        }))
         alert('Payment successful! Loading film...')
-        setTimeout(() => window.location.reload(), 1000) // refresh to verify + unlock
+        setTimeout(() => window.location.reload(), 1000)
       },
+      onClose: function() {
+        console.log('Payment cancelled')
+      }
     })
     handler.openIframe()
   }
@@ -113,10 +109,10 @@ export default function FilmPage({ params }: { params: {id: string} }) {
     return (
       <div className="flex gap-3 justify-center">
         <button onClick={() => payWithPaystack('rent')} className="bg-[#2FEB74] text-black font-bold px-6 py-3 rounded-lg">
-          Rent R{film.rent_price_cents/100}
+          Rent ${film.rent_price_cents/100}
         </button>
         <button onClick={() => payWithPaystack('buy')} className="bg-zinc-800 text-white font-bold px-6 py-3 rounded-lg border border-zinc-700">
-          Buy R{film.buy_price_cents/100}
+          Buy ${film.buy_price_cents/100}
         </button>
       </div>
     )
@@ -134,7 +130,7 @@ export default function FilmPage({ params }: { params: {id: string} }) {
       <div className="aspect-video bg-black rounded-xl overflow-hidden relative">
         <iframe 
           ref={playerRef}
-          src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoId}?autoplay=true&t=${startTime}`}
+          src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoId}?autoplay=true&start=${startTime}`}
           className="w-full h-full" 
           allow="autoplay; fullscreen" 
           allowFullScreen
@@ -182,10 +178,10 @@ export default function FilmPage({ params }: { params: {id: string} }) {
             {otherFilms.map((f: any) => (
               <Link key={f.id} href={`/film/${f.id}`} className="group">
                 <div className="bg-zinc-900 rounded-lg overflow-hidden">
-                  <img src={f.poster_url} className="aspect-[2/3] object-cover group-hover:opacity-80" />
+                  <img src={f.poster_url} alt={f.title} className="aspect-[2/3] object-cover group-hover:opacity-80" />
                   <div className="p-3">
                     <p className="font-semibold truncate">{f.title}</p>
-                    <p className="text-sm text-[#2FEB74]">From R{f.rent_price_cents/100}</p>
+                    <p className="text-sm text-[#2FEB74]">From ${f.rent_price_cents/100}</p>
                   </div>
                 </div>
               </Link>
