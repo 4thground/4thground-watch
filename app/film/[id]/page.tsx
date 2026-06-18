@@ -88,11 +88,16 @@ export default function FilmPage({ params }: { params: {id: string} }) {
 
   const videoId = access? film.bunny_video_id : film.bunny_trailer_id
   const startTime = access?.progress || 0
-  const otherFilms = films.filter(f => f.id!== film.id).slice(0, 6)
+  const otherFilms = films.filter(f => f.id!== film.id)
 
   return (
     <div className="bg-black text-white min-h-screen">
       <script src="https://js.paystack.co/v1/inline.js"></script>
+
+      {/* Top Nav */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
+        <Link href="/" className="text-2xl font-bold tracking-tight">4th Ground</Link>
+      </div>
 
       {/* Hero Player - Full Bleed */}
       <div className="relative w-full h-screen bg-black">
@@ -103,8 +108,6 @@ export default function FilmPage({ params }: { params: {id: string} }) {
           allow="autoplay; fullscreen"
           allowFullScreen
         />
-
-        {/* Gradient overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
 
         {/* Trailer End Overlay */}
@@ -126,21 +129,40 @@ export default function FilmPage({ params }: { params: {id: string} }) {
         )}
       </div>
 
-      {/* Content Section - Apple TV style */}
+      {/* Content Section */}
       <div className="max-w-6xl mx-auto px-6 md:px-8 -mt-40 relative z-10">
         <div className="mb-8">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 tracking-tight">{film.title}</h1>
-          <div className="flex items-center gap-3 text-sm text-zinc-400 mb-4">
-            <span className="px-2 py-0.5 border border-zinc-600 rounded text-xs">HD</span>
-            <span>Drama</span>
+
+          {/* Metadata Row */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-300 mb-4">
+            {film.rating && <span className="px-2 py-0.5 border border-zinc-500 rounded text-xs">{film.rating}</span>}
+            {film.year && <span>{film.year}</span>}
+            {film.genre && <span>•</span>}
+            {film.genre && <span>{film.genre}</span>}
+            {film.language && <span>•</span>}
+            {film.language && <span>{film.language}</span>}
             <span>•</span>
-            <span>2026</span>
+            <span>HD</span>
           </div>
-          <p className="text-lg text-zinc-300 max-w-2xl leading-relaxed">{film.description}</p>
+
+          {/* Cast & Director */}
+          {film.director && (
+            <p className="text-zinc-300 mb-1">
+              <span className="text-zinc-500">Director:</span> {film.director}
+            </p>
+          )}
+          {film.cast && film.cast.length > 0 && (
+            <p className="text-zinc-300 mb-4">
+              <span className="text-zinc-500">Starring:</span> {film.cast.join(', ')}
+            </p>
+          )}
+
+          <p className="text-lg text-zinc-200 max-w-2xl leading-relaxed">{film.description}</p>
         </div>
 
         {/* Email + CTA */}
-        {!access && (
+        {!access && film.available && (
           <div className="mb-12">
             <input
               type="email"
@@ -161,6 +183,14 @@ export default function FilmPage({ params }: { params: {id: string} }) {
           </div>
         )}
 
+        {!film.available && (
+          <div className="mb-12">
+            <button disabled className="bg-white/10 text-zinc-500 font-semibold px-8 py-4 rounded-full cursor-not-allowed text-lg">
+              Coming Soon
+            </button>
+          </div>
+        )}
+
         {access && (
           <div className="mb-12">
             <button
@@ -178,23 +208,67 @@ export default function FilmPage({ params }: { params: {id: string} }) {
         )}
       </div>
 
-      {/* More Like This */}
+      {/* More Like This - Swipe Row */}
       {!isFullscreen && otherFilms.length > 0 && (
-        <div className="max-w-6xl mx-auto px-6 md:px-8 py-16">
-          <h3 className="text-2xl font-bold mb-6">More from 4th Ground</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
+          <h3 className="text-2xl font-bold mb-4">More from 4th Ground</h3>
+          <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
             {otherFilms.map((f: any) => (
-              <Link key={f.id} href={`/film/${f.id}`} className="group">
-                <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105">
-                  <img src={f.poster_url} alt={f.title} className="aspect-[2/3] object-cover" />
+              f.available ? (
+                <Link
+                  key={f.id}
+                  href={`/film/${f.id}`}
+                  className="group flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start"
+                >
+                  <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105">
+                    <img
+                      src={f.backdrop_url || f.poster_url}
+                      alt={f.title}
+                      className="aspect-video object-cover"
+                    />
+                  </div>
+                  <p className="font-semibold mt-3 text-base truncate">{f.title}</p>
+                  <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">
+                    {f.year && <span>{f.year}</span>}
+                    {f.genre && <span>• {f.genre}</span>}
+                  </div>
+                  <p className="text-sm text-zinc-400 mt-1">From ${zarToUsd(f.rent_price_cents)}</p>
+                </Link>
+              ) : (
+                <div key={f.id} className="flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start">
+                  <div className="rounded-lg overflow-hidden relative">
+                    <img
+                      src={f.backdrop_url || f.poster_url}
+                      alt={f.title}
+                      className="aspect-video object-cover blur-sm brightness-50"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
+                        Coming Soon
+                      </span>
+                    </div>
+                  </div>
+                  <p className="font-semibold mt-3 text-base truncate text-zinc-400">{f.title}</p>
+                  <div className="flex items-center gap-2 text-xs text-zinc-600 mt-1">
+                    {f.year && <span>{f.year}</span>}
+                    {f.genre && <span>• {f.genre}</span>}
+                  </div>
                 </div>
-                <p className="font-semibold mt-2 text-sm truncate">{f.title}</p>
-                <p className="text-xs text-zinc-500">From ${zarToUsd(f.rent_price_cents)}</p>
-              </Link>
+              )
             ))}
           </div>
         </div>
       )}
+
+      <style jsx global>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   )
 }
