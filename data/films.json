@@ -1,42 +1,251 @@
-[
-  {
-    "id": "el-hombre-de-la-luz",
-    "title": "El Hombre De La Luz",
-    "tag": "Now Streaming",
-    "genre": "Sci-Fi",
-    "rating": "16",
-    "description": "In the remote village of Los Nevados, Isidro Zambrano, a brilliant technologist, hides a dark past marked by the tragic loss of his parents and wife.",
-    "poster_url": "/posters/3.png",
-    "backdrop_url": "/posters/backdrop1.png",
-    "bunny_library_id": "684349",
-    "bunny_video_id": "6b04aac9-ea4a-4499-91b5-d4b3375e7e6f",
-    "bunny_trailer_id": "fc796487-719a-4d4f-920c-626a1fd1ee47",
-    "rent_price_cents": 3900,
-    "buy_price_cents": 9900,
-    "available": true,
-    "year": 2025,
-    "language": "Spanish",
-    "director": "Christian Márquez",
-    "cast": ["Leónidas Urbina","Mariángel Dávila","Juvel Vielma"]
-  },
-  {
-    "id": "coming-soon-1",
-    "title": "Smokers",
-    "tag": "Coming Soon",
-    "genre": "Thriller/Crime",
-    "rating": "13",
-    "description": "Coming soon to 4th Ground...",
-    "poster_url": "/posters/2.png",
-    "backdrop_url": "/posters/backdrop2.png",
-    "bunny_library_id": "684349",
-    "bunny_video_id": "",
-    "bunny_trailer_id": "",
-    "rent_price_cents": 3900,
-    "buy_price_cents": 9900,
-    "available": false,
-    "year": 2026,
-    "language": "English",
-    "director": "Scott Greenland",
-    "cast": ["Alison Sherwood", ""]
-  }
-]
+'use client'
+import { useState } from 'react'
+import Link from 'next/link'
+import films from '@/data/films.json'
+
+const ZAR_TO_USD_RATE = 18.5
+const zarToUsd = (zarCents: number) => ((zarCents / 100) / ZAR_TO_USD_RATE).toFixed(2)
+
+export default function Home() {
+  const [search, setSearch] = useState('')
+  const featured = films[0]
+
+  // Filter for search + split available vs coming soon
+  const filteredFilms = films.filter(f =>
+    f.title.toLowerCase().includes(search.toLowerCase()) ||
+    f.cast?.some(c => c.toLowerCase().includes(search.toLowerCase())) ||
+    f.director?.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const availableFilms = filteredFilms.filter(f => f.available)
+  const comingSoonFilms = filteredFilms.filter(f => !f.available)
+
+  return (
+    <main className="bg-black text-white min-h-screen">
+      {/* Search Bar - Fixed top */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/90 to-transparent px-5 md:px-12 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          <Link href="/" className="text-xl md:text-2xl font-bold tracking-tight">
+            4th Ground
+          </Link>
+
+          <input
+            type="text"
+            placeholder="Search films, cast, director..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full w-full max-w-[210px] md:max-w-md text-sm md:text-base text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-white/50"
+          />
+        </div>
+      </div>
+
+      {/* Hero */}
+      <div className="relative h-[100svh] md:h-screen w-full overflow-hidden">
+        <img
+          src={featured.poster_url}
+          className="absolute inset-0 w-full h-full object-cover"
+          alt={featured.title}
+        />
+
+        {/* Desktop + Mobile overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent hidden md:block" />
+
+        {/* Hero Content */}
+        <div className="absolute left-5 right-5 bottom-8 md:bottom-24 md:left-12 md:right-auto max-w-3xl text-center md:text-left">
+          {featured.tag && (
+            <p className="text-sm md:text-base font-semibold text-zinc-300 mb-2 tracking-wide">
+              {featured.tag}
+            </p>
+          )}
+
+          <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold mb-4 tracking-tight leading-none">
+            {featured.title}
+          </h1>
+
+          {/* Apple-style Metadata Row */}
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-2 gap-y-2 text-base md:text-sm font-semibold text-zinc-200 mb-4">
+            <span>Movie</span>
+
+            {featured.genre && (
+              <>
+                <span className="text-zinc-500">•</span>
+                <span>{featured.genre}</span>
+              </>
+            )}
+
+            {featured.year && (
+              <>
+                <span className="text-zinc-500">•</span>
+                <span>{featured.year}</span>
+              </>
+            )}
+
+            {featured.rating && (
+              <span className="ml-1 px-1.5 py-0.5 border border-zinc-400 rounded text-xs leading-none">
+                {featured.rating}
+              </span>
+            )}
+          </div>
+
+          <p className="text-[17px] md:text-lg text-zinc-300 mb-6 md:mb-4 max-w-xl mx-auto md:mx-0 leading-snug md:leading-relaxed font-medium">
+            {featured.description}
+          </p>
+
+          {/* Desktop Cast & Director */}
+          <div className="hidden md:block">
+            {featured.director && (
+              <p className="text-zinc-300 mb-1">
+                <span className="text-zinc-500">Director:</span> {featured.director}
+              </p>
+            )}
+
+            {featured.cast && featured.cast.length > 0 && (
+              <p className="text-zinc-300 mb-8">
+                <span className="text-zinc-500">Starring:</span> {featured.cast.filter(Boolean).join(', ')}
+              </p>
+            )}
+          </div>
+
+          {/* Mobile Button Layout */}
+          <div className="flex items-center justify-center md:justify-start gap-4">
+            <Link
+              href={`/film/${featured.id}`}
+              className="bg-white text-black font-bold px-10 md:px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg inline-block min-w-[230px] md:min-w-0"
+            >
+              Watch Now
+            </Link>
+
+            <Link
+              href={`/film/${featured.id}`}
+              aria-label={`More about ${featured.title}`}
+              className="h-14 w-14 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-3xl font-light hover:bg-white/20 transition"
+            >
+              +
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Swipe Rows */}
+      <div className="max-w-7xl mx-auto px-5 md:px-12 py-14 md:py-16 space-y-12">
+        {/* Available Films Row */}
+        {availableFilms.length > 0 && (
+          <div>
+            <h2 className="text-2xl md:text-2xl font-bold mb-4">
+              Featured on 4th Ground
+            </h2>
+
+            <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+              {availableFilms.map((film: any) => (
+                <Link
+                  key={film.id}
+                  href={`/film/${film.id}`}
+                  className="group flex-shrink-0 w-[72vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start"
+                >
+                  <div className="rounded-xl md:rounded-lg overflow-hidden transition-transform group-hover:scale-105 bg-zinc-900">
+                    <img
+                      src={film.backdrop_url || film.poster_url}
+                      alt={film.title}
+                      className="aspect-video w-full object-cover"
+                    />
+                  </div>
+
+                  <p className="font-semibold mt-3 text-base truncate">
+                    {film.title}
+                  </p>
+
+                  <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">
+                    {film.tag && <span>{film.tag}</span>}
+                    {film.genre && <span>• {film.genre}</span>}
+                    {film.rating && <span>• {film.rating}</span>}
+                  </div>
+
+                  <p className="text-sm text-zinc-400 mt-1">
+                    From ${zarToUsd(film.rent_price_cents)}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Coming Soon Row */}
+        {comingSoonFilms.length > 0 && (
+          <div>
+            <h2 className="text-2xl md:text-2xl font-bold mb-4">
+              Coming Soon
+            </h2>
+
+            <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+              {comingSoonFilms.map((film: any) => (
+                <div
+                  key={film.id}
+                  className="flex-shrink-0 w-[72vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start"
+                >
+                  <div className="rounded-xl md:rounded-lg overflow-hidden relative bg-zinc-900">
+                    <img
+                      src={film.backdrop_url || film.poster_url}
+                      alt={film.title}
+                      className="aspect-video w-full object-cover blur-sm brightness-50"
+                    />
+
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
+                        {film.tag || 'Coming Soon'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="font-semibold mt-3 text-base truncate text-zinc-400">
+                    {film.title}
+                  </p>
+
+                  <div className="flex items-center gap-2 text-xs text-zinc-600 mt-1">
+                    {film.year && <span>{film.year}</span>}
+                    {film.genre && <span>• {film.genre}</span>}
+                    {film.rating && <span>• {film.rating}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {filteredFilms.length === 0 && (
+          <div className="text-center py-20 text-zinc-500">
+            No films found for "{search}"
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <footer className="border-t border-white/10 px-5 md:px-12 py-8 md:py-10 text-sm text-zinc-500">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
+          <p>© 2026 4th Ground. All rights reserved.</p>
+
+          <div className="flex items-center gap-6">
+            <Link href="/support" className="hover:text-white transition">
+              Support
+            </Link>
+
+            <Link href="/terms" className="hover:text-white transition">
+              Terms
+            </Link>
+          </div>
+        </div>
+      </footer>
+
+      <style jsx global>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+    </main>
+  )
+}
