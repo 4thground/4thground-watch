@@ -16,15 +16,19 @@ export default function Home() {
     f.cast?.some(c => c.toLowerCase().includes(search.toLowerCase())) ||
     f.director?.toLowerCase().includes(search.toLowerCase())
   )
+
   const availableFilms = filteredFilms.filter(f => f.available)
-  const comingSoonFilms = filteredFilms.filter(f =>!f.available)
+  const comingSoonFilms = filteredFilms.filter(f => !f.available)
 
   return (
     <main className="bg-black text-white min-h-screen">
       {/* Search Bar - Fixed top */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <Link href="/" className="text-2xl font-bold tracking-tight">4th Ground</Link>
+          <Link href="/" className="text-2xl font-bold tracking-tight">
+            4th Ground
+          </Link>
+
           <input
             type="text"
             placeholder="Search films, cast, director..."
@@ -42,39 +46,54 @@ export default function Home() {
           className="absolute inset-0 w-full h-full object-cover"
           alt={featured.title}
         />
+
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-        <div className="absolute bottom-24 left-6 md:left-12 max-w-3xl">
-          <h1 className="text-6xl md:text-8xl font-bold mb-4 tracking-tight">{featured.title}</h1>
+
+        <div className="absolute bottom-8 left-5 right-5 md:bottom-24 md:left-12 md:right-auto max-w-3xl text-center md:text-left">
+          <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold mb-3 md:mb-4 tracking-tight">
+            {featured.title}
+          </h1>
 
           {/* Metadata Row */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-300 mb-4">
-            {featured.rating && <span className="px-2 py-0.5 border border-zinc-500 rounded text-xs">{featured.rating}</span>}
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 md:gap-x-4 gap-y-2 text-xs md:text-sm text-zinc-300 mb-3 md:mb-4">
+            {featured.rating && (
+              <span className="px-2 py-0.5 border border-zinc-500 rounded text-xs">
+                {featured.rating}
+              </span>
+            )}
+
             {featured.year && <span>{featured.year}</span>}
+
             {featured.genre && <span>•</span>}
             {featured.genre && <span>{featured.genre}</span>}
+
             {featured.language && <span>•</span>}
             {featured.language && <span>{featured.language}</span>}
+
             <span>•</span>
             <span>HD</span>
           </div>
 
           {/* Cast & Director */}
           {featured.director && (
-            <p className="text-zinc-300 mb-1">
+            <p className="text-zinc-300 mb-1 text-sm md:text-base">
               <span className="text-zinc-500">Director:</span> {featured.director}
             </p>
           )}
+
           {featured.cast && featured.cast.length > 0 && (
-            <p className="text-zinc-300 mb-4">
+            <p className="text-zinc-300 mb-3 md:mb-4 text-sm md:text-base">
               <span className="text-zinc-500">Starring:</span> {featured.cast.join(', ')}
             </p>
           )}
 
-          <p className="text-lg text-zinc-200 mb-8 max-w-xl leading-relaxed">{featured.description}</p>
+          <p className="text-sm sm:text-base md:text-lg text-zinc-200 mb-6 md:mb-8 max-w-xl mx-auto md:mx-0 leading-relaxed">
+            {featured.description}
+          </p>
 
           <Link
             href={`/film/${featured.id}`}
-            className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg inline-block"
+            className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block"
           >
             Watch Now
           </Link>
@@ -83,11 +102,11 @@ export default function Home() {
 
       {/* Swipe Rows */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 space-y-12">
-
         {/* Available Films Row */}
         {availableFilms.length > 0 && (
           <div>
             <h2 className="text-2xl font-bold mb-4">Featured on 4th Ground</h2>
+
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
               {availableFilms.map((film: any) => (
                 <Link
@@ -102,12 +121,19 @@ export default function Home() {
                       className="aspect-video object-cover"
                     />
                   </div>
-                  <p className="font-semibold mt-3 text-base truncate">{film.title}</p>
+
+                  <p className="font-semibold mt-3 text-base truncate">
+                    {film.title}
+                  </p>
+
                   <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">
                     {film.year && <span>{film.year}</span>}
                     {film.genre && <span>• {film.genre}</span>}
                   </div>
-                  <p className="text-sm text-zinc-400 mt-1">From ${zarToUsd(film.rent_price_cents)}</p>
+
+                  <p className="text-sm text-zinc-400 mt-1">
+                    From ${zarToUsd(film.rent_price_cents)}
+                  </p>
                 </Link>
               ))}
             </div>
@@ -118,6 +144,7 @@ export default function Home() {
         {comingSoonFilms.length > 0 && (
           <div>
             <h2 className="text-2xl font-bold mb-4">Coming Soon</h2>
+
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
               {comingSoonFilms.map((film: any) => (
                 <div
@@ -130,13 +157,18 @@ export default function Home() {
                       alt={film.title}
                       className="aspect-video object-cover blur-sm brightness-50"
                     />
+
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
                         Coming Soon
                       </span>
                     </div>
                   </div>
-                  <p className="font-semibold mt-3 text-base truncate text-zinc-400">{film.title}</p>
+
+                  <p className="font-semibold mt-3 text-base truncate text-zinc-400">
+                    {film.title}
+                  </p>
+
                   <div className="flex items-center gap-2 text-xs text-zinc-600 mt-1">
                     {film.year && <span>{film.year}</span>}
                     {film.genre && <span>• {film.genre}</span>}
@@ -154,11 +186,29 @@ export default function Home() {
         )}
       </div>
 
+      {/* Footer */}
+      <footer className="border-t border-white/10 px-6 md:px-12 py-8 text-sm text-zinc-500">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <p>© 2026 4th Ground. All rights reserved.</p>
+
+          <div className="flex items-center gap-6">
+            <Link href="/support" className="hover:text-white transition">
+              Support
+            </Link>
+
+            <Link href="/terms" className="hover:text-white transition">
+              Terms
+            </Link>
+          </div>
+        </div>
+      </footer>
+
       <style jsx global>{`
-       .scrollbar-hide::-webkit-scrollbar {
+        .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
-       .scrollbar-hide {
+
+        .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
