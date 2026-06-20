@@ -1,6 +1,10 @@
-'use client'import { useState, useEffect, useRef } from 'react'import Link from 'next/link'import films from '@/data/films.json'
+'use client';
 
-const ZAR_TO_USD_RATE = 16.5
+import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import films from '@/data/films.json';
+
+const ZAR_TO_USD_RATE = 16.5;
 
 export default function FilmPage({ params }: { params: {id: string} }) {const film = films.find(f => f.id === params.id)
 
