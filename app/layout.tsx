@@ -1,6 +1,5 @@
 import './globals.css'
 import Script from 'next/script'
-import Footer from '@/components/Footer'
 
 export const metadata = {
   title: '4thground Watch',
@@ -22,7 +21,7 @@ export default function RootLayout({
 
         {children}
 
-        <Footer />
+    
       </body>
     </html>
   )
