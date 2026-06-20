@@ -214,6 +214,7 @@ export default function FilmPage({ params }: { params: {id: string} }) {
       {!isFullscreen && otherFilms.length > 0 && (
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
           <h3 className="text-2xl font-bold mb-4">More from 4th Ground</h3>
+
           <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
             {otherFilms.map((f: any) => (
               f.available ? (
@@ -229,12 +230,17 @@ export default function FilmPage({ params }: { params: {id: string} }) {
                       className="aspect-video object-cover"
                     />
                   </div>
+
                   <p className="font-semibold mt-3 text-base truncate">{f.title}</p>
+
                   <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">
                     {f.year && <span>{f.year}</span>}
                     {f.genre && <span>• {f.genre}</span>}
                   </div>
-                  <p className="text-sm text-zinc-400 mt-1">From ${zarToUsd(f.rent_price_cents)}</p>
+
+                  <p className="text-sm text-zinc-400 mt-1">
+                    From ${zarToUsd(f.rent_price_cents)}
+                  </p>
                 </Link>
               ) : (
                 <div key={f.id} className="flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start">
@@ -244,13 +250,18 @@ export default function FilmPage({ params }: { params: {id: string} }) {
                       alt={f.title}
                       className="aspect-video object-cover blur-sm brightness-50"
                     />
+
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
                         Coming Soon
                       </span>
                     </div>
                   </div>
-                  <p className="font-semibold mt-3 text-base truncate text-zinc-400">{f.title}</p>
+
+                  <p className="font-semibold mt-3 text-base truncate text-zinc-400">
+                    {f.title}
+                  </p>
+
                   <div className="flex items-center gap-2 text-xs text-zinc-600 mt-1">
                     {f.year && <span>{f.year}</span>}
                     {f.genre && <span>• {f.genre}</span>}
@@ -261,19 +272,6 @@ export default function FilmPage({ params }: { params: {id: string} }) {
           </div>
         </div>
       )}
-
-      <style jsx global>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
-    </div>
-  )
-}
 
       {/* Footer */}
       <footer className="border-t border-white/10 px-6 md:px-12 py-8 text-sm text-zinc-500">
@@ -302,8 +300,6 @@ export default function FilmPage({ params }: { params: {id: string} }) {
           scrollbar-width: none;
         }
       `}</style>
-    
-
-</main>
+    </div>
   )
 }
