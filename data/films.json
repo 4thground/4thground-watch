@@ -11,8 +11,8 @@
     "bunny_library_id": "684349",
     "bunny_video_id": "6b04aac9-ea4a-4499-91b5-d4b3375e7e6f",
     "bunny_trailer_id": "fc796487-719a-4d4f-920c-626a1fd1ee47",
-    "rent_price_cents": 3900,
-    "buy_price_cents": 9900,
+    "rent_price_cents": 7382,
+    "buy_price_cents": 18482,
     "available": true,
     "year": 2025,
     "language": "Spanish",
@@ -45,31 +45,3 @@
       "Alison Sherwood"
     ]
   }
-]
-  {/* Footer */}
-      <footer className="border-t border-white/10 px-6 md:px-12 py-8 text-sm text-zinc-500">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <p>© 2026 4th Ground. All rights reserved.</p>
-
-          <div className="flex items-center gap-6">
-            <Link href="/support" className="hover:text-white transition">
-              Support
-            </Link>
-
-            <Link href="/terms" className="hover:text-white transition">
-              Terms
-            </Link>
-          </div>
-        </div>
-      </footer>
-
-      <style jsx global>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
