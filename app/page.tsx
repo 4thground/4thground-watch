@@ -27,7 +27,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center">
   <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
-          </Link>
+    
           </Link>
 
           <input
