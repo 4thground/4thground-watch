@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Script from 'next/script'
 import films from '@/data/films.json'
 
-const ZAR_TO_USD_RATE = 18.5
+const ZAR_TO_USD_RATE = 16.5
 
 type Film = {
   id: string
