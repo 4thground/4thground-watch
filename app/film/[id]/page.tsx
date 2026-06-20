@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import films from '@/data/films.json';
 
-const ZAR_TO_USD_RATE = 16.5;
+const ZAR_TO_USD_RATE = 16.2;
 
 type AccessState = {
   type: string;
