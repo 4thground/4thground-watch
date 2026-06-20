@@ -1,5 +1,6 @@
 import './globals.css'
 import Script from 'next/script'
+import Footer from '@/components/Footer'
 
 export const metadata = {
   title: '4thground Watch',
@@ -13,12 +14,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <Script 
-          src="https://js.paystack.co/v1/inline.js" 
-          strategy="beforeInteractive" 
+      <body className="bg-black text-white">
+        <Script
+          src="https://js.paystack.co/v1/inline.js"
+          strategy="beforeInteractive"
         />
+
         {children}
+
+        <Footer />
       </body>
     </html>
   )
