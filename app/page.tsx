@@ -25,8 +25,9 @@ export default function Home() {
       {/* Search Bar - Fixed top */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <Link href="/" className="text-2xl font-bold tracking-tight">
-            4th Ground
+          <Link href="/" className="flex items-center">
+  <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
+          </Link>
           </Link>
 
           <input
