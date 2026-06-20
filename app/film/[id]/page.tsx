@@ -274,6 +274,36 @@ export default function FilmPage({ params }: { params: {id: string} }) {
     </div>
   )
 }
+
+      {/* Footer */}
+      <footer className="border-t border-white/10 px-6 md:px-12 py-8 text-sm text-zinc-500">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <p>© 2026 4th Ground. All rights reserved.</p>
+
+          <div className="flex items-center gap-6">
+            <Link href="/support" className="hover:text-white transition">
+              Support
+            </Link>
+
+            <Link href="/terms" className="hover:text-white transition">
+              Terms
+            </Link>
+          </div>
+        </div>
+      </footer>
+
+      <style jsx global>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+    
+
 </main>
   )
 }
