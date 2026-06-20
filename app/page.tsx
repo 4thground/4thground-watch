@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import films from '@/data/films.json'
 
-const ZAR_TO_USD_RATE = 18.5
+const ZAR_TO_USD_RATE = 16.5
 const zarToUsd = (zarCents: number) => ((zarCents / 100) / ZAR_TO_USD_RATE).toFixed(2)
 
 export default function Home() {
