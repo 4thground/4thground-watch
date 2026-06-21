@@ -35,7 +35,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       if (saved) {
         const { type, paidAt } = JSON.parse(saved);
         const expires =
-          type === 'buy' ? Infinity : paidAt + 48 * 60 * 60 * 1000;
+  type === 'buy' ? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000;
 
         const progress = Number(
           localStorage.getItem(`4g_progress_${film.id}_${savedEmail}`) || 0
@@ -168,7 +168,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                 Continue Watching
               </h3>
               <p className="text-zinc-300 text-lg mb-8">
-                Rent for 48 hours or buy to own forever.
+                Rent for 7 days or buy to own forever.
               </p>
 
               <div className="flex gap-4 justify-center">
