@@ -34,6 +34,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://watch.4thground.com',
   },
+  verification: {
+    google: 'riH_cF7hPVnttd-A4GTAobZt9mDa9ODeHp_Rb9d79nM',
+  },
   robots: {
     index: true,
     follow: true,
