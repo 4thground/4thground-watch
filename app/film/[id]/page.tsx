@@ -332,7 +332,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               ) : (
                 <div
                   key={f.id}
-                  335 className="flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start border border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
+              className="flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start border border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
                 >
                   <div className="rounded-lg overflow-hidden relative">
                     <img
