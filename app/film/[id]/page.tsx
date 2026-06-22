@@ -19,7 +19,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [access, setAccess] = useState<AccessState | null>(null);
   const [showTrailerEnd, setShowTrailerEnd] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showPlayer, setShowPlayer] = useState(false); // ADDED
   const playerRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
@@ -36,7 +35,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       if (saved) {
         const { type, paidAt } = JSON.parse(saved);
         const expires =
-  type === 'buy'? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000;
+  type === 'buy' ? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000;
 
         const progress = Number(
           localStorage.getItem(`4g_progress_${film.id}_${savedEmail}`) || 0
@@ -44,7 +43,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
         if (expires > Date.now()) {
           setAccess({ type, expires, progress });
-          setShowPlayer(true); // ADDED - auto-load if paid
         } else {
           localStorage.removeItem(key);
         }
@@ -65,10 +63,10 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   }, []);
 
   useEffect(() => {
-    if (!film ||!showPlayer) return; // ADDED!showPlayer
+    if (!film) return;
 
     const handleMessage = (e: MessageEvent) => {
-      if (e.origin!== 'https://iframe.mediadelivery.net') return;
+      if (e.origin !== 'https://iframe.mediadelivery.net') return;
 
       const { event, currentTime } = e.data;
 
@@ -79,7 +77,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         );
       }
 
-      if (event === 'ended' &&!access) {
+      if (event === 'ended' && !access) {
         setShowTrailerEnd(true);
       }
     };
@@ -89,7 +87,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     return () => {
       window.removeEventListener('message', handleMessage);
     };
-  }, [access, film, email, showPlayer]); // ADDED showPlayer
+  }, [access, film, email]);
 
   if (!film) {
     return (
@@ -110,7 +108,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     localStorage.setItem('4g_email', email);
 
     const amount =
-      type === 'buy'? film.buy_price_cents : film.rent_price_cents;
+      type === 'buy' ? film.buy_price_cents : film.rent_price_cents;
 
     const handler = (window as any).PaystackPop.setup({
       key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
@@ -138,12 +136,9 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     handler.openIframe();
   };
 
-  const videoId = access? film.bunny_video_id : film.bunny_trailer_id;
+  const videoId = access ? film.bunny_video_id : film.bunny_trailer_id;
   const startTime = access?.progress || 0;
-  const otherFilms = (films as any[]).filter((f) => f.id!== film.id);
-
-  // ADDED - Bunny thumbnail URL
-  const bunnyThumb = `https://vz-39eea548-82f.b-cdn.net/${videoId}/thumbnail.jpg`;
+  const otherFilms = (films as any[]).filter((f) => f.id !== film.id);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -154,32 +149,19 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         </Link>
       </div>
 
-      {/* Hero Player - CHANGED THIS SECTION */}
+      {/* Hero Player */}
       <div className="relative w-full h-screen bg-black">
-        {showPlayer? (
-          <iframe
-            ref={playerRef}
-            src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoId}?autoplay=true&preload=metadata&start=${startTime}`}
-            className="w-full h-full"
-            allow="autoplay; fullscreen"
-            allowFullScreen
-          />
-        ) : (
-          <div className="relative w-full h-full cursor-pointer bg-zinc-900" onClick={() => setShowPlayer(true)}>
-            <img
-              src={bunnyThumb}
-              alt={film.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = film.poster_url || film.backdrop_url || '';
-              }}
-            />
-          </div>
-        )}
+        <iframe
+          ref={playerRef}
+          src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoId}?autoplay=true&start=${startTime}&preload=true`}
+          className="w-full h-full"
+          allow="autoplay; fullscreen"
+          allowFullScreen
+        />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
 
-        {showTrailerEnd &&!access && (
+        {showTrailerEnd && !access && (
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
             <div className="text-center max-w-lg">
               <h3 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
@@ -295,18 +277,17 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         {access && (
           <div className="mb-12">
             <button
-              onClick={() => {
-                setShowPlayer(true); // ADDED
-                playerRef.current?.scrollIntoView({ behavior: 'smooth' });
-              }}
+              onClick={() =>
+                playerRef.current?.scrollIntoView({ behavior: 'smooth' })
+              }
               className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg"
             >
               {access.progress > 30
-               ? `Resume from ${Math.floor(access.progress / 60)}m`
+                ? `Resume from ${Math.floor(access.progress / 60)}m`
                 : 'Play'}
             </button>
 
-            {access.expires!== Infinity && (
+            {access.expires !== Infinity && (
               <p className="text-xs text-zinc-500 mt-3">
                 Rental expires {new Date(access.expires).toLocaleDateString()}
               </p>
@@ -321,7 +302,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
           <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
             {otherFilms.map((f: any) =>
-              f.available? (
+              f.available ? (
                 <Link
                   key={f.id}
                   href={`/film/${f.id}`}
@@ -400,11 +381,11 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       </footer>
 
       <style jsx global>{`
-       .scrollbar-hide::-webkit-scrollbar {
+        .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
 
-       .scrollbar-hide {
+        .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
