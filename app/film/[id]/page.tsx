@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import films from '@/data/films.json';
 
 const ZAR_TO_USD_RATE = 16.2;
@@ -18,9 +19,14 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [email, setEmail] = useState('');
   const [access, setAccess] = useState<AccessState | null>(null);
   const [showTrailerEnd, setShowTrailerEnd] = useState(false);
-  const [showPlayer, setShowPlayer] = useState(false); // Key: don't load iframe yet
+  const [showPlayer, setShowPlayer] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [thumbLoaded, setThumbLoaded] = useState(false); // NEW: track HD thumb load
   const playerRef = useRef<HTMLIFrameElement | null>(null);
+
+  // Bunny thumbnail URLs - tiny vs HD
+  const thumbTiny = film? `https://vz-${film.bunny_library_id}.b-cdn.net/${film.bunny_trailer_id}/thumbnail.jpg?width=40&quality=20&blur=5` : '';
+  const thumbHD = film? `https://vz-${film.bunny_library_id}.b-cdn.net/${film.bunny_trailer_id}/thumbnail.jpg?width=1920&quality=75&format=webp` : '';
 
   useEffect(() => {
     if (!film) return;
@@ -36,7 +42,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         const progress = Number(localStorage.getItem(`4g_progress_${film.id}_${savedEmail}`) || 0);
         if (expires > Date.now()) {
           setAccess({ type, expires, progress });
-          setShowPlayer(true); // Auto-show player if already paid
+          setShowPlayer(true);
         } else {
           localStorage.removeItem(key);
         }
@@ -53,7 +59,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   }, []);
 
   useEffect(() => {
-    if (!film ||!showPlayer) return; // Don't listen until iframe exists
+    if (!film ||!showPlayer) return;
     const handleMessage = (e: MessageEvent) => {
       if (e.origin!== 'https://iframe.mediadelivery.net') return;
       const { event, currentTime } = e.data;
@@ -124,19 +130,34 @@ export default function FilmPage({ params }: { params: { id: string } }) {
             allowFullScreen
           />
         ) : (
-          // Show poster instead of loading iframe
-          <div className="relative w-full h-full">
+          // UPDATED: LQIP blur effect
+          <div className="relative w-full h-full overflow-hidden">
+            {/* Tiny blurred base - 2KB, loads instantly */}
             <img
-              src={film.backdrop_url || film.poster_url}
-              alt={film.title}
-              className="w-full h-full object-cover"
+              src={thumbTiny}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg"
+              style={{ opacity: thumbLoaded? 0 : 1, transition: 'opacity 0.4s ease-out' }}
             />
+
+            {/* HD version - fades in when ready */}
+            <Image
+              src={thumbHD}
+              alt={film.title}
+              fill
+              priority
+              className="object-cover"
+              sizes="100vw"
+              onLoadingComplete={() => setThumbLoaded(true)}
+              style={{ opacity: thumbLoaded? 1 : 0, transition: 'opacity 0.4s ease-out' }}
+            />
+
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
               <button
                 onClick={() => setShowPlayer(true)}
                 className="bg-white text-black font-semibold px-12 py-4 rounded-full hover:bg-zinc-200 transition text-xl flex items-center gap-3"
               >
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 0 000-2.538L6.3 2.84z"/></svg>
                 Play Trailer
               </button>
             </div>
@@ -288,8 +309,8 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       </footer>
 
       <style jsx global>{`
-       .scrollbar-hide::-webkit-scrollbar { display: none; }
-       .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );
