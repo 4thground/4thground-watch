@@ -113,9 +113,9 @@ export default function Home() {
                 <Link
                   key={film.id}
                   href={`/film/${film.id}`}
-                  className="group flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
+                  className="group flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start"
                 >
-                  <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105">
+                  <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105 border border-neutral-800 hover:border-neutral-600 transition-colors">
                     <img
                       src={film.backdrop_url || film.poster_url}
                       alt={film.title}
