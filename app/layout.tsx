@@ -19,6 +19,28 @@ export const metadata: Metadata = {
     'watch 4th ground',
     '4th ground films'
   ],
+  // Added favicon config
+  manifest: '/site.webmanifest',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', type: 'image/x-icon' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      {
+        rel: 'android-chrome-192x192',
+        url: '/android-chrome-192x192.png',
+      },
+      {
+        rel: 'android-chrome-512x512',
+        url: '/android-chrome-512x512.png',
+      },
+    ],
+  },
   openGraph: {
     title: '4th Ground Movies | Official Streaming Platform',
     description: 'Stream 4th Ground digital films and originals. The official 4th Ground TV platform.',
