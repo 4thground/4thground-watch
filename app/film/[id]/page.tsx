@@ -20,6 +20,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [showTrailerEnd, setShowTrailerEnd] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const playerRef = useRef<HTMLIFrameElement | null>(null);
+  const [playerLoaded, setPlayerLoaded] = useState(false);
 
   useEffect(() => {
     if (!film) return;
