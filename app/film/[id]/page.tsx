@@ -151,13 +151,42 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
       {/* Hero Player */}
       <div className="relative w-full h-screen bg-black">
-        <iframe
-  ref={playerRef}
-  src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoId}?autoplay=false&start=${startTime}&preload=metadata`}
-  className="w-full h-full"
-  allow="autoplay; fullscreen"
-  allowFullScreen
-        />
+        {playerLoaded ? (
+  <iframe
+    ref={playerRef}
+    src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoId}?autoplay=true&start=${startTime}`}
+    className="w-full h-full"
+    allow="autoplay; fullscreen"
+    allowFullScreen
+  />
+) : (
+  <div className="relative w-full h-full">
+    <img
+      src={film.backdrop_url || film.poster_url}
+      alt={film.title}
+      className="w-full h-full object-cover"
+      loading="eager"
+      decoding="async"
+      fetchPriority="high"
+    />
+
+    <button
+      onClick={() => setPlayerLoaded(true)}
+      className="absolute inset-0 flex items-center justify-center"
+      aria-label="Play"
+    >
+      <div
+        style={{
+          width: 0,
+          height: 0,
+          borderTop: "60px solid transparent",
+          borderBottom: "60px solid transparent",
+          borderLeft: "100px solid rgba(255,255,255,0.3)",
+        }}
+      />
+    </button>
+  </div>
+)}
 
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
 
