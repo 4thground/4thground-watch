@@ -21,12 +21,10 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [showTrailerEnd, setShowTrailerEnd] = useState(false);
   const [showPlayer, setShowPlayer] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [thumbLoaded, setThumbLoaded] = useState(false);
   const playerRef = useRef<HTMLIFrameElement | null>(null);
 
-  // Bunny thumbnail URLs - tiny vs HD
-  const thumbTiny = film? `https://vz-${film.bunny_library_id}.b-cdn.net/${film.bunny_trailer_id}/thumbnail.jpg?width=40&quality=20&blur=5` : '';
-  const thumbHD = film? `https://vz-${film.bunny_library_id}.b-cdn.net/${film.bunny_trailer_id}/thumbnail.jpg?width=1920&quality=75&format=webp` : '';
+  // Just use Bunny's thumbnail directly - optimized params only
+  const bunnyThumb = film? `https://vz-${film.bunny_library_id}.b-cdn.net/${film.bunny_trailer_id}/thumbnail.jpg?width=1920&quality=75&format=webp` : '';
 
   useEffect(() => {
     if (!film) return;
@@ -130,35 +128,16 @@ export default function FilmPage({ params }: { params: { id: string } }) {
             allowFullScreen
           />
         ) : (
-          // LQIP + Play icon only
-          <div className="relative w-full h-full overflow-hidden group cursor-pointer" onClick={() => setShowPlayer(true)}>
-            {/* Tiny blurred base - 2KB */}
-            <img
-              src={thumbTiny}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg"
-              style={{ opacity: thumbLoaded? 0 : 1, transition: 'opacity 0.4s ease-out' }}
-            />
-
-            {/* HD version */}
+          // Bunny thumb only - clickable, no button
+          <div className="relative w-full h-full cursor-pointer" onClick={() => setShowPlayer(true)}>
             <Image
-              src={thumbHD}
+              src={bunnyThumb}
               alt={film.title}
               fill
               priority
               className="object-cover"
               sizes="100vw"
-              onLoadingComplete={() => setThumbLoaded(true)}
-              style={{ opacity: thumbLoaded? 1 : 0, transition: 'opacity 0.4s ease-out' }}
             />
-
-            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center">
-              <div className="bg-white/20 backdrop-blur-md rounded-full p-6 group-hover:scale-110 group-hover:bg-white/30 transition-all">
-                <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
-                </svg>
-              </div>
-            </div>
           </div>
         )}
 
@@ -307,8 +286,8 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       </footer>
 
       <style jsx global>{`
-     .scrollbar-hide::-webkit-scrollbar { display: none; }
-     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );
