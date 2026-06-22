@@ -163,13 +163,12 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 ) : (
   <div className="relative w-full h-full">
     <img
-      src={film.backdrop_url || film.poster_url}
-      alt={film.title}
-      className="w-full h-full object-cover"
-      loading="eager"
-      decoding="async"
-      fetchPriority="high"
-    />
+  src={f.backdrop_url || f.poster_url}
+  alt={f.title}
+  className="aspect-video object-cover"
+  loading="lazy"
+  decoding="async"
+/>
 
     <button
       onClick={() => setPlayerLoaded(true)}
