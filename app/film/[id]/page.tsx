@@ -2,16 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import films from '@/data/films.json';
 
 const ZAR_TO_USD_RATE = 16.2;
 
-type AccessState = {
-  type: string;
-  expires: number;
-  progress: number;
-};
+type AccessState = { type: string; expires: number; progress: number; };
 
 export default function FilmPage({ params }: { params: { id: string } }) {
   const film = (films as any[]).find((f) => f.id === params.id);
@@ -20,15 +15,23 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [access, setAccess] = useState<AccessState | null>(null);
   const [showTrailerEnd, setShowTrailerEnd] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showPlayer, setShowPlayer] = useState(false); // Added this
+  const [showPlayer, setShowPlayer] = useState(false);
   const playerRef = useRef<HTMLIFrameElement | null>(null);
 
-  // Bunny thumbnail URL
-  const bunnyThumb = film? `https://vz-${film.bunny_library_id}.b-cdn.net/${film.bunny_trailer_id}/thumbnail.jpg?width=1920` : '';
+  // Your actual Bunny IDs
+  const BUNNY_LIBRARY_ID = '684349'; // This goes in iframe embed URL
+  const BUNNY_PULL_ZONE = '39eea548-82f'; // This goes in thumbnail URL
+  const BUNNY_TRAILER_ID = 'fc796487-719a-4d4f-920c-626a1fd1ee47';
+  const BUNNY_VIDEO_ID = '6b04aac9-ea4a-4499-91b5-d4b3375e7e6f';
+
+  const bunnyThumb = access
+   ? `https://vz-${BUNNY_PULL_ZONE}.b-cdn.net/${BUNNY_VIDEO_ID}/thumbnail.jpg`
+    : `https://vz-${BUNNY_PULL_ZONE}.b-cdn.net/${BUNNY_TRAILER_ID}/thumbnail.jpg`;
+
+  const videoId = access? BUNNY_VIDEO_ID : BUNNY_TRAILER_ID;
 
   useEffect(() => {
     if (!film) return;
-
     const savedEmail = localStorage.getItem('4g_email');
     if (savedEmail) {
       setEmail(savedEmail);
@@ -40,7 +43,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         const progress = Number(localStorage.getItem(`4g_progress_${film.id}_${savedEmail}`) || 0);
         if (expires > Date.now()) {
           setAccess({ type, expires, progress });
-          setShowPlayer(true); // Auto-load player if they have access
+          setShowPlayer(true);
         } else {
           localStorage.removeItem(key);
         }
@@ -49,9 +52,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   }, [film]);
 
   useEffect(() => {
-    const handleFullscreen = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
+    const handleFullscreen = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', handleFullscreen);
     return () => document.removeEventListener('fullscreenchange', handleFullscreen);
   }, []);
@@ -73,23 +74,15 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   }, [access, film, email, showPlayer]);
 
   if (!film) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        Film not found.
-      </div>
-    );
+    return <div className="min-h-screen bg-black text-white flex items-center justify-center">Film not found.</div>;
   }
 
-  const zarToUsd = (zarCents: number) => {
-    const usd = zarCents / 100 / ZAR_TO_USD_RATE;
-    return usd.toFixed(2);
-  };
+  const zarToUsd = (zarCents: number) => (zarCents / 100 / ZAR_TO_USD_RATE).toFixed(2);
 
   const payWithPaystack = (type: 'rent' | 'buy') => {
     if (!email) return alert('Enter email first');
     localStorage.setItem('4g_email', email);
     const amount = type === 'buy'? film.buy_price_cents : film.rent_price_cents;
-
     const handler = (window as any).PaystackPop.setup({
       key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
       email,
@@ -105,7 +98,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     handler.openIframe();
   };
 
-  const videoId = access? film.bunny_video_id : film.bunny_trailer_id;
   const startTime = access?.progress || 0;
   const otherFilms = (films as any[]).filter((f) => f.id!== film.id);
 
@@ -117,34 +109,28 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         </Link>
       </div>
 
-      {/* Hero Player */}
       <div className="relative w-full h-screen bg-black">
         {showPlayer? (
           <iframe
             ref={playerRef}
-            src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoId}?autoplay=true&preload=metadata&start=${startTime}`}
+            src={`https://iframe.mediadelivery.net/embed/${BUNNY_LIBRARY_ID}/${videoId}?autoplay=true&preload=metadata&start=${startTime}`}
             className="w-full h-full"
             allow="autoplay; fullscreen"
             allowFullScreen
           />
         ) : (
-          <div className="relative w-full h-full cursor-pointer" onClick={() => setShowPlayer(true)}>
-            <Image
+          <div className="relative w-full h-full cursor-pointer bg-zinc-900" onClick={() => setShowPlayer(true)}>
+            <img
               src={bunnyThumb}
               alt={film.title}
-              fill
-              priority
-              className="object-cover"
-              sizes="100vw"
+              className="w-full h-full object-cover"
               onError={(e) => {
                 e.currentTarget.src = film.poster_url || film.backdrop_url || '';
               }}
             />
           </div>
         )}
-
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
-
         {showTrailerEnd &&!access && (
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
             <div className="text-center max-w-lg">
@@ -163,7 +149,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         )}
       </div>
 
-      {/* Rest of your content section stays the same */}
       <div className="max-w-6xl mx-auto px-6 md:px-8 -mt-40 relative z-10">
         <div className="mb-8">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 tracking-tight">{film.title}</h1>
@@ -236,12 +221,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               f.available? (
                 <Link key={f.id} href={`/film/${f.id}`} className="group flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start">
                   <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105">
-                    <img
-                      src={f.backdrop_url || f.poster_url}
-                      alt={f.title}
-                      className="aspect-video object-cover"
-                      loading="lazy"
-                    />
+                    <img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover" loading="lazy" />
                   </div>
                   <p className="font-semibold mt-3 text-base truncate">{f.title}</p>
                   <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">
@@ -253,12 +233,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               ) : (
                 <div key={f.id} className="flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start border border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2">
                   <div className="rounded-lg overflow-hidden relative">
-                    <img
-                      src={f.backdrop_url || f.poster_url}
-                      alt={f.title}
-                      className="aspect-video object-cover blur-sm brightness-50"
-                      loading="lazy"
-                    />
+                    <img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover blur-sm brightness-50" loading="lazy" />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
                         Coming Soon
@@ -288,8 +263,8 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       </footer>
 
       <style jsx global>{`
-       .scrollbar-hide::-webkit-scrollbar { display: none; }
-       .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+     .scrollbar-hide::-webkit-scrollbar { display: none; }
+     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );
