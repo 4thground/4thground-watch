@@ -11,8 +11,8 @@ type AccessState = {
 };
 
 const PAYHIP_PRODUCTS = {
-  rent: '3fYqG',
-  buy: '8kqEm'
+  rent: '3fYq1',
+  buy: '8kqE2'
 };
 
 const PRICES = {
