@@ -27,6 +27,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [access, setAccess] = useState<AccessState | null>(null);
   const [showTrailerEnd, setShowTrailerEnd] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [playerReady, setPlayerReady] = useState(false);
   const playerRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       }
     }
 
-    // Check for Payhip redirect return
+    // Check Payhip return
     const urlParams = new URLSearchParams(window.location.search);
     const payhipSuccess = urlParams.get('payhip_success');
     const payhipProduct = urlParams.get('product');
@@ -63,11 +64,13 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       if (type && currentEmail) {
         const key = `4g_access_${film.id}_${currentEmail}`;
         localStorage.setItem(key, JSON.stringify({ type, paidAt: Date.now() }));
-        // Clean URL
         window.history.replaceState({}, '', `/film/${film.id}`);
         setTimeout(() => window.location.reload(), 100);
       }
     }
+
+    // Only load player after component mounts
+    setPlayerReady(true);
 
     const handleMessage = (e: MessageEvent) => {
       if (e.origin!== 'https://iframe.mediadelivery.net') return;
@@ -106,7 +109,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     const returnUrl = `${window.location.origin}/film/${film.id}?payhip_success=true&product=${productId}`;
     const checkoutUrl = `https://payhip.com/b/${productId}?email=${encodeURIComponent(email)}&redirect_url=${encodeURIComponent(returnUrl)}`;
     
-    // Open in new tab - Payhip blocks iframe
     window.open(checkoutUrl, '_blank', 'width=600,height=800');
   };
 
@@ -123,13 +125,21 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       </div>
 
       <div className="relative w-full h-screen bg-black">
-        <iframe
-          ref={playerRef}
-          src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoId}?autoplay=true&start=${startTime}&preload=true`}
-          className="w-full h-full"
-          allow="autoplay; fullscreen"
-          allowFullScreen
-        />
+        {playerReady && (
+          <iframe
+            ref={playerRef}
+            src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoId}?autoplay=false&start=${startTime}`}
+            className="w-full h-full"
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            loading="lazy"
+          />
+        )}
+        {!playerReady && (
+          <div className="w-full h-full bg-zinc-900 flex items-center justify-center">
+            <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
 
         {showTrailerEnd &&!access && (
@@ -215,7 +225,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               f.available? (
                 <Link key={f.id} href={`/film/${f.id}`} className="group flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start">
                   <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105">
-                    <img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover" />
+                    <img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover" loading="lazy" />
                   </div>
                   <p className="font-semibold mt-3 text-base truncate">{f.title}</p>
                   <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">
@@ -227,7 +237,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               ) : (
                 <div key={f.id} className="flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start border border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2">
                   <div className="rounded-lg overflow-hidden relative">
-                    <img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover blur-sm brightness-50" />
+                    <img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover blur-sm brightness-50" loading="lazy" />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border border-white/20">Coming Soon</span>
                     </div>
