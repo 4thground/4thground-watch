@@ -27,7 +27,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [access, setAccess] = useState<AccessState | null>(null);
   const [showTrailerEnd, setShowTrailerEnd] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showCheckout, setShowCheckout] = useState<'rent' | 'buy' | null>(null);
   const playerRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
@@ -50,39 +49,34 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       }
     }
 
-    const handleMessage = (e: MessageEvent) => {
-      if (e.origin!== 'https://payhip.com' && e.origin!== 'https://iframe.mediadelivery.net') return;
-
-      if (e.origin === 'https://payhip.com') {
-        if (e.data?.type === 'payhip:success') {
-          const { product_id } = e.data;
-          const currentEmail = localStorage.getItem('4g_email') || email;
-
-          let type = '';
-          if (product_id === PAYHIP_PRODUCTS.rent) type = 'rent';
-          if (product_id === PAYHIP_PRODUCTS.buy) type = 'buy';
-          if (!type) return;
-
-          const key = `4g_access_${film.id}_${currentEmail}`;
-          localStorage.setItem(key, JSON.stringify({ type, paidAt: Date.now() }));
-          localStorage.setItem('4g_email', currentEmail);
-          setShowCheckout(null);
-          setTimeout(() => window.location.reload(), 500);
-        }
-
-        if (e.data?.type === 'payhip:close') {
-          setShowCheckout(null);
-        }
+    // Check for Payhip redirect return
+    const urlParams = new URLSearchParams(window.location.search);
+    const payhipSuccess = urlParams.get('payhip_success');
+    const payhipProduct = urlParams.get('product');
+    
+    if (payhipSuccess === 'true' && payhipProduct) {
+      const currentEmail = localStorage.getItem('4g_email') || email;
+      let type = '';
+      if (payhipProduct === PAYHIP_PRODUCTS.rent) type = 'rent';
+      if (payhipProduct === PAYHIP_PRODUCTS.buy) type = 'buy';
+      
+      if (type && currentEmail) {
+        const key = `4g_access_${film.id}_${currentEmail}`;
+        localStorage.setItem(key, JSON.stringify({ type, paidAt: Date.now() }));
+        // Clean URL
+        window.history.replaceState({}, '', `/film/${film.id}`);
+        setTimeout(() => window.location.reload(), 100);
       }
+    }
 
-      if (e.origin === 'https://iframe.mediadelivery.net') {
-        const { event, currentTime } = e.data;
-        if (event === 'timeupdate' && access && email) {
-          localStorage.setItem(`4g_progress_${film.id}_${email}`, Math.floor(currentTime).toString());
-        }
-        if (event === 'ended' &&!access) {
-          setShowTrailerEnd(true);
-        }
+    const handleMessage = (e: MessageEvent) => {
+      if (e.origin!== 'https://iframe.mediadelivery.net') return;
+      const { event, currentTime } = e.data;
+      if (event === 'timeupdate' && access && email) {
+        localStorage.setItem(`4g_progress_${film.id}_${email}`, Math.floor(currentTime).toString());
+      }
+      if (event === 'ended' &&!access) {
+        setShowTrailerEnd(true);
       }
     };
 
@@ -107,32 +101,21 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       return;
     }
     localStorage.setItem('4g_email', email);
-    setShowCheckout(type);
+    
+    const productId = type === 'rent' ? PAYHIP_PRODUCTS.rent : PAYHIP_PRODUCTS.buy;
+    const returnUrl = `${window.location.origin}/film/${film.id}?payhip_success=true&product=${productId}`;
+    const checkoutUrl = `https://payhip.com/b/${productId}?email=${encodeURIComponent(email)}&redirect_url=${encodeURIComponent(returnUrl)}`;
+    
+    // Open in new tab - Payhip blocks iframe
+    window.open(checkoutUrl, '_blank', 'width=600,height=800');
   };
 
   const videoId = access? film.bunny_video_id : film.bunny_trailer_id;
   const startTime = access?.progress || 0;
   const otherFilms = (films as any[]).filter((f) => f.id!== film.id);
-  const checkoutUrl = showCheckout
-   ? `https://payhip.com/b/${showCheckout === 'rent'? PAYHIP_PRODUCTS.rent : PAYHIP_PRODUCTS.buy}?email=${encodeURIComponent(email)}`
-    : '';
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {showCheckout && (
-        <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4" onClick={() => setShowCheckout(null)}>
-          <div className="relative w-full max-w-2xl h-[80vh] bg-white rounded-xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setShowCheckout(null)}
-              className="absolute top-4 right-4 z-10 bg-black/50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-black/80"
-            >
-              ✕
-            </button>
-            <iframe src={checkoutUrl} className="w-full h-full" allow="payment" />
-          </div>
-        </div>
-      )}
-
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
         <Link href="/" className="flex items-center">
           <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
@@ -202,7 +185,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                 Buy ${PRICES.buy}
               </button>
             </div>
-            <p className="text-xs text-zinc-500 mt-3">Secure checkout via Payhip. USD pricing.</p>
+            <p className="text-xs text-zinc-500 mt-3">Opens secure checkout in new tab. You'll return here after payment.</p>
           </div>
         )}
 
