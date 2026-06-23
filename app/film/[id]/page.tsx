@@ -28,17 +28,22 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [access, setAccess] = useState<AccessState | null>(null);
   const [showTrailerEnd, setShowTrailerEnd] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [payhipLoaded, setPayhipLoaded] = useState(false);
   const playerRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
     if (!film) return;
 
-    // Load Payhip.js
+    // Load Payhip.js and track when it's ready
     if (!document.querySelector('script[src="https://payhip.com/payhip.js"]')) {
       const script = document.createElement('script');
       script.src = 'https://payhip.com/payhip.js';
       script.async = true;
+      script.onload = () => setPayhipLoaded(true);
+      script.onerror = () => console.error('Payhip.js failed to load');
       document.body.appendChild(script);
+    } else if ((window as any).Payhip) {
+      setPayhipLoaded(true);
     }
 
     const savedEmail = localStorage.getItem('4g_email');
@@ -69,7 +74,9 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     // Listen for Payhip success
     const handlePayhipSuccess = (e: any) => {
       const { product_id } = e.detail;
-      if (!email) {
+      const currentEmail = localStorage.getItem('4g_email') || email;
+      
+      if (!currentEmail) {
         alert('Please enter email before purchase');
         return;
       }
@@ -79,7 +86,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       if (product_id === PAYHIP_PRODUCTS.buy) type = 'buy';
       if (!type) return;
 
-      const key = `4g_access_${film.id}_${email}`;
+      const key = `4g_access_${film.id}_${currentEmail}`;
       localStorage.setItem(
         key,
         JSON.stringify({
@@ -87,7 +94,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
           paidAt: Date.now(),
         })
       );
-      localStorage.setItem('4g_email', email);
+      localStorage.setItem('4g_email', currentEmail);
 
       setTimeout(() => window.location.reload(), 500);
     };
@@ -144,9 +151,24 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   }
 
   const handleBuyClick = (e: React.MouseEvent, type: 'rent' | 'buy') => {
+    e.preventDefault(); // KILL THE REDIRECT
+    
     if (!email) {
-      e.preventDefault();
       alert('Enter email first');
+      return;
+    }
+
+    localStorage.setItem('4g_email', email);
+
+    // Manually open Payhip modal - no redirect ever
+    if ((window as any).Payhip?.Checkout) {
+      (window as any).Payhip.Checkout.open({
+        product: type === 'rent' ? PAYHIP_PRODUCTS.rent : PAYHIP_PRODUCTS.buy,
+        email: email
+      });
+    } else {
+      alert('Payment system is loading. Please disable ad blocker and refresh, then try again.');
+      console.error('Payhip.js not loaded yet');
     }
   };
 
@@ -186,29 +208,21 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               </p>
 
               <div className="flex gap-4 justify-center">
-                <a
-                  href={`https://payhip.com/b/${PAYHIP_PRODUCTS.rent}`}
-                  className="payhip-buy-button bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
-                  data-product={PAYHIP_PRODUCTS.rent}
-                  data-theme="none"
-                  data-email={email}
-                  data-passthrough={JSON.stringify({ filmId: film.id, type: 'rent' })}
+                <button
+                  className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition disabled:opacity-50"
                   onClick={(e) => handleBuyClick(e, 'rent')}
+                  disabled={!payhipLoaded}
                 >
                   Rent ${PRICES.rent}
-                </a>
+                </button>
 
-                <a
-                  href={`https://payhip.com/b/${PAYHIP_PRODUCTS.buy}`}
-                  className="payhip-buy-button bg-white/10 backdrop-blur text-white font-semibold px-8 py-3 rounded-full border border-white/20 hover:bg-white/20 transition"
-                  data-product={PAYHIP_PRODUCTS.buy}
-                  data-theme="none"
-                  data-email={email}
-                  data-passthrough={JSON.stringify({ filmId: film.id, type: 'buy' })}
+                <button
+                  className="bg-white/10 backdrop-blur text-white font-semibold px-8 py-3 rounded-full border border-white/20 hover:bg-white/20 transition disabled:opacity-50"
                   onClick={(e) => handleBuyClick(e, 'buy')}
+                  disabled={!payhipLoaded}
                 >
                   Buy ${PRICES.buy}
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -266,33 +280,25 @@ export default function FilmPage({ params }: { params: { id: string } }) {
             />
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <a
-                href={`https://payhip.com/b/${PAYHIP_PRODUCTS.rent}`}
-                className="payhip-buy-button bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
-                data-product={PAYHIP_PRODUCTS.rent}
-                data-theme="none"
-                data-email={email}
-                data-passthrough={JSON.stringify({ filmId: film.id, type: 'rent' })}
+              <button
+                className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={(e) => handleBuyClick(e, 'rent')}
+                disabled={!payhipLoaded}
               >
                 Rent ${PRICES.rent} - 7 Day Access
-              </a>
+              </button>
 
-              <a
-                href={`https://payhip.com/b/${PAYHIP_PRODUCTS.buy}`}
-                className="payhip-buy-button bg-white/10 backdrop-blur-md text-white font-semibold px-8 py-4 rounded-full border border-white/20 hover:bg-white/20 transition text-lg text-center"
-                data-product={PAYHIP_PRODUCTS.buy}
-                data-theme="none"
-                data-email={email}
-                data-passthrough={JSON.stringify({ filmId: film.id, type: 'buy' })}
+              <button
+                className="bg-white/10 backdrop-blur-md text-white font-semibold px-8 py-4 rounded-full border border-white/20 hover:bg-white/20 transition text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={(e) => handleBuyClick(e, 'buy')}
+                disabled={!payhipLoaded}
               >
                 Buy ${PRICES.buy}
-              </a>
+              </button>
             </div>
 
             <p className="text-xs text-zinc-500 mt-3">
-              Secure checkout via Payhip. USD pricing.
+              Secure checkout via Payhip. USD pricing. {!payhipLoaded && 'Loading payment...'}
             </p>
           </div>
         )}
