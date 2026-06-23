@@ -4,12 +4,21 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import films from '@/data/films.json';
 
-const ZAR_TO_USD_RATE = 16.2;
-
 type AccessState = {
   type: string;
   expires: number;
   progress: number;
+};
+
+// Payhip product IDs
+const PAYHIP_PRODUCTS = {
+  rent: '3fYqG', // $3.99 USD - 7 Day Access
+  buy: '8kqEm'  // $9.99 USD - Own Forever
+};
+
+const PRICES = {
+  rent: '3.99',
+  buy: '9.99'
 };
 
 export default function FilmPage({ params }: { params: { id: string } }) {
@@ -24,6 +33,14 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (!film) return;
 
+    // Load Payhip.js
+    if (!document.querySelector('script[src="https://payhip.com/payhip.js"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://payhip.com/payhip.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
     const savedEmail = localStorage.getItem('4g_email');
 
     if (savedEmail) {
@@ -35,7 +52,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       if (saved) {
         const { type, paidAt } = JSON.parse(saved);
         const expires =
-  type === 'buy' ? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000;
+          type === 'buy' ? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000; // 7 DAYS
 
         const progress = Number(
           localStorage.getItem(`4g_progress_${film.id}_${savedEmail}`) || 0
@@ -48,7 +65,36 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         }
       }
     }
-  }, [film]);
+
+    // Listen for Payhip success
+    const handlePayhipSuccess = (e: any) => {
+      const { product_id } = e.detail;
+      if (!email) {
+        alert('Please enter email before purchase');
+        return;
+      }
+      
+      let type = '';
+      if (product_id === PAYHIP_PRODUCTS.rent) type = 'rent';
+      if (product_id === PAYHIP_PRODUCTS.buy) type = 'buy';
+      if (!type) return;
+
+      const key = `4g_access_${film.id}_${email}`;
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          type,
+          paidAt: Date.now(),
+        })
+      );
+      localStorage.setItem('4g_email', email);
+
+      setTimeout(() => window.location.reload(), 500);
+    };
+
+    window.addEventListener('payhip:success', handlePayhipSuccess);
+    return () => window.removeEventListener('payhip:success', handlePayhipSuccess);
+  }, [film, email]);
 
   useEffect(() => {
     const handleFullscreen = () => {
@@ -97,43 +143,11 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     );
   }
 
-  const zarToUsd = (zarCents: number) => {
-    const usd = zarCents / 100 / ZAR_TO_USD_RATE;
-    return usd.toFixed(2);
-  };
-
-  const payWithPaystack = (type: 'rent' | 'buy') => {
-    if (!email) return alert('Enter email first');
-
-    localStorage.setItem('4g_email', email);
-
-    const amount =
-      type === 'buy' ? film.buy_price_cents : film.rent_price_cents;
-
-    const handler = (window as any).PaystackPop.setup({
-      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
-      email,
-      amount,
-      currency: 'ZAR',
-      metadata: { film_id: film.id, type },
-      callback: function (response: any) {
-        const key = `4g_access_${film.id}_${email}`;
-
-        localStorage.setItem(
-          key,
-          JSON.stringify({
-            reference: response.reference,
-            type,
-            paidAt: Date.now(),
-          })
-        );
-
-        setTimeout(() => window.location.reload(), 500);
-      },
-      onClose: function () {},
-    });
-
-    handler.openIframe();
+  const handleBuyClick = (e: React.MouseEvent, type: 'rent' | 'buy') => {
+    if (!email) {
+      e.preventDefault();
+      alert('Enter email first');
+    }
   };
 
   const videoId = access ? film.bunny_video_id : film.bunny_trailer_id;
@@ -145,7 +159,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       {/* Top Nav */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
         <Link href="/" className="flex items-center">
-  <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
+          <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
         </Link>
       </div>
 
@@ -172,19 +186,29 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               </p>
 
               <div className="flex gap-4 justify-center">
-                <button
-                  onClick={() => payWithPaystack('rent')}
-                  className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
+                <a
+                  href={`https://payhip.com/b/${PAYHIP_PRODUCTS.rent}`}
+                  className="payhip-buy-button bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
+                  data-product={PAYHIP_PRODUCTS.rent}
+                  data-theme="none"
+                  data-email={email}
+                  data-passthrough={JSON.stringify({ filmId: film.id, type: 'rent' })}
+                  onClick={(e) => handleBuyClick(e, 'rent')}
                 >
-                  Rent ${zarToUsd(film.rent_price_cents)}
-                </button>
+                  Rent ${PRICES.rent}
+                </a>
 
-                <button
-                  onClick={() => payWithPaystack('buy')}
-                  className="bg-white/10 backdrop-blur text-white font-semibold px-8 py-3 rounded-full border border-white/20 hover:bg-white/20 transition"
+                <a
+                  href={`https://payhip.com/b/${PAYHIP_PRODUCTS.buy}`}
+                  className="payhip-buy-button bg-white/10 backdrop-blur text-white font-semibold px-8 py-3 rounded-full border border-white/20 hover:bg-white/20 transition"
+                  data-product={PAYHIP_PRODUCTS.buy}
+                  data-theme="none"
+                  data-email={email}
+                  data-passthrough={JSON.stringify({ filmId: film.id, type: 'buy' })}
+                  onClick={(e) => handleBuyClick(e, 'buy')}
                 >
-                  Buy ${zarToUsd(film.buy_price_cents)}
-                </button>
+                  Buy ${PRICES.buy}
+                </a>
               </div>
             </div>
           </div>
@@ -242,23 +266,33 @@ export default function FilmPage({ params }: { params: { id: string } }) {
             />
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={() => payWithPaystack('rent')}
-                className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg"
+              <a
+                href={`https://payhip.com/b/${PAYHIP_PRODUCTS.rent}`}
+                className="payhip-buy-button bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
+                data-product={PAYHIP_PRODUCTS.rent}
+                data-theme="none"
+                data-email={email}
+                data-passthrough={JSON.stringify({ filmId: film.id, type: 'rent' })}
+                onClick={(e) => handleBuyClick(e, 'rent')}
               >
-                Rent ${zarToUsd(film.rent_price_cents)}
-              </button>
+                Rent ${PRICES.rent} - 7 Day Access
+              </a>
 
-              <button
-                onClick={() => payWithPaystack('buy')}
-                className="bg-white/10 backdrop-blur-md text-white font-semibold px-8 py-4 rounded-full border border-white/20 hover:bg-white/20 transition text-lg"
+              <a
+                href={`https://payhip.com/b/${PAYHIP_PRODUCTS.buy}`}
+                className="payhip-buy-button bg-white/10 backdrop-blur-md text-white font-semibold px-8 py-4 rounded-full border border-white/20 hover:bg-white/20 transition text-lg text-center"
+                data-product={PAYHIP_PRODUCTS.buy}
+                data-theme="none"
+                data-email={email}
+                data-passthrough={JSON.stringify({ filmId: film.id, type: 'buy' })}
+                onClick={(e) => handleBuyClick(e, 'buy')}
               >
-                Buy ${zarToUsd(film.buy_price_cents)}
-              </button>
+                Buy ${PRICES.buy}
+              </a>
             </div>
 
             <p className="text-xs text-zinc-500 mt-3">
-              Charged in ZAR. Approx USD shown.
+              Secure checkout via Payhip. USD pricing.
             </p>
           </div>
         )}
@@ -326,13 +360,13 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                   </div>
 
                   <p className="text-sm text-zinc-400 mt-1">
-                    From ${zarToUsd(f.rent_price_cents)}
+                    From ${PRICES.rent}
                   </p>
                 </Link>
               ) : (
                 <div
                   key={f.id}
-              className="flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start border border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
+                  className="flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start border border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
                 >
                   <div className="rounded-lg overflow-hidden relative">
                     <img
@@ -363,7 +397,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         </div>
       )}
 
-            {/* Footer */}
+      {/* Footer */}
       <footer className="border-t border-white/10 px-6 md:px-12 py-8 text-sm text-zinc-500">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <p>© 2026 4th Ground. All rights reserved.</p>
