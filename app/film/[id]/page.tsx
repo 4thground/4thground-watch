@@ -248,6 +248,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border border-white/20">Coming Soon</span>
                     </div>
+                  </div>
                   <p className="font-semibold mt-3 text-base truncate text-zinc-400">{f.title}</p>
                   <div className="flex items-center gap-2 text-xs text-zinc-600 mt-1">
                     {f.year && <span>{f.year}</span>}
