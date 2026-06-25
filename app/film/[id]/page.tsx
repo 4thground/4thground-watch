@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Script from 'next/script'; // 1. ADD THIS LINE
 import films from '@/data/films.json';
 
 type AccessState = {
@@ -61,7 +60,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       let type = '';
       if (payhipProduct === PAYHIP_PRODUCTS.rent) type = 'rent';
       if (payhipProduct === PAYHIP_PRODUCTS.buy) type = 'buy';
-      if (payhipProduct === '3YqxG') type = 'rent'; // 2. ADD THIS LINE for your new button
       
       if (type && currentEmail) {
         const key = `4g_access_${film.id}_${currentEmail}`;
@@ -126,26 +124,3 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const videoId = access? film.bunny_video_id : film.bunny_trailer_id;
   const startTime = access?.progress || 0;
   const otherFilms = (films as any[]).filter((f) => f.id!== film.id);
-
-  return (
-    <>
-      {/* 3. ADD THIS LINE - put it at the very top of your return */}
-      <Script src="https://payhip.com/payhip.js" strategy="beforeInteractive" />
-      
-      {/* Your existing JSX stays exactly the same */}
-      {/* BUT: Find where your RENT button is and replace ONLY that button with: */}
-      
-      <a 
-        href="https://payhip.com/b/3YqxG" 
-        className="payhip-buy-button" 
-        data-theme="grey" 
-        data-product="3YqxG"
-        data-email={email}
-      >
-        Rent Now
-      </a>
-
-      {/* Your BUY button stays exactly as is: <button onClick={(e) => handleBuyClick(e, 'buy')}>Buy</button> */}
-    </>
-  );
-}
