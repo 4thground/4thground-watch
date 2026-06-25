@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Script from 'next/script'; // CHANGE 1: Added this import
 import films from '@/data/films.json';
 
 type AccessState = {
@@ -11,7 +12,7 @@ type AccessState = {
 };
 
 const PAYHIP_PRODUCTS = {
-  rent: '3fYq1',
+  rent: '3YqxG', // CHANGE 2: Updated from '3fYq1' to match your embed code
   buy: '8kqE2'
 };
 
@@ -124,3 +125,30 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const videoId = access? film.bunny_video_id : film.bunny_trailer_id;
   const startTime = access?.progress || 0;
   const otherFilms = (films as any[]).filter((f) => f.id!== film.id);
+
+  return (
+    <>
+      {/* CHANGE 3: Add Payhip script - paste this at the very top of your return */}
+      <Script src="https://payhip.com/payhip.js" strategy="beforeInteractive" />
+      
+      {/* YOUR EXISTING JSX GOES HERE */}
+      {/* Example: Find where your buttons are and use this for RENT: */}
+      
+      {/* RENT BUTTON - Replace your old rent button with this */}
+      <a 
+        href="https://payhip.com/b/3YqxG" 
+        className="payhip-buy-button" 
+        data-theme="grey" 
+        data-product="3YqxG"
+        data-email={email}
+      >
+        Rent Now
+      </a>
+
+      {/* BUY BUTTON - Keep your existing button exactly as is */}
+      <button onClick={(e) => handleBuyClick(e, 'buy')}>
+        Buy ${PRICES.buy}
+      </button>
+    </>
+  );
+}
