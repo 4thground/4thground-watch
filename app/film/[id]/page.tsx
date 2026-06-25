@@ -131,7 +131,19 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       {/* CHANGE 3: Add Payhip script - paste this at the very top of your return */}
       <Script src="https://payhip.com/payhip.js" strategy="beforeInteractive" />
       
-      {/* YOUR EXISTING JSX GOES HERE */}
+      {/* <a 
+  href="https://payhip.com/b/3YqxG" 
+  className="payhip-buy-button" 
+  data-theme="grey" 
+  data-product="3YqxG"
+  data-email={email}
+>
+  Rent ${PRICES.rent}
+</a>
+
+<button onClick={(e) => handleBuyClick(e, 'buy')}>
+  Buy ${PRICES.buy}
+</button> */}
       {/* Example: Find where your buttons are and use this for RENT: */}
       
       {/* RENT BUTTON - Replace your old rent button with this */}
