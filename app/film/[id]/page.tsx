@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Script from 'next/script';
 import films from '@/data/films.json';
 
 type AccessState = {
@@ -108,6 +107,15 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     };
   }, [access, film, email]);
 
+  const handleRentClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!email || !email.includes('@')) {
+      e.preventDefault();
+      alert('Please enter a valid email first');
+      return;
+    }
+    localStorage.setItem('4g_email', email);
+  };
+
   if (!film) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -122,8 +130,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Script src="https://payhip.com/payhip.js" strategy="beforeInteractive" />
-      
       {/* Top Nav */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
         <Link href="/" className="flex items-center">
@@ -154,19 +160,17 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               </p>
 
               <div className="flex justify-center">
-                {/* RENT BUTTON ONLY - Payhip */}
+                {/* RENT BUTTON - REDIRECT VERSION */}
                 <a
-                  href="https://payhip.com/b/3YqxG"
-                  className="payhip-buy-button bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
-                  data-theme="none"
-                  data-product="3YqxG"
-                  data-email={email}
+                  href={`https://payhip.com/b/3YqxG?email=${encodeURIComponent(email)}`}
+                  onClick={handleRentClick}
+                  className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
                 >
                   Rent ${film.price_usd}
                 </a>
               </div>
               <p className="text-xs text-zinc-500 mt-4">
-                Secure checkout via Payhip. You’ll be redirected to complete payment.
+                You'll be redirected to Payhip for secure checkout.
               </p>
             </div>
           </div>
@@ -224,20 +228,18 @@ export default function FilmPage({ params }: { params: { id: string } }) {
             />
 
             <div className="flex flex-col sm:flex-row gap-3">
-              {/* RENT BUTTON ONLY - Payhip */}
+              {/* RENT BUTTON - REDIRECT VERSION */}
               <a
-                href="https://payhip.com/b/3YqxG"
-                className="payhip-buy-button bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
-                data-theme="none"
-                data-product="3YqxG"
-                data-email={email}
+                href={`https://payhip.com/b/3YqxG?email=${encodeURIComponent(email)}`}
+                onClick={handleRentClick}
+                className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
               >
                 Rent ${film.price_usd}
               </a>
             </div>
 
             <p className="text-xs text-zinc-500 mt-3">
-              Secure checkout via Payhip. You’ll be redirected to complete payment.
+              You'll be redirected to Payhip for secure checkout.
             </p>
           </div>
         )}
