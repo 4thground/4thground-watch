@@ -12,7 +12,7 @@ interface PayhipButtonProps {
 }
 
 const PAYHIP_IDS = {
-  rent: '3fYqG', // $3.99 - 7 Day Access
+  rent: '3YqxG', // $3.99 - 7 Day Access
   buy: '8kqEm' // $9.99 - Own Forever
 }
 
