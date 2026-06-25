@@ -2,10 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Script from 'next/script'; // ADD THIS
+import Script from 'next/script';
 import films from '@/data/films.json';
-
-const ZAR_TO_USD_RATE = 16.2;
 
 type AccessState = {
   type: string;
@@ -13,10 +11,9 @@ type AccessState = {
   progress: number;
 };
 
-// ADD THESE - use your real Payhip product IDs
+// PAYHIP - rent only, USD
 const PAYHIP_PRODUCTS = {
-  rent: '3YqxG', // Your rent product ID from Payhip
-  buy: '8kqE2'   // Your buy product ID from Payhip
+  rent: '3YqxG' // Your Payhip product ID
 };
 
 export default function FilmPage({ params }: { params: { id: string } }) {
@@ -56,7 +53,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       }
     }
 
-    // ADD THIS: Check Payhip return for rent button
+    // Check Payhip return for rent
     const urlParams = new URLSearchParams(window.location.search);
     const payhipSuccess = urlParams.get('payhip_success');
     const payhipProduct = urlParams.get('product');
@@ -119,52 +116,12 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     );
   }
 
-  const zarToUsd = (zarCents: number) => {
-    const usd = zarCents / 100 / ZAR_TO_USD_RATE;
-    return usd.toFixed(2);
-  };
-
-  const payWithPaystack = (type: 'rent' | 'buy') => {
-    if (!email) return alert('Enter email first');
-
-    localStorage.setItem('4g_email', email);
-
-    const amount =
-      type === 'buy' ? film.buy_price_cents : film.rent_price_cents;
-
-    const handler = (window as any).PaystackPop.setup({
-      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
-      email,
-      amount,
-      currency: 'ZAR',
-      metadata: { film_id: film.id, type },
-      callback: function (response: any) {
-        const key = `4g_access_${film.id}_${email}`;
-
-        localStorage.setItem(
-          key,
-          JSON.stringify({
-            reference: response.reference,
-            type,
-            paidAt: Date.now(),
-          })
-        );
-
-        setTimeout(() => window.location.reload(), 500);
-      },
-      onClose: function () {},
-    });
-
-    handler.openIframe();
-  };
-
   const videoId = access ? film.bunny_video_id : film.bunny_trailer_id;
   const startTime = access?.progress || 0;
   const otherFilms = (films as any[]).filter((f) => f.id !== film.id);
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* ADD PAYHIP SCRIPT */}
       <Script src="https://payhip.com/payhip.js" strategy="beforeInteractive" />
       
       {/* Top Nav */}
@@ -193,11 +150,11 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                 Continue Watching
               </h3>
               <p className="text-zinc-300 text-lg mb-8">
-                Rent for 7 days or buy to own forever.
+                Rent for 7 days to unlock the full film.
               </p>
 
-              <div className="flex gap-4 justify-center">
-                {/* RENT BUTTON - SWAPPED TO PAYHIP OVERLAY */}
+              <div className="flex justify-center">
+                {/* RENT BUTTON ONLY - Payhip */}
                 <a
                   href="https://payhip.com/b/3YqxG"
                   className="payhip-buy-button bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
@@ -205,16 +162,12 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                   data-product="3YqxG"
                   data-email={email}
                 >
-                  Rent ${zarToUsd(film.rent_price_cents)}
+                  Rent ${film.price_usd}
                 </a>
-
-                <button
-                  onClick={() => payWithPaystack('buy')}
-                  className="bg-white/10 backdrop-blur text-white font-semibold px-8 py-3 rounded-full border border-white/20 hover:bg-white/20 transition"
-                >
-                  Buy ${zarToUsd(film.buy_price_cents)}
-                </button>
               </div>
+              <p className="text-xs text-zinc-500 mt-4">
+                Secure checkout via Payhip. You’ll be redirected to complete payment.
+              </p>
             </div>
           </div>
         )}
@@ -271,7 +224,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
             />
 
             <div className="flex flex-col sm:flex-row gap-3">
-              {/* RENT BUTTON - SWAPPED TO PAYHIP OVERLAY */}
+              {/* RENT BUTTON ONLY - Payhip */}
               <a
                 href="https://payhip.com/b/3YqxG"
                 className="payhip-buy-button bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
@@ -279,19 +232,12 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                 data-product="3YqxG"
                 data-email={email}
               >
-                Rent ${zarToUsd(film.rent_price_cents)}
+                Rent ${film.price_usd}
               </a>
-
-              <button
-                onClick={() => payWithPaystack('buy')}
-                className="bg-white/10 backdrop-blur-md text-white font-semibold px-8 py-4 rounded-full border border-white/20 hover:bg-white/20 transition text-lg"
-              >
-                Buy ${zarToUsd(film.buy_price_cents)}
-              </button>
             </div>
 
             <p className="text-xs text-zinc-500 mt-3">
-              Charged in ZAR. Approx USD shown.
+              Secure checkout via Payhip. You’ll be redirected to complete payment.
             </p>
           </div>
         )}
@@ -359,7 +305,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                   </div>
 
                   <p className="text-sm text-zinc-400 mt-1">
-                    From ${zarToUsd(f.rent_price_cents)}
+                    From ${f.price_usd}
                   </p>
                 </Link>
               ) : (
@@ -396,7 +342,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         </div>
       )}
 
-            {/* Footer */}
+      {/* Footer */}
       <footer className="border-t border-white/10 px-6 md:px-12 py-8 text-sm text-zinc-500">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <p>© 2026 4th Ground. All rights reserved.</p>
