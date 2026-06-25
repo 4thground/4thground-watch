@@ -18,7 +18,6 @@ const PAYHIP_PRODUCTS = {
 export default function FilmPage({ params }: { params: { id: string } }) {
   const film = (films as any[]).find((f) => f.id === params.id);
 
-  const [email, setEmail] = useState('');
   const [access, setAccess] = useState<AccessState | null>(null);
   const [showTrailerEnd, setShowTrailerEnd] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -27,28 +26,23 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (!film) return;
 
-    const savedEmail = localStorage.getItem('4g_email');
+    // Check for existing access - no email needed
+    const key = `4g_access_${film.id}`;
+    const saved = localStorage.getItem(key);
 
-    if (savedEmail) {
-      setEmail(savedEmail);
+    if (saved) {
+      const { type, paidAt } = JSON.parse(saved);
+      const expires =
+        type === 'buy'? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000;
 
-      const key = `4g_access_${film.id}_${savedEmail}`;
-      const saved = localStorage.getItem(key);
+      const progress = Number(
+        localStorage.getItem(`4g_progress_${film.id}`) || 0
+      );
 
-      if (saved) {
-        const { type, paidAt } = JSON.parse(saved);
-        const expires =
-  type === 'buy' ? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000;
-
-        const progress = Number(
-          localStorage.getItem(`4g_progress_${film.id}_${savedEmail}`) || 0
-        );
-
-        if (expires > Date.now()) {
-          setAccess({ type, expires, progress });
-        } else {
-          localStorage.removeItem(key);
-        }
+      if (expires > Date.now()) {
+        setAccess({ type, expires, progress });
+      } else {
+        localStorage.removeItem(key);
       }
     }
 
@@ -56,15 +50,12 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     const urlParams = new URLSearchParams(window.location.search);
     const payhipSuccess = urlParams.get('payhip_success');
     const payhipProduct = urlParams.get('product');
-    
+
     if (payhipSuccess === 'true' && payhipProduct === PAYHIP_PRODUCTS.rent) {
-      const currentEmail = localStorage.getItem('4g_email') || email;
-      if (currentEmail) {
-        const key = `4g_access_${film.id}_${currentEmail}`;
-        localStorage.setItem(key, JSON.stringify({ type: 'rent', paidAt: Date.now() }));
-        window.history.replaceState({}, '', `/film/${film.id}`);
-        setTimeout(() => window.location.reload(), 100);
-      }
+      const key = `4g_access_${film.id}`;
+      localStorage.setItem(key, JSON.stringify({ type: 'rent', paidAt: Date.now() }));
+      window.history.replaceState({}, '', `/film/${film.id}`);
+      setTimeout(() => window.location.reload(), 100);
     }
   }, [film]);
 
@@ -84,18 +75,18 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     if (!film) return;
 
     const handleMessage = (e: MessageEvent) => {
-      if (e.origin !== 'https://iframe.mediadelivery.net') return;
+      if (e.origin!== 'https://iframe.mediadelivery.net') return;
 
       const { event, currentTime } = e.data;
 
-      if (event === 'timeupdate' && access && email) {
+      if (event === 'timeupdate' && access) {
         localStorage.setItem(
-          `4g_progress_${film.id}_${email}`,
+          `4g_progress_${film.id}`,
           Math.floor(currentTime).toString()
         );
       }
 
-      if (event === 'ended' && !access) {
+      if (event === 'ended' &&!access) {
         setShowTrailerEnd(true);
       }
     };
@@ -105,16 +96,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     return () => {
       window.removeEventListener('message', handleMessage);
     };
-  }, [access, film, email]);
-
-  const handleRentClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!email || !email.includes('@')) {
-      e.preventDefault();
-      alert('Please enter a valid email first');
-      return;
-    }
-    localStorage.setItem('4g_email', email);
-  };
+  }, [access, film]);
 
   if (!film) {
     return (
@@ -124,16 +106,16 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     );
   }
 
-  const videoId = access ? film.bunny_video_id : film.bunny_trailer_id;
+  const videoId = access? film.bunny_video_id : film.bunny_trailer_id;
   const startTime = access?.progress || 0;
-  const otherFilms = (films as any[]).filter((f) => f.id !== film.id);
+  const otherFilms = (films as any[]).filter((f) => f.id!== film.id);
 
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Top Nav */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
         <Link href="/" className="flex items-center">
-  <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
+          <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
         </Link>
       </div>
 
@@ -149,7 +131,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
 
-        {showTrailerEnd && !access && (
+        {showTrailerEnd &&!access && (
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
             <div className="text-center max-w-lg">
               <h3 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
@@ -160,10 +142,9 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               </p>
 
               <div className="flex justify-center">
-                {/* RENT BUTTON - REDIRECT VERSION */}
+                {/* RENT BUTTON - NO EMAIL */}
                 <a
-                  href={`https://payhip.com/b/3YqxG?email=${encodeURIComponent(email)}`}
-                  onClick={handleRentClick}
+                  href="https://payhip.com/b/3YqxG"
                   className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
                 >
                   Rent ${film.price_usd}
@@ -219,19 +200,10 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
         {!access && film.available && (
           <div className="mb-12">
-            <input
-              type="email"
-              placeholder="Enter email to continue"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-xl w-full max-w-md mb-4 text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-white/50"
-            />
-
             <div className="flex flex-col sm:flex-row gap-3">
-              {/* RENT BUTTON - REDIRECT VERSION */}
+              {/* RENT BUTTON - NO EMAIL */}
               <a
-                href={`https://payhip.com/b/3YqxG?email=${encodeURIComponent(email)}`}
-                onClick={handleRentClick}
+                href="https://payhip.com/b/3YqxG"
                 className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
               >
                 Rent ${film.price_usd}
@@ -264,11 +236,11 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg"
             >
               {access.progress > 30
-                ? `Resume from ${Math.floor(access.progress / 60)}m`
+               ? `Resume from ${Math.floor(access.progress / 60)}m`
                 : 'Play'}
             </button>
 
-            {access.expires !== Infinity && (
+            {access.expires!== Infinity && (
               <p className="text-xs text-zinc-500 mt-3">
                 Rental expires {new Date(access.expires).toLocaleDateString()}
               </p>
@@ -283,7 +255,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
           <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
             {otherFilms.map((f: any) =>
-              f.available ? (
+              f.available? (
                 <Link
                   key={f.id}
                   href={`/film/${f.id}`}
@@ -362,11 +334,11 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       </footer>
 
       <style jsx global>{`
-        .scrollbar-hide::-webkit-scrollbar {
+       .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
 
-        .scrollbar-hide {
+       .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
