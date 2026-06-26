@@ -141,18 +141,18 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                 Rent for 7 days to unlock the full film.
               </p>
 
-              <div className="flex justify-center">
-                {/* RENT BUTTON - NO EMAIL */}
+              <div className="flex flex-col items-center gap-2">
+                {/* RENT BUTTON - PRICE + 7 DAYS TEXT */}
                 <a
                   href="https://payhip.com/b/3YqxG"
                   className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
                 >
-                  Rent $3.99{film.price_usd}
+                  Rent - ${film.price_usd}
                 </a>
+                <p className="text-xs text-zinc-400 mt-2 text-center">
+                  7-day rental. Watch on watch.4thground.com using the same email/browser you paid with.
+                </p>
               </div>
-              <p className="text-xs text-zinc-500 mt-4">
-                You'll be redirected to Payhip for secure checkout.
-              </p>
             </div>
           </div>
         )}
@@ -167,7 +167,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-300 mb-4">
             {film.rating && (
-              <span className="px-2 py-0.5 border border-zinc-500 rounded text-xs">
+              <span className="px-2 py-0.5 border-zinc-500 rounded text-xs">
                 {film.rating}
               </span>
             )}
@@ -200,19 +200,19 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
         {!access && film.available && (
           <div className="mb-12">
-            <div className="flex flex-col sm:flex-row gap-3">
-              {/* RENT BUTTON - NO EMAIL */}
+            <div className="flex flex-col sm:items-start gap-2">
+              {/* RENT BUTTON - PRICE + 7 DAYS TEXT */}
               <a
                 href="https://payhip.com/b/3YqxG"
                 className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
               >
-                Rent ${film.price_usd}
+                Rent - ${film.price_usd}
               </a>
-            </div>
 
-            <p className="text-xs text-zinc-500 mt-3">
-              You'll be redirected to Payhip for secure checkout.
-            </p>
+              <p className="text-xs text-zinc-500 mt-1">
+                7 days access. Support: support@4thground.com - 24/7
+              </p>
+            </div>
           </div>
         )}
 
@@ -236,7 +236,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg"
             >
               {access.progress > 30
-               ? `Resume from ${Math.floor(access.progress / 60)}m`
+              ? `Resume from ${Math.floor(access.progress / 60)}m`
                 : 'Play'}
             </button>
 
@@ -261,7 +261,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                   href={`/film/${f.id}`}
                   className="group flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start"
                 >
-                  <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105">
+                  <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105 border-transparent group-hover:border-white/20">
                     <img
                       src={f.backdrop_url || f.poster_url}
                       alt={f.title}
@@ -285,9 +285,9 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               ) : (
                 <div
                   key={f.id}
-                  className="flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start"
+                  className="flex-shrink-0 w-72 sm:w-80 md:w-96 snap-start group"
                 >
-                  <div className="rounded-lg overflow-hidden relative">
+                  <div className="rounded-lg overflow-hidden relative border-transparent group-hover:border-white/20 transition-all duration-300">
                     <img
                       src={f.backdrop_url || f.poster_url}
                       alt={f.title}
@@ -295,7 +295,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                     />
 
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
+                      <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border-white/20">
                         Coming Soon
                       </span>
                     </div>
@@ -334,11 +334,11 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       </footer>
 
       <style jsx global>{`
-       .scrollbar-hide::-webkit-scrollbar {
+      .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
 
-       .scrollbar-hide {
+      .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
