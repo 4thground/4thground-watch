@@ -147,7 +147,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                   href="https://payhip.com/b/3YqxG"
                   className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
                 >
-                  Rent {film.price_usd}
+                  Rent - ${(film.rent_price_cents / 100).toFixed(2)}
                 </a>
               </div>
               <p className="text-xs text-zinc-500 mt-4">
