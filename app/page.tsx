@@ -53,9 +53,9 @@ export default function Home() {
 
   return (
     <main className="bg-black text-white min-h-screen">
-      {/* Search Bar - Fixed top */}
+      {/* Search Bar - Fixed top. Stack on mobile so OnDIGITAL doesn't get covered */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
           <Link href="/" className="flex items-center gap-2">
             <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
             <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded">
@@ -68,7 +68,7 @@ export default function Home() {
             placeholder="Search films, cast, director..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="bg-white/10 backdrop-blur-md border-white/20 px-4 py-2 rounded-full w-full max-w-md text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="bg-white/10 backdrop-blur-md border-white/20 px-4 py-2 rounded-full w-full md:max-w-md text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-white/50"
           />
         </div>
       </div>
@@ -146,7 +146,7 @@ export default function Home() {
                 <Link
                   key={film.id}
                   href={`/film/${film.id}`}
-                  className="group flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
+                  className="group flex-shrink-0 w- sm:w- md:w- lg:w- snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
                 >
                   <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105">
                     <img
@@ -183,7 +183,7 @@ export default function Home() {
               {comingSoonFilms.map((film: any) => (
                 <div
                   key={film.id}
-                  className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
+                  className="flex-shrink-0 w- sm:w- md:w- lg:w- snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
                 >
                   <div className="rounded-lg overflow-hidden relative">
                     <img
@@ -213,7 +213,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* No Results State */}
+        {/* No Results -> OMDB fallback + Explore button */}
         {filteredFilms.length === 0 && search.trim() && (
           <div className="max-w-5xl mx-auto py-20">
             {loadingExternal? (
@@ -222,7 +222,6 @@ export default function Home() {
               </div>
             ) : externalResult?.type === 'external'? (
               <div className="space-y-6">
-                {/* 16:9 Frame to match your card style */}
                 <div className="relative w-full aspect-video rounded-lg overflow-hidden border-neutral-800">
                   <img
                     src={externalResult.poster || '/no-poster.jpg'}
@@ -243,7 +242,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Meta info */}
                 {!externalResult.filmmakerNoFilms && (
                   <div className="text-left space-y-1 px-2">
                     <h3 className="text-xl font-bold">{externalResult.title}</h3>
@@ -256,7 +254,6 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Explore button */}
                 <div className="text-center pt-4">
                   <button
                     onClick={() => setSearch('')}
@@ -268,9 +265,9 @@ export default function Home() {
               </div>
             ) : (
               <div className="text-center space-y-4">
-                <p className="text-zinc-500">
+                <div className="text-zinc-500">
                   No films found for "{search}"
-                </p>
+                </div>
                 <button
                   onClick={() => setSearch('')}
                   className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block"
@@ -301,11 +298,11 @@ export default function Home() {
       </footer>
 
       <style jsx global>{`
-       .scrollbar-hide::-webkit-scrollbar {
+      .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
 
-       .scrollbar-hide {
+      .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
