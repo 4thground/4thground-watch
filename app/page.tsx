@@ -53,13 +53,18 @@ export default function Home() {
     return () => clearTimeout(t)
   }, [search, filteredFilms.length]);
 
+  const clearSearch = () => setSearch('')
+
   return (
     <main className="bg-black text-white min-h-screen">
       {/* Search Bar - Fixed top */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center gap-2">
             <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
+            <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded">
+              OnDIGITAL
+            </span>
           </Link>
 
           <input
@@ -129,7 +134,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Content Rows */}
+      {/* Swipe Rows */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 space-y-12">
         {/* Available Films Row */}
         {availableFilms.length > 0 && (
@@ -140,7 +145,7 @@ export default function Home() {
                 <Link
                   key={film.id}
                   href={`/film/${film.id}`}
-                  className="group flex-shrink-0 w- sm:w- md:w- lg:w- snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
+                  className="group flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
                 >
                   <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105">
                     <img
@@ -149,13 +154,15 @@ export default function Home() {
                       className="aspect-video object-cover"
                     />
                   </div>
-                  <p className="font-semibold mt-3 text-base truncate">{film.title}</p>
+                  <p className="font-semibold mt-3 text-base truncate">
+                    {film.title}
+                  </p>
                   <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">
                     {film.year && <span>{film.year}</span>}
                     {film.genre && <span>• {film.genre}</span>}
                   </div>
                   <p className="text-sm text-zinc-400 mt-1">
-                    From ${film.rent_price_usd?.toFixed(2)?? '4.99'} {/* <-- USD direct */}
+                    From ${film.rent_price_usd?.toFixed(2)?? '4.99'}
                   </p>
                 </Link>
               ))}
@@ -171,7 +178,7 @@ export default function Home() {
               {comingSoonFilms.map((film: any) => (
                 <div
                   key={film.id}
-                  className="flex-shrink-0 w- sm:w- md:w- lg:w- snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
+                  className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
                 >
                   <div className="rounded-lg overflow-hidden relative">
                     <img
@@ -180,89 +187,3 @@ export default function Home() {
                       className="aspect-video object-cover blur-sm brightness-50"
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border-white/20">
-                        Coming Soon
-                      </span>
-                    </div>
-                  </div>
-                  <p className="font-semibold mt-3 text-base truncate text-zinc-400">{film.title}</p>
-                  <div className="flex items-center gap-2 text-xs text-zinc-600 mt-1">
-                    {film.year && <span>{film.year}</span>}
-                    {film.genre && <span>• {film.genre}</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* No local results -> 16:9 External fallback */}
-        {filteredFilms.length === 0 && search.trim() && (
-          <div className="max-w-5xl mx-auto py-20">
-            {loadingExternal? (
-              <p className="text-center text-zinc-400">Searching external sources...</p>
-            ) : externalResult?.type === 'external'? (
-              <div className="space-y-6">
-                {/* 16:9 Poster/Frame */}
-                <div className="relative w-full aspect-video rounded-xl overflow-hidden border-neutral-800">
-                  <img
-                    src={externalResult.poster || '/no-poster.jpg'}
-                    alt={externalResult.title || search}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center text-center p-6">
-                    <div>
-                      <p className="font-bold text-2xl md:text-3xl text-white mb-2">
-                        **This film is not yet available on 4th Ground**
-                      </p>
-                      {externalResult.filmmakerNoFilms && (
-                        <p className="text-zinc-300 font-semibold">
-                          **Films for this filmmaker are not available**
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Meta info under the poster */}
-                {!externalResult.filmmakerNoFilms && (
-                  <div className="text-left space-y-1">
-                    <h3 className="text-xl font-bold">{externalResult.title}</h3>
-                    {externalResult.director && (
-                      <p className="text-zinc-400"><span className="text-zinc-500">Director:</span> {externalResult.director}</p>
-                    )}
-                    {externalResult.plot && (
-                      <p className="text-sm text-zinc-400 mt-2">{externalResult.plot}</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center">
-                <p className="font-bold text-red-400 text-xl">
-                  **Film not available on 4th Ground**
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Footer */}
-      <footer className="border-t border-white/10 px-6 md:px-12 py-8 text-sm text-zinc-500">
-        <div className="max-w-7xl mx-auto flex-col md:flex-row items-center justify-between gap-4">
-          <p>© 2026 4th Ground. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <Link href="/support" className="hover:text-white transition">Support</Link>
-            <Link href="/terms" className="hover:text-white transition">Terms</Link>
-          </div>
-        </div>
-      </footer>
-
-      <style jsx global>{`
-     .scrollbar-hide::-webkit-scrollbar { display: none; }
-     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-    </main>
-  )
-}
