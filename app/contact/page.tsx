@@ -13,9 +13,9 @@ export default function ContactPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
         <div className="relative z-10 mx-auto w-full max-w-7xl">
           <p className="mb-3 text-sm font-semibold tracking-wide text-zinc-400">4th Ground Contact</p>
-          <h1 className="max-w-4xl text-5xl font-bold leading-none tracking-tight md:text-8xl">Talk to Us</h1>
+          <h1 className="max-w-4xl text-5xl font-bold leading-none tracking-tight md:text-8xl">Get in Touch</h1>
           <p className="mt-6 max-w-2xl text-lg font-medium leading-relaxed text-zinc-300 md:text-xl">
-            For partnerships, press, legal, or general questions about 4th Ground.
+            Our support team is ready to help you.
           </p>
           <a href="mailto:support@4thground.com" className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-base font-bold text-black transition hover:bg-zinc-200 md:text-lg">
             Email Us
@@ -36,12 +36,7 @@ export default function ContactPage() {
               Copyright notices and legal inquiries. Use subject line “DMCA Notice”.
             </p>
           </div>
-          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
-            <h2 className="text-xl font-bold">Filmmakers</h2>
-            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-              Interested in distributing on 4th Ground TVOD? Contact us to start the conversation.
-            </p>
-          </div>
+          
         </div>
         <div className="mt-12 rounded-3xl border-white/10 bg-zinc-950 p-6 md:p-8">
           <h2 className="text-2xl font-bold">Email</h2>
