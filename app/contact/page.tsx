@@ -18,7 +18,7 @@ export default function ContactPage() {
         </div>
       </section>
       <section className="mx-auto max-w-4xl px-5 pb-20 md:px-12">
-        <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md md:p-10">
+      <div className="rounded-3xl border-white/20 bg-white/[0.06] p-6 backdrop-blur-md shadow-[0_0_0_1px_rgba(255,255,255,0.05)] md:p-10">
   
           <div className="space-y-8 text-zinc-300">
             <div><h2 className="text-2xl font-bold text-white">Email</h2><p className="mt-3 leading-relaxed">For all inquiries: <a href="mailto:support@4thground.com" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">support@4thground.com</a></p></div>
