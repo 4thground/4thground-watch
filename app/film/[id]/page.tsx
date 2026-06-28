@@ -320,21 +320,23 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       )}
 
       {/* Footer */}
-      <footer className="border-t border-white/10 px-6 md:px-12 py-8 text-sm text-zinc-500">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <p>© 2026 4th Ground. All rights reserved.</p>
+      <footer className="border-t border-white/10 px-6 md:px-12 py-10 text-sm text-zinc-500">
+  <div className="max-w-7xl mx-auto space-y-6">
+    <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2">
+      <Link href="/terms" className="hover:text-white transition">Terms of Service</Link>
+      <Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link>
+      <Link href="/cookies" className="hover:text-white transition">Cookie Policy</Link>
+      <Link href="/dmca" className="hover:text-white transition">DMCA</Link>
+      <Link href="/support" className="hover:text-white transition">Support</Link>
+      <Link href="/contact" className="hover:text-white transition">Contact</Link>
+    </div>
 
-          <div className="flex items-center gap-6">
-            <Link href="/support" className="hover:text-white transition">
-              Support
-            </Link>
-
-            <Link href="/terms" className="hover:text-white transition">
-              Terms
-            </Link>
-          </div>
-        </div>
-      </footer>
+    <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-white/5">
+      <p>© 2026 4th Ground. All rights reserved.</p>
+      <p className="text-xs text-zinc-600">All content and trademarks are property of their respective owners.</p>
+    </div>
+  </div>
+</footer>
 
       <style jsx global>{`
        .scrollbar-hide::-webkit-scrollbar {
