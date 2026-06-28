@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import films from '@/data/films.json'
 
-const ZAR_TO_USD_RATE = 16.2
-const zarToUsd = (zarCents: number) => ((zarCents / 100) / ZAR_TO_USD_RATE).toFixed(2)
+
 type ExternalResult = {
   type: 'external' | 'none'
   title?: string
@@ -166,7 +165,7 @@ export default function Home() {
                   </div>
 
                   <p className="text-sm text-zinc-400 mt-1">
-                    From ${zarToUsd(film.rent_price_cents)}
+                    From ${(film.rent_price_cents / 100).toFixed(2)}
                   </p>
                 </Link>
               ))}
