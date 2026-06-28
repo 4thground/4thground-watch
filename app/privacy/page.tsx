@@ -24,19 +24,19 @@ export default function PrivacyPage() {
 
       <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
         <div className="grid gap-4 md:grid-cols-3">
-          <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg h-[360px] p-6 flex-col justify-end hover:border-zinc-700 transition">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
             <h2 className="text-xl font-bold">What We Collect</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               Email, name, transaction records, device info, and viewing history. Payment details are handled by our payment provider, not stored by us.
             </p>
           </div>
-          <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg h-[360px] p-6 flex-col justify-end hover:border-zinc-700 transition">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
             <h2 className="text-xl font-bold">How We Use It</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               To process rentals/purchases, prevent fraud, provide support, and comply with legal requirements. We do not sell your data.
             </p>
           </div>
-          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
             <h2 className="text-xl font-bold">Your Rights</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               Request access, correction, or deletion of your data at any time by emailing support@4thground.com.
@@ -44,7 +44,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div className="mt-12 rounded-3xl border-white/10 bg-zinc-950 p-6 md:p-8">
+        <div className="mt-12 rounded-3xl border border-white/10 bg-zinc-950 p-6 md:p-8">
           <h2 className="text-2xl font-bold">Privacy Contact</h2>
           <p className="mt-4 max-w-3xl text-zinc-400">Questions about your data?</p>
           <a href="mailto:support@4thground.com" className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">
