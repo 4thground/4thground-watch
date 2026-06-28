@@ -19,6 +19,7 @@ export default function ContactPage() {
       </section>
       <section className="mx-auto max-w-4xl px-5 pb-20 md:px-12">
         <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md md:p-10">
+                   ^^^^^^ add this
           <div className="space-y-8 text-zinc-300">
             <div><h2 className="text-2xl font-bold text-white">Email</h2><p className="mt-3 leading-relaxed">For all inquiries: <a href="mailto:support@4thground.com" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">support@4thground.com</a></p></div>
             <div><h2 className="text-2xl font-bold text-white">Response Time</h2><p className="mt-3 leading-relaxed">We typically reply within 1-2 business days.</p></div>
