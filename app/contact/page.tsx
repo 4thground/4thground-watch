@@ -24,13 +24,13 @@ export default function ContactPage() {
       </section>
       <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
             <h2 className="text-xl font-bold">Support</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               Issues with playback, payments, or access. Email support@4thground.com with your order details.
             </p>
           </div>
-          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
             <h2 className="text-xl font-bold">Legal & DMCA</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               Copyright notices and legal inquiries. Use subject line “DMCA Notice”.
@@ -38,7 +38,7 @@ export default function ContactPage() {
           </div>
           
         </div>
-        <div className="mt-12 rounded-3xl border-white/10 bg-zinc-950 p-6 md:p-8">
+        <div className="mt-12 rounded-3xl border border-white/10 bg-zinc-950 p-6 md:p-8">
           <h2 className="text-2xl font-bold">Email</h2>
           <p className="mt-4 max-w-3xl text-zinc-400">We typically reply within 1-2 business days.</p>
           <a href="mailto:support@4thground.com" className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">
