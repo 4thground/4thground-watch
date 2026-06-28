@@ -5,11 +5,12 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   metadataBase: new URL('https://watch.4thground.com'),
   title: {
-    default: '4th Ground Movies | 4th Ground Streaming Platform',
+    default: 'On Digital | 4th Ground',
     template: '%s | 4th Ground TV'
   },
   description: 'Watch 4th Ground movies on the official 4th Ground streaming platform. 4th Ground TV and 4th Ground digital films available to rent online. Stream 4th Ground platform originals anywhere.',
   keywords: [
+    'On Digital',
     '4th ground',
     '4th ground movies', 
     '4th ground tv',
@@ -42,7 +43,7 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: '4th Ground Movies | Official Streaming Platform',
+    title: 'On Digital | 4th Ground',
     description: 'Stream 4th Ground digital films and originals. The official 4th Ground TV platform.',
     url: 'https://watch.4thground.com',
     siteName: '4th Ground Watch',
@@ -50,7 +51,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: '4th Ground Movies | 4th Ground Streaming',
+    title: 'On Digital | 4th Ground',
     description: 'Official 4th Ground platform for digital films and streaming.',
   },
   alternates: {
