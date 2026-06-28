@@ -223,7 +223,7 @@ export default function Home() {
                   <div className="absolute inset-0 bg-black/70 flex items-center justify-center text-center p-6">
                     <div>
                       <p className="font-bold text-2xl md:text-3xl text-white mb-2">
-                        **This film is not yet available on 4th Ground**
+                        This film is not yet available on DIGITAL | 4th Ground
                       </p>
                       {externalResult.filmmakerNoFilms && (
                         <p className="text-zinc-300 font-semibold">**Films for this filmmaker are not available**</p>
