@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import films from '@/data/films.json'
 
+const ZAR_TO_USD_RATE = 16.2
+const zarToUsd = (zarCents: number) => ((zarCents / 100) / ZAR_TO_USD_RATE).toFixed(2)
+
 type ExternalResult = {
   type: 'external' | 'none'
   title?: string
@@ -14,10 +17,11 @@ type ExternalResult = {
 
 export default function Home() {
   const [search, setSearch] = useState('')
-  const [externalResult, setExternalResult] = useState<ExternalResult | null>(null)
-  const [loadingExternal, setLoadingExternal] = useState(false)
+  const [externalResult, setExternalResult] = useState<ExternalResult | null>(null) // 1. Added
+  const [loadingExternal, setLoadingExternal] = useState(false) // 1. Added
   const featured = films[0]
 
+  // Filter for search + split available vs coming soon
   const filteredFilms = films.filter(f =>
     f.title.toLowerCase().includes(search.toLowerCase()) ||
     f.cast?.some(c => c.toLowerCase().includes(search.toLowerCase())) ||
@@ -27,6 +31,7 @@ export default function Home() {
   const availableFilms = filteredFilms.filter(f => f.available)
   const comingSoonFilms = filteredFilms.filter(f =>!f.available)
 
+  // 2. Added: External search when local = 0
   useEffect(() => {
     const run = async () => {
       if (!search.trim() || filteredFilms.length > 0) {
@@ -53,10 +58,10 @@ export default function Home() {
     <main className="bg-black text-white min-h-screen">
       {/* Search Bar - Fixed top */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
-        <div className="max-w-7xl mx-auto flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
-          <Link href="/" className="flex items-center gap-2">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-2"> {/* 3. Added gap-2 */}
             <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
-            <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded">
+            <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded"> {/* 3. Added OnDIGITAL */}
               OnDIGITAL
             </span>
           </Link>
@@ -66,7 +71,7 @@ export default function Home() {
             placeholder="Search films, cast, director..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="bg-white/10 backdrop-blur-md border-white/20 px-4 py-2 rounded-full w-full md:max-w-md text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="bg-white/10 backdrop-blur-md border-white/20 px-4 py-2 rounded-full w-full max-w-md text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-white/50"
           />
         </div>
       </div>
@@ -78,38 +83,51 @@ export default function Home() {
           className="absolute inset-0 w-full h-full object-cover"
           alt={featured.title}
         />
+
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+
         <div className="absolute bottom-8 left-5 right-5 md:bottom-24 md:left-12 md:right-auto max-w-3xl text-center md:text-left">
           <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold mb-3 md:mb-4 tracking-tight">
             {featured.title}
           </h1>
+
+          {/* Metadata Row */}
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 md:gap-x-4 gap-y-2 text-xs md:text-sm text-zinc-300 mb-3 md:mb-4">
             {featured.rating && (
               <span className="px-2 py-0.5 border-zinc-500 rounded text-xs">
                 {featured.rating}
               </span>
             )}
+
             {featured.year && <span>{featured.year}</span>}
+
             {featured.genre && <span>•</span>}
             {featured.genre && <span>{featured.genre}</span>}
+
             {featured.language && <span>•</span>}
             {featured.language && <span>{featured.language}</span>}
+
             <span>•</span>
             <span>HD</span>
           </div>
+
+          {/* Cast & Director */}
           {featured.director && (
             <p className="text-zinc-300 mb-1 text-sm md:text-base">
               <span className="text-zinc-500">Director:</span> {featured.director}
             </p>
           )}
+
           {featured.cast && featured.cast.length > 0 && (
             <p className="text-zinc-300 mb-3 md:mb-4 text-sm md:text-base">
               <span className="text-zinc-500">Starring:</span> {featured.cast.join(', ')}
             </p>
           )}
+
           <p className="text-sm sm:text-base md:text-lg text-zinc-200 mb-6 md:mb-8 max-w-xl mx-auto md:mx-0 leading-relaxed">
             {featured.description}
           </p>
+
           <Link
             href={`/film/${featured.id}`}
             className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block"
@@ -125,6 +143,7 @@ export default function Home() {
         {availableFilms.length > 0 && (
           <div>
             <h2 className="text-2xl font-bold mb-4">Featured on 4th Ground</h2>
+
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
               {availableFilms.map((film: any) => (
                 <Link
@@ -139,13 +158,18 @@ export default function Home() {
                       className="aspect-video object-cover"
                     />
                   </div>
-                  <p className="font-semibold mt-3 text-base truncate">{film.title}</p>
+
+                  <p className="font-semibold mt-3 text-base truncate">
+                    {film.title}
+                  </p>
+
                   <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">
                     {film.year && <span>{film.year}</span>}
                     {film.genre && <span>• {film.genre}</span>}
                   </div>
+
                   <p className="text-sm text-zinc-400 mt-1">
-                    From ${film.rent_price_usd?.toFixed(2)?? '4.99'}
+                    From ${zarToUsd(film.rent_price_cents)}
                   </p>
                 </Link>
               ))}
@@ -157,6 +181,7 @@ export default function Home() {
         {comingSoonFilms.length > 0 && (
           <div>
             <h2 className="text-2xl font-bold mb-4">Coming Soon</h2>
+
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
               {comingSoonFilms.map((film: any) => (
                 <div
@@ -169,13 +194,18 @@ export default function Home() {
                       alt={film.title}
                       className="aspect-video object-cover blur-sm brightness-50"
                     />
+
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border-white/20">
                         Coming Soon
                       </span>
                     </div>
                   </div>
-                  <p className="font-semibold mt-3 text-base truncate text-zinc-400">{film.title}</p>
+
+                  <p className="font-semibold mt-3 text-base truncate text-zinc-400">
+                    {film.title}
+                  </p>
+
                   <div className="flex items-center gap-2 text-xs text-zinc-600 mt-1">
                     {film.year && <span>{film.year}</span>}
                     {film.genre && <span>• {film.genre}</span>}
@@ -186,7 +216,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* No Results -> OMDB fallback + Explore button */}
+        {/* 4. Replaced: No results -> OMDB fallback */}
         {filteredFilms.length === 0 && search.trim() && (
           <div className="max-w-5xl mx-auto py-20">
             {loadingExternal? (
@@ -231,19 +261,32 @@ export default function Home() {
         )}
       </div>
 
+      {/* Footer */}
       <footer className="border-t border-white/10 px-6 md:px-12 py-8 text-sm text-zinc-500">
         <div className="max-w-7xl mx-auto flex-col md:flex-row items-center justify-between gap-4">
           <p>© 2026 4th Ground. All rights reserved.</p>
+
           <div className="flex items-center gap-6">
-            <Link href="/support" className="hover:text-white transition">Support</Link>
-            <Link href="/terms" className="hover:text-white transition">Terms</Link>
+            <Link href="/support" className="hover:text-white transition">
+              Support
+            </Link>
+
+            <Link href="/terms" className="hover:text-white transition">
+              Terms
+            </Link>
           </div>
         </div>
       </footer>
 
       <style jsx global>{`
-     .scrollbar-hide::-webkit-scrollbar { display: none; }
-     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+       .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+
+       .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
       `}</style>
     </main>
   )
