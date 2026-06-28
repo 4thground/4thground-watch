@@ -1,24 +1,13 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import films from '@/data/films.json'
 
 const ZAR_TO_USD_RATE = 16.2
 const zarToUsd = (zarCents: number) => ((zarCents / 100) / ZAR_TO_USD_RATE).toFixed(2)
 
-type ExternalResult = {
-  type: 'external' | 'none'
-  title?: string
-  director?: string
-  plot?: string
-  poster?: string | null
-  filmmakerNoFilms?: boolean
-}
-
 export default function Home() {
   const [search, setSearch] = useState('')
-  const [externalResult, setExternalResult] = useState<ExternalResult | null>(null) // 1. Added
-  const [loadingExternal, setLoadingExternal] = useState(false) // 1. Added
   const featured = films[0]
 
   // Filter for search + split available vs coming soon
@@ -29,41 +18,16 @@ export default function Home() {
   )
 
   const availableFilms = filteredFilms.filter(f => f.available)
-  const comingSoonFilms = filteredFilms.filter(f =>!f.available)
-
-  // 2. Added: External search when local = 0
-  useEffect(() => {
-    const run = async () => {
-      if (!search.trim() || filteredFilms.length > 0) {
-        setExternalResult(null)
-        return
-      }
-      setLoadingExternal(true)
-      setExternalResult(null)
-      try {
-        const res = await fetch(`/api/external-search?q=${encodeURIComponent(search)}`)
-        const data = await res.json()
-        setExternalResult(data)
-      } catch {
-        setExternalResult({ type: 'none' })
-      } finally {
-        setLoadingExternal(false)
-      }
-    }
-    const t = setTimeout(run, 500)
-    return () => clearTimeout(t)
-  }, [search, filteredFilms.length])
+  const comingSoonFilms = filteredFilms.filter(f => !f.available)
 
   return (
     <main className="bg-black text-white min-h-screen">
       {/* Search Bar - Fixed top */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2"> {/* 3. Added gap-2 */}
-            <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
-            <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded"> {/* 3. Added OnDIGITAL */}
-              OnDIGITAL
-            </span>
+          <Link href="/" className="flex items-center">
+  <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
+    
           </Link>
 
           <input
@@ -71,7 +35,7 @@ export default function Home() {
             placeholder="Search films, cast, director..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="bg-white/10 backdrop-blur-md border-white/20 px-4 py-2 rounded-full w-full max-w-md text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full w-full max-w-md text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-white/50"
           />
         </div>
       </div>
@@ -94,7 +58,7 @@ export default function Home() {
           {/* Metadata Row */}
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 md:gap-x-4 gap-y-2 text-xs md:text-sm text-zinc-300 mb-3 md:mb-4">
             {featured.rating && (
-              <span className="px-2 py-0.5 border-zinc-500 rounded text-xs">
+              <span className="px-2 py-0.5 border border-zinc-500 rounded text-xs">
                 {featured.rating}
               </span>
             )}
@@ -149,7 +113,7 @@ export default function Home() {
                 <Link
                   key={film.id}
                   href={`/film/${film.id}`}
-                  className="group flex-shrink-0 w- sm:w- md:w- lg:w- snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
+                  className="group flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
                 >
                   <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105">
                     <img
@@ -186,7 +150,7 @@ export default function Home() {
               {comingSoonFilms.map((film: any) => (
                 <div
                   key={film.id}
-                  className="flex-shrink-0 w- sm:w- md:w- lg:w- snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
+                  className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
                 >
                   <div className="rounded-lg overflow-hidden relative">
                     <img
@@ -196,7 +160,7 @@ export default function Home() {
                     />
 
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border-white/20">
+                      <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
                         Coming Soon
                       </span>
                     </div>
@@ -216,54 +180,16 @@ export default function Home() {
           </div>
         )}
 
-        {/* 4. Replaced: No results -> OMDB fallback */}
-        {filteredFilms.length === 0 && search.trim() && (
-          <div className="max-w-5xl mx-auto py-20">
-            {loadingExternal? (
-              <div className="text-center py-20 text-zinc-500">Searching external sources...</div>
-            ) : externalResult?.type === 'external'? (
-              <div className="space-y-6">
-                <div className="relative w-full aspect-video rounded-lg overflow-hidden border-neutral-800">
-                  <img src={externalResult.poster || '/no-poster.jpg'} alt={externalResult.title || search} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center text-center p-6">
-                    <div>
-                      <p className="font-bold text-2xl md:text-3xl text-white mb-2">
-                        **This film is not yet available on 4th Ground**
-                      </p>
-                      {externalResult.filmmakerNoFilms && (
-                        <p className="text-zinc-300 font-semibold">**Films for this filmmaker are not available**</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                {!externalResult.filmmakerNoFilms && (
-                  <div className="text-left space-y-1 px-2">
-                    <h3 className="text-xl font-bold">{externalResult.title}</h3>
-                    {externalResult.director && (<p className="text-zinc-400"><span className="text-zinc-500">Director:</span> {externalResult.director}</p>)}
-                    {externalResult.plot && (<p className="text-sm text-zinc-400 mt-2">{externalResult.plot}</p>)}
-                  </div>
-                )}
-                <div className="text-center pt-4">
-                  <button onClick={() => setSearch('')} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">
-                    Explore more films on DIGITAL
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center space-y-4">
-                <div className="text-zinc-500">No films found for "{search}"</div>
-                <button onClick={() => setSearch('')} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">
-                  Explore more films on DIGITAL
-                </button>
-              </div>
-            )}
+        {filteredFilms.length === 0 && (
+          <div className="text-center py-20 text-zinc-500">
+            No films found for "{search}"
           </div>
         )}
       </div>
 
       {/* Footer */}
       <footer className="border-t border-white/10 px-6 md:px-12 py-8 text-sm text-zinc-500">
-        <div className="max-w-7xl mx-auto flex-col md:flex-row items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <p>© 2026 4th Ground. All rights reserved.</p>
 
           <div className="flex items-center gap-6">
@@ -279,11 +205,11 @@ export default function Home() {
       </footer>
 
       <style jsx global>{`
-       .scrollbar-hide::-webkit-scrollbar {
+        .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
 
-       .scrollbar-hide {
+        .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
