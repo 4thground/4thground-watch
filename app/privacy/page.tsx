@@ -24,7 +24,7 @@ export default function PrivacyPage() {
 
       <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+          <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg h-[360px] p-6 flex-col justify-end hover:border-zinc-700 transition">
             <h2 className="text-xl font-bold">What We Collect</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               Email, name, transaction records, device info, and viewing history. Payment details are handled by our payment provider, not stored by us.
