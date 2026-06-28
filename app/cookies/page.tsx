@@ -21,7 +21,7 @@ export default function CookiesPage() {
       </section>
       <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
             <h2 className="text-xl font-bold">Essential Cookies</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               Required for login, session, and checkout. The site cannot function without these.
