@@ -21,26 +21,26 @@ export default function DMCAPage() {
       </section>
       <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
             <h2 className="text-xl font-bold">File a Notice</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               Include: copyrighted work, URL, your contact info, and a statement of good faith. Email support@4thground.com.
             </p>
           </div>
-          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
             <h2 className="text-xl font-bold">Takedown</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               We remove or disable access to material upon valid notice and notify the account holder.
             </p>
           </div>
-          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
             <h2 className="text-xl font-bold">Counter-Notice</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               If removed in error, submit a counter-notice. We may restore content in 10-14 days unless legal action is filed.
             </p>
           </div>
         </div>
-        <div className="mt-12 rounded-3xl border-white/10 bg-zinc-950 p-6 md:p-8">
+        <div className="mt-12 rounded-3xl border border-white/10 bg-zinc-950 p-6 md:p-8">
           <h2 className="text-2xl font-bold">DMCA Contact</h2>
           <p className="mt-4 max-w-3xl text-zinc-400">Send all DMCA notices to:</p>
           <a href="mailto:support@4thground.com" className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">
