@@ -5,9 +5,18 @@ import films from '@/data/films.json'
 
 const ZAR_TO_USD_RATE = 16.2
 const zarToUsd = (zarCents: number) => ((zarCents / 100) / ZAR_TO_USD_RATE).toFixed(2)
-
+type ExternalResult = {
+  type: 'external' | 'none'
+  title?: string
+  director?: string
+  plot?: string
+  poster?: string | null
+  filmmakerNoFilms?: boolean
+}
 export default function Home() {
   const [search, setSearch] = useState('')
+    const [externalResult, setExternalResult] = useState<ExternalResult | null>(null)
+  const [loadingExternal, setLoadingExternal] = useState(false)
   const featured = films[0]
 
   // Filter for search + split available vs coming soon
@@ -19,16 +28,40 @@ export default function Home() {
 
   const availableFilms = filteredFilms.filter(f => f.available)
   const comingSoonFilms = filteredFilms.filter(f => !f.available)
-
+  useEffect(() => {
+    const run = async () => {
+      if (!search.trim() || filteredFilms.length > 0) {
+        setExternalResult(null)
+        return
+      }
+      setLoadingExternal(true)
+      setExternalResult(null)
+      try {
+        const res = await fetch(`/api/external-search?q=${encodeURIComponent(search)}`)
+        const data = await res.json()
+        setExternalResult(data)
+      } catch {
+        setExternalResult({ type: 'none' })
+      } finally {
+        setLoadingExternal(false)
+      }
+    }
+    const t = setTimeout(run, 500)
+    return () => clearTimeout(t)
+  }, [search, filteredFilms.length])
   return (
     <main className="bg-black text-white min-h-screen">
       {/* Search Bar - Fixed top */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center">
-  <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
-    
+                <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
+            <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded">
+              OnDIGITAL
+            </span>
           </Link>
+    
+
 
           <input
             type="text"
@@ -180,9 +213,46 @@ export default function Home() {
           </div>
         )}
 
-        {filteredFilms.length === 0 && (
-          <div className="text-center py-20 text-zinc-500">
-            No films found for "{search}"
+                {filteredFilms.length === 0 && search.trim() && (
+          <div className="max-w-5xl mx-auto py-20">
+            {loadingExternal? (
+              <div className="text-center py-20 text-zinc-500">Searching external sources...</div>
+            ) : externalResult?.type === 'external'? (
+              <div className="space-y-6">
+                <div className="relative w-full aspect-video rounded-lg overflow-hidden border-neutral-800">
+                  <img src={externalResult.poster || '/no-poster.jpg'} alt={externalResult.title || search} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center text-center p-6">
+                    <div>
+                      <p className="font-bold text-2xl md:text-3xl text-white mb-2">
+                        **This film is not yet available on 4th Ground**
+                      </p>
+                      {externalResult.filmmakerNoFilms && (
+                        <p className="text-zinc-300 font-semibold">**Films for this filmmaker are not available**</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {!externalResult.filmmakerNoFilms && (
+                  <div className="text-left space-y-1 px-2">
+                    <h3 className="text-xl font-bold">{externalResult.title}</h3>
+                    {externalResult.director && (<p className="text-zinc-400"><span className="text-zinc-500">Director:</span> {externalResult.director}</p>)}
+                    {externalResult.plot && (<p className="text-sm text-zinc-400 mt-2">{externalResult.plot}</p>)}
+                  </div>
+                )}
+                <div className="text-center pt-4">
+                  <button onClick={() => setSearch('')} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">
+                    Explore more films on DIGITAL
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center space-y-4">
+                <div className="text-zinc-500">No films found for "{search}"</div>
+                <button onClick={() => setSearch('')} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">
+                  Explore more films on DIGITAL
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
