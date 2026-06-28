@@ -27,20 +27,20 @@ export default function CookiesPage() {
               Required for login, session, and checkout. The site cannot function without these.
             </p>
           </div>
-          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
             <h2 className="text-xl font-bold">Analytics Cookies</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               Help us understand usage and improve performance. We do not use advertising cookies.
             </p>
           </div>
-          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
             <h2 className="text-xl font-bold">Manage Cookies</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               You can disable cookies in your browser settings, but some features may not work.
             </p>
           </div>
         </div>
-        <div className="mt-12 rounded-3xl border-white/10 bg-zinc-950 p-6 md:p-8">
+        <div className="mt-12 rounded-3xl border border-white/10 bg-zinc-950 p-6 md:p-8">
           <h2 className="text-2xl font-bold">Contact</h2>
           <p className="mt-4 max-w-3xl text-zinc-400">Cookie questions?</p>
           <a href="mailto:support@4thground.com" className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">
