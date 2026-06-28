@@ -113,7 +113,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Top Nav */}
-              <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+              <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
           <Link href="/" className="flex items-center gap-2">
             <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
             <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded">
