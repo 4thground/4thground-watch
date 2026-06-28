@@ -8,22 +8,47 @@ export default function ContactPage() {
           <Link href="/" className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/20">Home</Link>
         </div>
       </header>
-      <section className="relative flex min-h-[60svh] items-end overflow-hidden px-5 pb-14 pt-28 md:min-h-[65vh] md:px-12 md:pb-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.14),transparent_35%),linear-gradient(to_top,#000,rgba(0,0,0,0.65),#000)]" />
+      <section className="relative flex min-h-[70svh] items-end overflow-hidden px-5 pb-14 pt-28 md:min-h-[75vh] md:px-12 md:pb-20">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.16),transparent_35%),linear-gradient(to_top,#000,rgba(0,0,0,0.55),#000)]" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
         <div className="relative z-10 mx-auto w-full max-w-7xl">
-          <p className="mb-3 text-sm font-semibold tracking-wide text-zinc-400">4th Ground</p>
-          <h1 className="max-w-4xl text-5xl font-bold leading-none tracking-tight md:text-8xl">Contact</h1>
-          <p className="mt-6 max-w-2xl text-lg font-medium leading-relaxed text-zinc-300 md:text-xl">Reach the 4th Ground team directly.</p>
+          <p className="mb-3 text-sm font-semibold tracking-wide text-zinc-400">4th Ground Contact</p>
+          <h1 className="max-w-4xl text-5xl font-bold leading-none tracking-tight md:text-8xl">Talk to Us</h1>
+          <p className="mt-6 max-w-2xl text-lg font-medium leading-relaxed text-zinc-300 md:text-xl">
+            For partnerships, press, legal, or general questions about 4th Ground.
+          </p>
+          <a href="mailto:support@4thground.com" className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-base font-bold text-black transition hover:bg-zinc-200 md:text-lg">
+            Email Us
+          </a>
         </div>
       </section>
-      <section className="mx-auto max-w-4xl px-5 pb-20 md:px-12">
-      <div className="rounded-3xl border-zinc-800 bg-white/[0.04] p-6 backdrop-blur-xl md:p-10">
-  
-          <div className="space-y-8 text-zinc-300">
-            <div><h2 className="text-2xl font-bold text-white">Email</h2><p className="mt-3 leading-relaxed">For all inquiries: <a href="mailto:support@4thground.com" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">support@4thground.com</a></p></div>
-            <div><h2 className="text-2xl font-bold text-white">Response Time</h2><p className="mt-3 leading-relaxed">We typically reply within 1-2 business days.</p></div>
+      <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">Support</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Issues with playback, payments, or access. Email support@4thground.com with your order details.
+            </p>
           </div>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">Legal & DMCA</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Copyright notices and legal inquiries. Use subject line “DMCA Notice”.
+            </p>
+          </div>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">Filmmakers</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Interested in distributing on 4th Ground TVOD? Contact us to start the conversation.
+            </p>
+          </div>
+        </div>
+        <div className="mt-12 rounded-3xl border-white/10 bg-zinc-950 p-6 md:p-8">
+          <h2 className="text-2xl font-bold">Email</h2>
+          <p className="mt-4 max-w-3xl text-zinc-400">We typically reply within 1-2 business days.</p>
+          <a href="mailto:support@4thground.com" className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">
+            support@4thground.com
+          </a>
         </div>
       </section>
       <footer className="border-t border-white/10 px-6 md:px-12 py-10 text-sm text-zinc-500">
