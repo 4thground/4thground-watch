@@ -65,7 +65,7 @@ export default function Home() {
 
           <input
             type="text"
-            placeholder="Search films, cast, director..."
+            placeholder="Search..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full w-full max-w-md text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-white/50"
