@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-const [isPlaying, setIsPlaying] = useState(false);
 import Link from 'next/link';
 import films from '@/data/films.json';
 
@@ -17,11 +16,13 @@ const PAYHIP_PRODUCTS = {
 };
 
 export default function FilmPage({ params }: { params: { id: string } }) {
-  const film = (films as any[]).find((f) => f.id === params.id);
+  // FIX 1: Match by id OR slug. Prevents white screen on slug URLs
+  const film = (films as any[]).find((f) => f.id === params.id || f.slug === params.id);
 
   const [access, setAccess] = useState<AccessState | null>(null);
   const [showTrailerEnd, setShowTrailerEnd] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false); // FIX 2: For shrinking hero
   const playerRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
@@ -32,17 +33,17 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     const saved = localStorage.getItem(key);
 
     if (saved) {
-      const { type, paidAt } = JSON.parse(saved);
-      const expires =
-        type === 'buy'? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000;
+      try {
+        const { type, paidAt } = JSON.parse(saved);
+        const expires = type === 'buy'? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000;
+        const progress = Number(localStorage.getItem(`4g_progress_${film.id}`) || 0);
 
-      const progress = Number(
-        localStorage.getItem(`4g_progress_${film.id}`) || 0
-      );
-
-      if (expires > Date.now()) {
-        setAccess({ type, expires, progress });
-      } else {
+        if (expires > Date.now()) {
+          setAccess({ type, expires, progress });
+        } else {
+          localStorage.removeItem(key);
+        }
+      } catch (e) {
         localStorage.removeItem(key);
       }
     }
@@ -64,12 +65,8 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     const handleFullscreen = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
-
     document.addEventListener('fullscreenchange', handleFullscreen);
-
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreen);
-    };
+    return () => document.removeEventListener('fullscreenchange', handleFullscreen);
   }, []);
 
   useEffect(() => {
@@ -77,69 +74,79 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
     const handleMessage = (e: MessageEvent) => {
       if (e.origin!== 'https://iframe.mediadelivery.net') return;
-
       const { event, currentTime } = e.data;
 
       if (event === 'timeupdate' && access) {
-        localStorage.setItem(
-          `4g_progress_${film.id}`,
-          Math.floor(currentTime).toString()
-        );
+        localStorage.setItem(`4g_progress_${film.id}`, Math.floor(currentTime).toString());
       }
-
+      if (event === 'pause') {
+        setIsPlaying(false); // Snap back to poster if paused
+      }
       if (event === 'ended' &&!access) {
         setShowTrailerEnd(true);
       }
     };
 
     window.addEventListener('message', handleMessage);
-
-    return () => {
-      window.removeEventListener('message', handleMessage);
-    };
+    return () => window.removeEventListener('message', handleMessage);
   }, [access, film]);
 
+  // FIX 3: Always return black bg so you never see white
   if (!film) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        Film not found.
+      <div className="min-h-screen bg-black text-white flex-col items-center justify-center p-6">
+        <h1 className="text-2xl font-bold mb-2">Film not found</h1>
+        <p className="text-zinc-400 mb-4">Check slug/id in films.json: `{params.id}`</p>
+        <Link href="/" className="bg-white text-black px-6 py-2 rounded-full">Back Home</Link>
       </div>
     );
   }
 
+  // FIX 4: Guard missing Bunny IDs
   const videoId = access? film.bunny_video_id : film.bunny_trailer_id;
+  const libraryId = film.bunny_library_id;
+
+  if (!videoId ||!libraryId) {
+    return (
+      <div className="min-h-screen bg-black text-white flex-col items-center justify-center p-6">
+        <h1 className="text-2xl font-bold mb-2">{film.title}</h1>
+        <p className="text-zinc-400">Video not configured yet.</p>
+        <Link href="/" className="mt-4 bg-white text-black px-6 py-2 rounded-full">Back Home</Link>
+      </div>
+    );
+  }
+
   const startTime = access?.progress || 0;
   const otherFilms = (films as any[]).filter((f) => f.id!== film.id);
 
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Top Nav */}
-              <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
-            <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded">
-              On DIGITAL
-            </span>
-          </Link>
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
+        <Link href="/" className="flex items-center gap-2">
+          <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
+          <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded">
+            On DIGITAL
+          </span>
+        </Link>
       </div>
 
-      {/* Hero Player */}
-      <div 
-  className={`relative w-full transition-[height] duration-500 ease-in-out bg-black ${
-    access && isPlaying ? 'h-[60vh] md:h-[65vh]' : 'h-screen'
-  }`}
->
+      {/* FIX 5: Hero shrinks to 60vh when playing so controls are visible */}
+      <div className={`relative w-full bg-black transition-[height] duration-500 ease-in-out ${
+        access && isPlaying? 'h-[60vh] md:h-[65vh]' : 'h-screen'
+      }`}>
         <iframe
           ref={playerRef}
-          src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoId}?autoplay=true&start=${startTime}&preload=true`}
+          key={videoId} // force reload when switching trailer->film
+          src={`https://iframe.mediadelivery.net/embed/${libraryId}/${videoId}?autoplay=${access? 'true' : 'false'}&start=${startTime}&preload=true`}
           className="w-full h-full"
-          allow="autoplay; fullscreen"
+          allow="autoplay; fullscreen; encrypted-media"
           allowFullScreen
         />
 
         <div className={`absolute inset-0 pointer-events-none transition-opacity duration-500 ${
-  access && isPlaying ? 'bg-gradient-to-t from-black/60 via-transparent to-transparent' : 'bg-gradient-to-t from-black via-black/20 to-transparent'
-}`} />
+          access && isPlaying? 'bg-gradient-to-t from-black/60 via-transparent to-transparent' : 'bg-gradient-to-t from-black via-black/20 to-transparent'
+        }`} />
 
         {showTrailerEnd &&!access && (
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
@@ -150,28 +157,24 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               <p className="text-zinc-300 text-lg mb-8">
                 Rent for 7 days to unlock the full film.
               </p>
-
-              <div className="flex justify-center">
-                {/* RENT BUTTON - NO EMAIL */}
-                <a
-                  href="https://payhip.com/b/3YqxG"
-                  className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
-                >
-                  Rent
-                </a>
-              </div>
+              <a
+                href="https://payhip.com/b/3YqxG"
+                className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
+              >
+                Rent
+              </a>
               <p className="text-xs text-zinc-500 mt-4">
-                $3.99 - 7 days Access. You'll be redirected to Payhip for secure Checkout.
+                $3.99 - 7 days Access. You’ll be redirected to Payhip for secure Checkout.
               </p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Content Section */}
+      {/* FIX 6: Content pushes down when playing */}
       <div className={`max-w-6xl mx-auto px-6 md:px-8 relative z-10 transition-[margin-top] duration-500 ${
-  access && isPlaying ? 'mt-8' : '-mt-40'
-}`}>
+        access && isPlaying? 'mt-8' : '-mt-40'
+      }`}>
         <div className="mb-8">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 tracking-tight">
             {film.title}
@@ -179,15 +182,13 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-300 mb-4">
             {film.rating && (
-              <span className="px-2 py-0.5 border border-zinc-500 rounded text-xs">
+              <span className="px-2 py-0.5 border-zinc-500 rounded text-xs">
                 {film.rating}
               </span>
             )}
             {film.year && <span>{film.year}</span>}
-            {film.genre && <span>•</span>}
-            {film.genre && <span>{film.genre}</span>}
-            {film.language && <span>•</span>}
-            {film.language && <span>{film.language}</span>}
+            {film.genre && <><span>•</span><span>{film.genre}</span></>}
+            {film.language && <><span>•</span><span>{film.language}</span></>}
             <span>•</span>
             <span>HD</span>
           </div>
@@ -198,10 +199,9 @@ export default function FilmPage({ params }: { params: { id: string } }) {
             </p>
           )}
 
-          {film.cast && film.cast.length > 0 && (
+          {film.cast?.length > 0 && (
             <p className="text-zinc-300 mb-4">
-              <span className="text-zinc-500">Starring:</span>{' '}
-              {film.cast.join(', ')}
+              <span className="text-zinc-500">Starring:</span> {film.cast.join(', ')}
             </p>
           )}
 
@@ -212,18 +212,14 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
         {!access && film.available && (
           <div className="mb-12">
-            <div className="flex flex-col sm:flex-row gap-3">
-              {/* RENT BUTTON - NO EMAIL */}
-              <a
-                href="https://payhip.com/b/3YqxG"
-                className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
-              >
-                Rent ${film.price_usd}
-              </a>
-            </div>
-
+            <a
+              href="https://payhip.com/b/3YqxG"
+              className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg inline-block"
+            >
+              Rent ${film.price_usd?? '3.99'}
+            </a>
             <p className="text-xs text-zinc-500 mt-3">
-              You'll be redirected to Payhip for secure checkout.
+              You’ll be redirected to Payhip for secure checkout.
             </p>
           </div>
         )}
@@ -242,14 +238,14 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         {access && (
           <div className="mb-12">
             <button
-  onClick={() => {
-    setIsPlaying(true);
-    playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }}
-  className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg"
->
-  {access.progress > 30 ? `Resume from ${Math.floor(access.progress / 60)}m` : 'Play'}
-</button>
+              onClick={() => {
+                setIsPlaying(true);
+                playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+              className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg"
+            >
+              {access.progress > 30? `Resume from ${Math.floor(access.progress / 60)}m` : 'Play'}
+            </button>
 
             {access.expires!== Infinity && (
               <p className="text-xs text-zinc-500 mt-3">
@@ -263,7 +259,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       {!isFullscreen && otherFilms.length > 0 && (
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
           <h3 className="text-2xl font-bold mb-4">More from 4th Ground</h3>
-
           <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
             {otherFilms.map((f: any) =>
               f.available? (
@@ -279,24 +274,17 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                       className="aspect-video object-cover"
                     />
                   </div>
-
-                  <p className="font-semibold mt-3 text-base truncate">
-                    {f.title}
-                  </p>
-
+                  <p className="font-semibold mt-3 text-base truncate">{f.title}</p>
                   <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">
                     {f.year && <span>{f.year}</span>}
                     {f.genre && <span>• {f.genre}</span>}
                   </div>
-
-                  <p className="text-sm text-zinc-400 mt-1">
-                    From ${f.price_usd}
-                  </p>
+                  <p className="text-sm text-zinc-400 mt-1">From ${f.price_usd?? '3.99'}</p>
                 </Link>
               ) : (
                 <div
                   key={f.id}
-                  className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
+                  className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
                 >
                   <div className="rounded-lg overflow-hidden relative">
                     <img
@@ -304,18 +292,13 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                       alt={f.title}
                       className="aspect-video object-cover blur-sm brightness-50"
                     />
-
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
+                      <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border-white/20">
                         Coming Soon
                       </span>
                     </div>
                   </div>
-
-                  <p className="font-semibold mt-3 text-base truncate text-zinc-400">
-                    {f.title}
-                  </p>
-
+                  <p className="font-semibold mt-3 text-base truncate text-zinc-400">{f.title}</p>
                   <div className="flex items-center gap-2 text-xs text-zinc-600 mt-1">
                     {f.year && <span>{f.year}</span>}
                     {f.genre && <span>• {f.genre}</span>}
@@ -329,33 +312,26 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
       {/* Footer */}
       <footer className="border-t border-white/10 px-6 md:px-12 py-10 text-sm text-zinc-500">
-  <div className="max-w-7xl mx-auto space-y-6">
-    <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2">
-      <Link href="/terms" className="hover:text-white transition">Terms of Service</Link>
-      <Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link>
-      <Link href="/cookies" className="hover:text-white transition">Cookie Policy</Link>
-      <Link href="/refund-policy" className="hover:text-white transition">Refund Policy</Link>
-      <Link href="/dmca" className="hover:text-white transition">DMCA</Link>
-      <Link href="/support" className="hover:text-white transition">Support</Link>
-      <Link href="/contact" className="hover:text-white transition">Contact</Link>
-    </div>
-
-    <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-white/5">
-      <p>© 2026 4th Ground. All rights reserved.</p>
-      <p className="text-xs text-zinc-600">All content and trademarks are property of their respective owners.</p>
-    </div>
-  </div>
-</footer>
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2">
+            <Link href="/terms" className="hover:text-white transition">Terms of Service</Link>
+            <Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link>
+            <Link href="/cookies" className="hover:text-white transition">Cookie Policy</Link>
+            <Link href="/refund-policy" className="hover:text-white transition">Refund Policy</Link>
+            <Link href="/dmca" className="hover:text-white transition">DMCA</Link>
+            <Link href="/support" className="hover:text-white transition">Support</Link>
+            <Link href="/contact" className="hover:text-white transition">Contact</Link>
+          </div>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-white/5">
+            <p>© 2026 4th Ground. All rights reserved.</p>
+            <p className="text-xs text-zinc-600">All content and trademarks are property of their respective owners.</p>
+          </div>
+        </div>
+      </footer>
 
       <style jsx global>{`
-       .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-
-       .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );
