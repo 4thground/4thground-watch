@@ -169,7 +169,9 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       </div>
 
       {/* Content Section */}
-      <div className="max-w-6xl mx-auto px-6 md:px-8 -mt-40 relative z-10">
+      <div className={`max-w-6xl mx-auto px-6 md:px-8 relative z-10 transition-[margin-top] duration-500 ${
+  access && isPlaying ? 'mt-8' : '-mt-40'
+}`}>
         <div className="mb-8">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 tracking-tight">
             {film.title}
