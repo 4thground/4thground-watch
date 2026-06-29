@@ -50,7 +50,7 @@ export default function RefundPolicyPage() {
           <a href="mailto:support@4thground.com" className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">
             support@4thground.com
           </a>
-          <p className="mt-5 max-w-3xl text-sm leading-relaxed text-zinc-500">Last updated: June 2026.</p>
+          <p className="mt-5 max-w-3xl text-sm leading-relaxed text-zinc-500">Last updated: June 2026</p>
         </div>
       </section>
 
