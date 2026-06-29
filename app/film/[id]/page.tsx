@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+const [isPlaying, setIsPlaying] = useState(false);
 import Link from 'next/link';
 import films from '@/data/films.json';
 
@@ -123,7 +124,11 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       </div>
 
       {/* Hero Player */}
-      <div className="relative w-full h-screen bg-black">
+      <div 
+  className={`relative w-full transition-[height] duration-500 ease-in-out bg-black ${
+    access && isPlaying ? 'h-[60vh] md:h-[65vh]' : 'h-screen'
+  }`}
+>
         <iframe
           ref={playerRef}
           src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoId}?autoplay=true&start=${startTime}&preload=true`}
@@ -132,7 +137,9 @@ export default function FilmPage({ params }: { params: { id: string } }) {
           allowFullScreen
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
+        <div className={`absolute inset-0 pointer-events-none transition-opacity duration-500 ${
+  access && isPlaying ? 'bg-gradient-to-t from-black/60 via-transparent to-transparent' : 'bg-gradient-to-t from-black via-black/20 to-transparent'
+}`} />
 
         {showTrailerEnd &&!access && (
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
@@ -233,15 +240,14 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         {access && (
           <div className="mb-12">
             <button
-              onClick={() =>
-                playerRef.current?.scrollIntoView({ behavior: 'smooth' })
-              }
-              className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg"
-            >
-              {access.progress > 30
-               ? `Resume from ${Math.floor(access.progress / 60)}m`
-                : 'Play'}
-            </button>
+  onClick={() => {
+    setIsPlaying(true);
+    playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }}
+  className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg"
+>
+  {access.progress > 30 ? `Resume from ${Math.floor(access.progress / 60)}m` : 'Play'}
+</button>
 
             {access.expires!== Infinity && (
               <p className="text-xs text-zinc-500 mt-3">
