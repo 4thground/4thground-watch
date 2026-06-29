@@ -23,7 +23,7 @@ export default function RefundPolicyPage() {
 
       <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
             <h2 className="text-xl font-bold">Eligible for Refund</h2>
             <ul className="mt-3 space-y-2 text-sm leading-relaxed text-zinc-400 list-disc pl-5">
               <li>Technical failure: You cannot play the rented Film due to a platform error on our end.</li>
@@ -31,7 +31,7 @@ export default function RefundPolicyPage() {
               <li>Film removed: The Film is delisted within 24 hours of your purchase.</li>
             </ul>
           </div>
-          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
             <h2 className="text-xl font-bold">Not Eligible for Refund</h2>
             <ul className="mt-3 space-y-2 text-sm leading-relaxed text-zinc-400 list-disc pl-5">
               <li>Playback started: Once you press Play, the rental is consumed.</li>
@@ -42,7 +42,7 @@ export default function RefundPolicyPage() {
           </div>
         </div>
 
-        <div className="mt-12 rounded-3xl border-white/10 bg-zinc-950 p-6 md:p-8">
+        <div className="mt-12 rounded-3xl border border-white/10 bg-zinc-950 p-6 md:p-8">
           <h2 className="text-2xl font-bold">How to Request a Refund</h2>
           <p className="mt-4 max-w-3xl text-zinc-400">
             For eligible issues only, email us within 72 hours of purchase with your order ID and a short description of the issue.
