@@ -51,7 +51,7 @@ export default function PrivacyPage() {
             support@4thground.com
           </a>
           <p className="mt-5 max-w-3xl text-sm leading-relaxed text-zinc-500">
-            Last updated: January 2026. This is a template. Have a legal professional review before launch.
+            Last updated: June 2026
           </p>
         </div>
       </section>
