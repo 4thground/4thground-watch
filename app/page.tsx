@@ -217,7 +217,7 @@ export default function Home() {
                 {filteredFilms.length === 0 && search.trim() && (
           <div className="max-w-5xl mx-auto py-20">
             {loadingExternal? (
-              <div className="text-center py-20 text-zinc-500">Searching external sources...</div>
+              <div className="text-center py-20 text-zinc-500">Searching...</div>
             ) : externalResult?.type === 'external'? (
               <div className="space-y-6">
                 <div className="relative w-full aspect-video rounded-lg overflow-hidden border-neutral-800">
@@ -228,7 +228,7 @@ export default function Home() {
                         This film is not yet available on DIGITAL | 4th Ground
                       </p>
                       {externalResult.filmmakerNoFilms && (
-                        <p className="text-zinc-300 font-semibold">**Films for this filmmaker are not available**</p>
+                        <p className="text-zinc-300 font-semibold">Films for this filmmaker are not available</p>
                       )}
                     </div>
                   </div>
