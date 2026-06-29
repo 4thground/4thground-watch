@@ -140,7 +140,7 @@ export default function Home() {
         {/* Available Films Row */}
         {availableFilms.length > 0 && (
           <div>
-            <h2 className="text-2xl font-bold mb-4">Featured on 4th Ground</h2>
+            <h2 className="text-2xl font-bold mb-4">Featured</h2>
 
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
               {availableFilms.map((film: any) => (
