@@ -134,8 +134,7 @@ export default function TermsPage() {
         </div>
 
         <p className="mt-6 text-center text-xs leading-relaxed text-zinc-600">
-          These terms are a general starting point. Please have them reviewed by a legal
-          professional before your official public launch.
+          
         </p>
       </section>
 
