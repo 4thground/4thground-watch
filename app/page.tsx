@@ -72,8 +72,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Hero */}
-      <div className="relative h-screen w-full">
+{/* Hero */}
+{!search.trim() && (
+  <div className="relative h-screen w-full">
         <img
           src={featured.poster_url}
           className="absolute inset-0 w-full h-full object-cover"
@@ -132,6 +133,7 @@ export default function Home() {
           </Link>
         </div>
       </div>
+  )}
 
       {/* Swipe Rows */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 space-y-12">
