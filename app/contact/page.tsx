@@ -52,6 +52,7 @@ export default function ContactPage() {
       <Link href="/terms" className="hover:text-white transition">Terms of Service</Link>
       <Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link>
       <Link href="/cookies" className="hover:text-white transition">Cookie Policy</Link>
+      <Link href="/refund-policy" className="hover:text-white transition">Refund Policy</Link>
       <Link href="/dmca" className="hover:text-white transition">DMCA</Link>
       <Link href="/support" className="hover:text-white transition">Support</Link>
       <Link href="/contact" className="hover:text-white transition">Contact</Link>
