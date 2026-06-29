@@ -56,7 +56,7 @@ export default function Home() {
           <Link href="/" className="flex items-center gap-2">
             <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
             <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded">
-              OnDIGITAL
+              On DIGITAL
             </span>
           </Link>
     
