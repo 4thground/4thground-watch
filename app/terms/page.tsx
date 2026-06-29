@@ -42,7 +42,7 @@ export default function TermsPage() {
       {/* Terms Content */}
       <section className="mx-auto max-w-4xl px-5 pb-20 md:px-12">
         <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md md:p-10">
-          <p className="text-sm text-zinc-500">Last updated: 2026</p>
+          <p className="text-sm text-zinc-500">Last updated: June 2026</p>
 
           <div className="mt-8 space-y-8 text-zinc-300">
             <div>
