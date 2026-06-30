@@ -19,34 +19,81 @@ export default function DMCAPage() {
           </p>
         </div>
       </section>
-      <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
+      
+         <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
+        <p className="mb-8 text-sm text-zinc-500">Last updated: June 2026 | 4th Ground, a division of KC Company Reg. No. 2023/664072/07</p>
+
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
-            <h2 className="text-xl font-bold">File a Notice</h2>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">1. Licensed Platform Only</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-              Include: copyrighted work, URL, your contact info, and a statement of good faith. Email support@4thground.com.
+              4th Ground streams only films we have legally licensed, including all music, artwork, and ancillary rights.
+              We do not host user uploads. "Coming soon" titles are listed only after a license is secured.
             </p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
-            <h2 className="text-xl font-bold">Takedown</h2>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">2. File a Copyright Notice</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-              We remove or disable access to material upon valid notice and notify the account holder.
+              Send a written notice to <a href="mailto:support@4thground.com" className="underline">support@4thground.com</a> with Subject: "DMCA Notice". 
+              Include: 1. Copyrighted work description. 2. Infringing URL on 4th Ground. 3. Your name, address, phone, email. 
+              4. Good faith statement. 5. Perjury statement. 6. Physical or e-signature.
             </p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
-            <h2 className="text-xl font-bold">Counter-Notice</h2>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">3. Takedown & Account Action</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-              If removed in error, submit a counter-notice. We may restore content in 10-14 days unless legal action is filed.
+              On receipt of a valid notice, we will investigate and remove or disable access to the material without delay.
+              We will notify the account holder. Repeat infringers may have accounts terminated per our Terms.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">4. Counter-Notification</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              If you believe content was removed in error, send a counter-notice to the same email with Subject: "DMCA Counter-Notice".
+              Include: ID of removed material, perjury statement, consent to jurisdiction, and your contact details.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">5. Restoration Timeline</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              After a valid counter-notice, we will notify the original complainant. 
+              If we do not receive notice of legal action within 10-14 business days, we may restore the content.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">6. Misrepresentation</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Under 17 U.S.C. §512(f), anyone who knowingly misrepresents infringement or removal may be liable for damages and costs.
+              Submit notices in good faith only.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md md:col-span-3">
+            <h2 className="text-xl font-bold">7. Designated Agent & Contact</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              4th Ground, a division of KC Company Reg. No. 2023/664072/07, Johannesburg, South Africa.
+              All DMCA notices: <a href="mailto:support@4thground.com" className="underline">support@4thground.com</a> Subject: "DMCA Notice".
+              For other copyright issues: <Link href="/support" className="underline">Support</Link>.
             </p>
           </div>
         </div>
-        <div className="mt-12 rounded-3xl border border-white/10 bg-zinc-950 p-6 md:p-8">
-          <h2 className="text-2xl font-bold">DMCA Contact</h2>
-          <p className="mt-4 max-w-3xl text-zinc-400">Send all DMCA notices to:</p>
-          <a href="mailto:support@4thground.com" className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">
-            support@4thground.com
-          </a>
-          <p className="mt-5 max-w-3xl text-sm leading-relaxed text-zinc-500">Subject: “DMCA Notice”. Last updated: June 2026</p>
+
+        <div className="mt-12 rounded-3xl border-white/10 bg-zinc-950 p-6 md:p-8">
+          <h2 className="text-2xl font-bold">Important Notes</h2>
+          <p className="mt-4 max-w-3xl text-zinc-400">
+            This policy applies to 4th Ground only. We cannot act on third-party sites. 
+            If you are not the copyright owner or authorized agent, do not submit a notice.
+          </p>
+          <div className="mt-5 flex-wrap gap-4 text-sm">
+            <Link href="/terms" className="text-zinc-400 hover:text-white underline">Terms of Service</Link>
+            <Link href="/privacy" className="text-zinc-400 hover:text-white underline">Privacy Policy</Link>
+            <Link href="/contact" className="text-zinc-400 hover:text-white underline">Contact</Link>
+          </div>
         </div>
       </section>
       <footer className="border-t border-white/10 px-6 md:px-12 py-10 text-sm text-zinc-500">
