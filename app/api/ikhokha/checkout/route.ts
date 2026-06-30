@@ -1,17 +1,22 @@
 import { NextResponse } from 'next/server'
+import { kv } from '@vercel/kv'
+import { v4 as uuid } from 'uuid'
 
 export async function POST(req: Request) {
-  const { filmId, filmSlug, bunnyStreamId, amount, email } = await req.json()
+  const { filmId, amount } = await req.json()
+  const session_id = uuid()
   
+  // Save pending for 15min. Key = session_id
+  await kv.set(`rent:${session_id}`, JSON.stringify({ filmId, status: 'pending' }), { ex: 900 })
+
   const payload = {
-    amount: 399, // $3.99 = 399 cents. iKhokha uses ZAR/SZL but accepts USD display
-    currency: 'USD', // iKhokha supports USD for international cards
-    payment_methods: ['card'], // EFT is ZAR only, so kill it for USD
-    customer_email: email || '',
-    description: `4TH GROUND: Rent - ${filmSlug}`,
-    reference: `4TG-${filmId}-${bunnyStreamId}-${Date.now()}`,
-    success_url: `https://4thground.com/api/ikhokha/success?film=${filmSlug}`, // We’ll poll this
-    cancel_url: `https://4thground.com/film/${filmSlug}`
+    amount: 399, // $3.99 = 399 cents
+    currency: 'USD', 
+    payment_methods: ['card'],
+    description: `4TH GROUND: Rent ${filmId}`,
+    reference: session_id, // This is how we match webhook -> film
+    success_url: 'https://4thground.com', // Not used, we poll
+    cancel_url: 'https://4thground.com'
   }
 
   const r = await fetch('https://dashboard.ikhokha.com/payment/api/checkout', {
@@ -24,6 +29,7 @@ export async function POST(req: Request) {
     body: JSON.stringify(payload)
   })
   
+  if (!r.ok) return NextResponse.json({ error: 'iKhokha failed' }, { status: 500 })
   const data = await r.json()
-  return NextResponse.json({ checkout_url: data.url })
+  return NextResponse.json({ checkout_url: data.url, session_id })
 }
