@@ -130,6 +130,22 @@ alt="Film Backdrop"
 className="w-full h-full object-cover"
 />
 
+
+        {/* Trial Play Icon */}
+<div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 24 24" 
+      fill="white" 
+      className="w-10 h-10 md:w-12 md:h-12 ml-1"
+    >
+      <path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.285L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
+    </svg>
+  </div>
+</div>
+        
+
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
 
         {showTrailerEnd &&!access && (
