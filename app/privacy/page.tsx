@@ -23,36 +23,80 @@ export default function PrivacyPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
+        <p className="mb-8 text-sm text-zinc-500">Last updated: June 2026 | 4th Ground, a division of KC Company Reg. No. 2023/664072/07. Controller under POPIA.</p>
+
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
-            <h2 className="text-xl font-bold">What We Collect</h2>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">1. What We Collect</h2>
+            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-zinc-400 list-disc pl-5">
+              <li>Viewers: Email, name, billing info, rental history, IP, device data.</li>
+              <li>Filmmakers: Email, banking/tax details, film performance, payout statements.</li>
+              <li>Technical: Cookies, logs, DRM data, fraud signals.</li>
+            </ul>
+            <p className="mt-3 text-xs text-zinc-500">Payment card details are handled by our payment provider and not stored by us.</p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">2. Why We Use It</h2>
+            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-zinc-400 list-disc pl-5">
+              <li>Provide TVOD rentals with 3-7 day access windows.</li>
+              <li>Send receipts, rental access links, and support. Email is required for rentals.</li>
+              <li>Process filmmaker payouts, tax, and accounting. Email is required for payouts.</li>
+              <li>Prevent fraud, protect licensed content, comply with POPIA.</li>
+            </ul>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">3. Licensed Content Only</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-              Email, name, transaction records, device info, and viewing history. Payment details are handled by our payment provider, not stored by us.
+              All films, music, and artwork are fully licensed. "Coming soon" titles appear only after a license is secured.
+              We do not host user uploads. Data is used only to deliver and protect licensed streams.
             </p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
-            <h2 className="text-xl font-bold">How We Use It</h2>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">4. Sharing & Processors</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-              To process rentals/purchases, prevent fraud, provide support, and comply with legal requirements. We do not sell your data.
+              We share data only with: payment processors, CDN/DRM, email providers, and accountants.
+              All are bound by POPIA and DPAs. We do not sell data. No advertising networks.
             </p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
-            <h2 className="text-xl font-bold">Your Rights</h2>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">5. Retention</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-              Request access, correction, or deletion of your data at any time by emailing support@4thground.com.
+              Viewer rental data: 7 years for tax/legal. Active account data: until deletion.
+              Filmmaker payout data: 7 years for SARS compliance. Logs: 90 days.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">6. Your POPIA Rights</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Access, correct, delete, object, or request a copy of your data.
+              Email <a href="mailto:support@4thground.com" className="underline">support@4thground.com</a> Subject: "POPIA Request".
+              You can opt out of marketing, but not transactional emails for active rentals.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md md:col-span-3">
+            <h2 className="text-xl font-bold">7. Security & Contact</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              We use encryption, access controls, and audits. 4th Ground, a division of KC Company Reg. No. 2023/664072/07.
+              Johannesburg, South Africa. Information Officer: <a href="mailto:support@4thground.com" className="underline">support@4thground.com</a>.
+              See our <Link href="/cookies" className="underline">Cookie Policy</Link> and <Link href="/terms" className="underline">Terms</Link>.
             </p>
           </div>
         </div>
 
-        <div className="mt-12 rounded-3xl border border-white/10 bg-zinc-950 p-6 md:p-8">
+        <div className="mt-12 rounded-3xl border-white/10 bg-zinc-950 p-6 md:p-8">
           <h2 className="text-2xl font-bold">Privacy Contact</h2>
-          <p className="mt-4 max-w-3xl text-zinc-400">Questions about your data?</p>
+          <p className="mt-4 max-w-3xl text-zinc-400">
+            4th Ground, a division of KC Company Reg. No. 2023/664072/07. Johannesburg, South Africa.
+          </p>
           <a href="mailto:support@4thground.com" className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">
             support@4thground.com
           </a>
-          <p className="mt-5 max-w-3xl text-sm leading-relaxed text-zinc-500">
-            Last updated: June 2026
-          </p>
         </div>
       </section>
 
