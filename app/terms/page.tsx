@@ -34,7 +34,7 @@ export default function TermsPage() {
           </h1>
 
           <p className="mt-6 max-w-2xl text-lg font-medium leading-relaxed text-zinc-300 md:text-xl">
-  These terms explain how you may rent and access 4th Ground’s TVOD film service. All films are licensed and rented for a 3 to 7 day period.
+  TVOD rentals only. 3 to 7 day access windows. All content is fully licensed to 4th Ground.
 </p>
         </div>
       </section>
