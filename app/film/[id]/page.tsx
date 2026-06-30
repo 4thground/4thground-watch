@@ -124,13 +124,11 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
       {/* Hero Player */}
       <div className="relative w-full h-screen bg-black">
-        <iframe
-          ref={playerRef}
-          src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoId}?autoplay=true&start=${startTime}&preload=true`}
-          className="w-full h-full"
-          allow="autoplay; fullscreen"
-          allowFullScreen
-        />
+        <img
+src="/posters/backdrop1.png"
+alt="Film Backdrop"
+className="w-full h-full object-cover"
+/>
 
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
 
