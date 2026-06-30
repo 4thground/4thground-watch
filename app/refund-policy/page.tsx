@@ -22,7 +22,7 @@ export default function RefundPolicyPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
-        <p className="mb-8 text-sm text-zinc-500">Last updated: June 2026 | 4th Ground, a division of KC Company Reg. No. 2023/664072/07</p>
+        <p className="mb-8 text-sm text-zinc-500">Last updated: June 2026 | 4th Ground, a division of KC Company (Pty) Ltd Reg. No. 2023/664072/07</p>
 
         <div className="grid gap-4 md:grid-cols-3">
           <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
@@ -91,7 +91,7 @@ export default function RefundPolicyPage() {
         <div className="mt-12 rounded-3xl border-white/10 bg-zinc-950 p-6 md:p-8">
           <h2 className="text-2xl font-bold">Refund Contact</h2>
           <p className="mt-4 max-w-3xl text-zinc-400">
-            4th Ground, a division of KC Company Reg. No. 2023/664072/07. Johannesburg, South Africa.
+            4th Ground, a division of KC Company (Pty) Ltd Reg. No. 2023/664072/07. Johannesburg, South Africa.
           </p>
           <a href="mailto:support@4thground.com" className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">
             support@4thground.com
