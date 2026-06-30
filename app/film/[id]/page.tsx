@@ -8,7 +8,14 @@ type AccessState = {
   type: string;
   expires: number;
   progress: number;
+  url: string; // <-- Added: signed Bunny HLS url
 };
+
+declare global {
+  interface Window {
+    ikPay: any; // iKhokha SDK
+  }
+}
 
 export default function FilmPage({ params }: { params: { id: string } }) {
   const film = (films as any[]).find((f) => f.id === params.id);
@@ -17,22 +24,26 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [showTrailerEnd, setShowTrailerEnd] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const playerRef = useRef<HTMLIFrameElement | null>(null);
-  const [checkoutOpen, setCheckoutOpen] = useState(false); // iKhokha Modal
-  const [checkoutUrl, setCheckoutUrl] = useState('');
+  
+  // PAYMENT STATE - NEW
+  const [email, setEmail] = useState('');
+  const [showEmail, setShowEmail] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false); // iKhokha SDK Modal
 
   useEffect(() => {
     if (!film) return;
 
-    // Check for existing access via backend KV, not localStorage paidAt
-    const checkAccess = async () => {
-      const r = await fetch(`/api/ikhokha/access?filmId=${film.id}`);
-      const { expires } = await r.json();
-      if (expires && expires > Date.now()) {
+    // 1. CHANGED: Check localStorage cache, not backend KV
+    const saved = localStorage.getItem(`4g_access_${film.id}`);
+    if (saved) {
+      const data = JSON.parse(saved);
+      if (data.expires > Date.now()) {
         const progress = Number(localStorage.getItem(`4g_progress_${film.id}`) || 0);
-        setAccess({ type: 'rent', expires, progress });
+        setAccess({...data, progress });
+      } else {
+        localStorage.removeItem(`4g_access_${film.id}`); // Expired
       }
-    };
-    checkAccess();
+    }
   }, [film]);
 
   useEffect(() => {
@@ -63,29 +74,44 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     };
   }, [access, film]);
 
-  const handleRent = async () => {
-    const res = await fetch('/api/ikhokha/checkout', {
+  // 2. CHANGED: 2-step rent flow
+  const handleRentClick = () => setShowEmail(true); // Step 1: Show email
+
+  const handlePay = async () => { // Step 2: Call iKhokha
+    if(!email.includes('@')) return alert('Enter valid email');
+    setShowEmail(false);
+    setCheckoutOpen(true);
+
+    const res = await fetch('/api/ikhokha/pay', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ filmId: film!.id, amount: 3.99 })
+      body: JSON.stringify({ 
+        filmId: film!.id, 
+        email, 
+        amount_usd: film!.price_usd || 3.99 // <-- Send email + USD
+      })
     });
-    const { checkout_url, session_id } = await res.json();
-    setCheckoutUrl(checkout_url);
-    setCheckoutOpen(true);
-    pollPayment(session_id, film!.id);
+    const { token, error } = await res.json();
+    if(error) return alert(error);
+
+    // Mount iKhokha SDK into the div
+    window.ikPay.init({ 
+      token, 
+      container: 'ik-pay-container', 
+      onSuccess: () => unlockFilm(film!.id, email) // Step 3: After 3DS
+    });
   };
 
-  const pollPayment = (session_id: string, filmId: string) => {
-    const int = setInterval(async () => {
-      const r = await fetch(`/api/ikhokha/status?session=${session_id}`);
-      const { status, expires } = await r.json();
-      if (status === 'paid') {
-        setAccess({ type: 'rent', expires, progress: 0 });
-        setCheckoutOpen(false);
-        clearInterval(int);
-      }
-    }, 3000);
-  };
+  const unlockFilm = async (filmId: string, e: string) => {
+    const r = await fetch(`/api/ikhokha/unlock?filmId=${filmId}&email=${encodeURIComponent(e)}`);
+    const { url, exp, error } = await r.json();
+    if(error) return alert(error);
+
+    const data = { type: 'rent', expires: exp * 1000, progress: 0, url };
+    localStorage.setItem(`4g_access_${filmId}`, JSON.stringify(data)); // Cache it
+    setAccess(data);
+    setCheckoutOpen(false);
+  }
 
   if (!film) {
     return (
@@ -95,13 +121,18 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     );
   }
 
-  const videoId = access? film.bunny_video_id : film.bunny_trailer_id;
+  // 3. CHANGED: Use signed HLS url if paid, else trailer iframe
+  const isRented =!!access?.url;
+  const videoSrc = isRented 
+   ? access.url 
+    : `https://iframe.mediadelivery.net/play/${process.env.NEXT_PUBLIC_BUNNY_ZONE}/${film.bunny_trailer_id}?start=${access?.progress || 0}`;
+  
   const startTime = access?.progress || 0;
   const otherFilms = (films as any[]).filter((f) => f.id!== film.id);
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Top Nav */}
+      {/* Top Nav - UNCHANGED */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
           <Link href="/" className="flex items-center gap-2">
             <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
@@ -111,7 +142,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
           </Link>
       </div>
 
-      {/* Hero Player */}
+      {/* Hero Player - UNCHANGED */}
       <div className="relative w-full h-screen bg-black">
         <img
           src="/posters/backdrop1.png"
@@ -119,7 +150,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
           className="w-full h-full object-cover"
         />
 
-        {/* Trial Play Icon */}
+        {/* Trial Play Icon - UNCHANGED */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
             <svg 
@@ -145,23 +176,22 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                 Rent for 7 days to unlock the full film.
               </p>
               <div className="flex justify-center">
-                {/* CHANGED: a -> button, payhip -> handleRent */}
                 <button
-                  onClick={handleRent}
+                  onClick={handleRentClick} // <-- CHANGED
                   className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
                 >
                   Rent
                 </button>
               </div>
               <p className="text-xs text-zinc-500 mt-4">
-                $3.99 - 7 days Access. Secure Checkout.
+                ${film.price_usd || 3.99} - 7 days Access. Secure Checkout.
               </p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Content Section */}
+      {/* Content Section - UNCHANGED */}
       <div className="max-w-6xl mx-auto px-6 md:px-8 -mt-40 relative z-10">
         <div className="mb-8">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 tracking-tight">
@@ -185,12 +215,11 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         {!access && film.available && (
           <div className="mb-12">
             <div className="flex flex-col sm:flex-row gap-3">
-              {/* CHANGED: a -> button, payhip -> handleRent, hardcode $3.99 */}
               <button
-                onClick={handleRent}
+                onClick={handleRentClick} // <-- CHANGED
                 className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
               >
-                Rent $3.99
+                Rent ${film.price_usd || 3.99}
               </button>
             </div>
             <p className="text-xs text-zinc-500 mt-3">
@@ -239,7 +268,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                     {f.year && <span>{f.year}</span>}
                     {f.genre && <span>• {f.genre}</span>}
                   </div>
-                  <p className="text-sm text-zinc-400 mt-1">From ${f.price_usd}</p>
+                  <p className="text-sm text-zinc-400 mt-1">From ${f.price_usd || 3.99}</p>
                 </Link>
               ) : (
                 <div key={f.id} className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2">
@@ -261,7 +290,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         </div>
       )}
 
-      {/* Footer */}
+      {/* Footer - UNCHANGED */}
       <footer className="border-t border-white/10 px-6 md:px-12 py-10 text-sm text-zinc-500">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2">
@@ -280,22 +309,42 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         </div>
       </footer>
 
-      {/* iKhokha Modal - Added, not moved */}
+      {/* 4. NEW: Email Modal */}
+      {showEmail && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] grid place-items-center p-4" onClick={() => setShowEmail(false)}>
+          <div className="bg-zinc-900 rounded-2xl w-full max-w-md p-6 border-white/10" onClick={e => e.stopPropagation()}>
+            <h3 className="font-semibold text-xl mb-4">Rent {film.title}</h3>
+            <input 
+              type="email" 
+              value={email} 
+              onChange={e => setEmail(e.target.value)} 
+              placeholder="Email for 7-day access" 
+              className="w-full p-3 bg-black border-white/20 rounded-lg mb-4 focus:outline-none focus:ring-1 focus:ring-white"
+            />
+            <button onClick={handlePay} className="w-full bg-white text-black font-semibold py-3 rounded-full hover:bg-zinc-200">
+              Continue to Payment ${film.price_usd || 3.99}
+            </button>
+            <p className="text-xs text-zinc-500 mt-3 text-center">Billed in ZAR via iKhokha</p>
+          </div>
+        </div>
+      )}
+
+      {/* 5. CHANGED: iKhokha SDK Modal, not iframe */}
       {checkoutOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] grid place-items-center p-4" onClick={() => setCheckoutOpen(false)}>
-          <div className="bg-zinc-900 rounded-2xl w-full max-w-lg h-[700px] border-white/10 overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center p-4 border-b border-white/10">
-              <h3 className="font-semibold">Complete Rental - $3.99</h3>
+          <div className="bg-zinc-900 rounded-2xl w-full max-w-lg p-6 border-white/10" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-semibold">Complete Rental - ${film.price_usd || 3.99}</h3>
               <button onClick={() => setCheckoutOpen(false)} className="text-zinc-400 hover:text-white text-xl">✕</button>
             </div>
-            <iframe src={checkoutUrl} className="w-full h-[calc(100%-60px)]" />
+            <div id="ik-pay-container" className="bg-white rounded-lg min-h-[400px]"></div>
           </div>
         </div>
       )}
 
       <style jsx global>{`
-      .scrollbar-hide::-webkit-scrollbar { display: none; }
-      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+     .scrollbar-hide::-webkit-scrollbar { display: none; }
+     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );
