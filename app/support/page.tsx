@@ -118,8 +118,12 @@ export default function SupportPage() {
           <a href="mailto:support@4thground.com" className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">
             support@4thground.com
           </a>
-          <p className="mt-5 max-w-3xl text-sm
-
+          <p className="mt-5 max-w-3xl text-sm leading-relaxed text-zinc-500">
+            Include: name, email used on 4th Ground, film title/order ID, device, and screenshots. 
+            See <Link href="/terms" className="underline">Terms</Link> · <Link href="/privacy" className="underline">Privacy</Link> · <Link href="/dmca" className="underline">DMCA</Link>
+          </p>
+        </div>
+      </section>
       {/* Footer */}
       <footer className="border-t border-white/10 px-6 md:px-12 py-10 text-sm text-zinc-500">
   <div className="max-w-7xl mx-auto space-y-6">
