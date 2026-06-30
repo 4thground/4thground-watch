@@ -23,27 +23,71 @@ export default function ContactPage() {
         </div>
       </section>
       <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
+        <p className="mb-8 text-sm text-zinc-500">4th Ground, a division of KC Company Reg. No. 2023/664072/07. Johannesburg, South Africa.</p>
+
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
-            <h2 className="text-xl font-bold">Support</h2>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">1. Viewer Support</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-              Issues with playback, payments, or access. Email support@4thground.com with your order details.
+              Playback, 3-7 day rental window, receipts, payments, or account access. 
+              Email your order ID, film title, and device. Email is required at checkout for rentals.
             </p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
-            <h2 className="text-xl font-bold">Legal & DMCA</h2>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">2. Filmmaker & Rights</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-              Copyright notices and legal inquiries. Use subject line “DMCA Notice”.
+              Film submissions, licensing, and payouts. We only accept fully licensed content with music/artwork cleared.
+              Include EPK + payout email. Subject: "Film Submission".
             </p>
           </div>
-          
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">3. Legal & DMCA</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Copyright notices, counter-notices, or legal inquiries. Subject: "DMCA Notice".
+              See our <Link href="/dmca" className="underline">DMCA Policy</Link> for required details.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">4. Business & Press</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Partnerships, distribution, or press. 4th Ground is a TVOD platform, not subscription.
+              All content is licensed. Subject: "Business Inquiry".
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">5. POPIA & Data Requests</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Access, correct, or delete your data under POPIA. Subject: "POPIA Request".
+              See our <Link href="/privacy" className="underline">Privacy Policy</Link> for rights.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">6. Company Details</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              4th Ground, a division of KC Company Reg. No. 2023/664072/07. 
+              Based in Johannesburg, South Africa. Acquisitions: New York, Los Angeles, London, UK.
+            </p>
+          </div>
         </div>
-        <div className="mt-12 rounded-3xl border border-white/10 bg-zinc-950 p-6 md:p-8">
-          <h2 className="text-2xl font-bold">Email</h2>
-          <p className="mt-4 max-w-3xl text-zinc-400">We typically reply within 1-2 business days.</p>
+
+        <div className="mt-12 rounded-3xl border-white/10 bg-zinc-950 p-6 md:p-8">
+          <h2 className="text-2xl font-bold">Contact</h2>
+          <p className="mt-4 max-w-3xl text-zinc-400">
+            We typically reply within 1-2 business days. For urgent playback issues, use Subject: "Urgent".
+          </p>
           <a href="mailto:support@4thground.com" className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">
             support@4thground.com
           </a>
+          <div className="mt-5 flex-wrap gap-4 text-sm">
+            <Link href="/support" className="text-zinc-400 hover:text-white underline">Support Center</Link>
+            <Link href="/terms" className="text-zinc-400 hover:text-white underline">Terms</Link>
+            <Link href="/privacy" className="text-zinc-400 hover:text-white underline">Privacy</Link>
+          </div>
         </div>
       </section>
       <footer className="border-t border-white/10 px-6 md:px-12 py-10 text-sm text-zinc-500">
