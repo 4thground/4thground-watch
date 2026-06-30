@@ -40,104 +40,127 @@ export default function TermsPage() {
       </section>
 
       {/* Terms Content */}
-      <section className="mx-auto max-w-4xl px-5 pb-20 md:px-12">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md md:p-10">
-          <p className="text-sm text-zinc-500">Last updated: June 2026</p>
+      {/* Terms Content - Grid Style like Privacy */}
+      <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
+        <p className="mb-8 text-sm text-zinc-500">Last updated: June 2026 | 4th Ground, a division of KC Company Reg. No. 2023/664072/07</p>
 
-          <div className="mt-8 space-y-8 text-zinc-300">
-            <div>
-              <h2 className="text-2xl font-bold text-white">1. About 4th Ground</h2>
-              <p className="mt-3 leading-relaxed">
-                4th Ground is a TVOD, Transactional Video on Demand, streaming platform operated as a division of KC Company, Reg. No. 2023/664072/07. We are based in Johannesburg, South Africa, with acquisitions teams in New York, Los Angeles, and London, UK. 
-                All films on 4th Ground are legally licensed to us for streaming. We do not offer subscriptions or purchases. Access is rental-only.
-              </p>
-            </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">1. Who We Are</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              4th Ground is a TVOD streaming platform operated as a division of KC Company, Reg. No. 2023/664072/07.
+              Based in Johannesburg, South Africa. Acquisitions: New York, Los Angeles, London, UK.
+              By using 4th Ground you agree to these Terms.
+            </p>
+          </div>
 
-            <div>
-              <h2 className="text-2xl font-bold text-white">2. Rentals Only</h2>
-              <p className="mt-3 leading-relaxed">
-                All films on 4th Ground are rented, not purchased. When you rent a film, you receive a limited, non-exclusive, non-transferable license for personal, private viewing only. 
-                Rental periods range from 3 to 7 days depending on the title and price shown at checkout. The specific rental window for each film will be displayed on the film page before you pay. 
-                Once the rental period starts, you may stream the film as many times as you like until the window expires.
-              </p>
-            </div>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">2. TVOD Rentals Only</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              We do not sell films. All access is rental-only. Rental windows are 3 to 7 days, shown on each film page before checkout.
+              The rental period starts on first playback or 30 days after purchase, whichever comes first. No ownership is transferred.
+            </p>
+          </div>
 
-            <div>
-              <h2 className="text-2xl font-bold text-white">3. Licensing and Availability</h2>
-              <p className="mt-3 leading-relaxed">
-                Film availability depends on licensing agreements, territory rights, technical requirements, and rights holder approvals. Licensed films may be added or removed without notice. 
-                Some titles may be listed as "coming soon" if licensing is pending. We do not own the films. We are a licensed distributor only.
-              </p>
-            </div>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">3. Licensed Content Only</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Every film on 4th Ground is legally licensed for streaming, including all music, artwork, and ancillary rights.
+              We never add content without full clearance. "Coming soon" titles are listed only after a license is secured.
+            </p>
+          </div>
 
-            <div>
-              <h2 className="text-2xl font-bold text-white">4. Payments and Taxes</h2>
-              <p className="mt-3 leading-relaxed">
-                Prices are shown in your local currency before checkout and may include applicable taxes or fees. By completing a transaction, you agree to pay the listed rental price. 
-                Payments are processed by third-party payment providers. 4th Ground does not store your full payment details.
-              </p>
-            </div>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">4. Account & Eligibility</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              You must be 18+ to rent films. You are responsible for keeping your account secure. One account per household.
+              We may suspend or terminate accounts for fraud, abuse, or breach of these Terms.
+            </p>
+          </div>
 
-            <div>
-              <h2 className="text-2xl font-bold text-white">5. Refunds</h2>
-              <p className="mt-3 leading-relaxed">
-                All rentals are final. Due to the digital nature of the service, we generally do not offer refunds once playback has started. 
-                If you experience a technical issue that prevents access to a rented film, contact us at{' '}
-                <a href="mailto:support@4thground.com" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">support@4thground.com</a>. 
-                Refund requests for technical failures will be reviewed case-by-case. See our{' '}
-                <Link href="/refund-policy" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">Refund Policy</Link> for details.
-              </p>
-            </div>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">5. Payments & Taxes</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Prices are shown before checkout and may include VAT or other taxes. Payments are processed by third-party providers.
+              4th Ground does not store your full card details. By paying you agree to the listed rental price.
+            </p>
+          </div>
 
-            <div>
-              <h2 className="text-2xl font-bold text-white">6. User Responsibilities</h2>
-              <p className="mt-3 leading-relaxed">
-                You agree to use 4th Ground for lawful, personal viewing only. You may not copy, record, screen-capture, resell, share, upload, broadcast, or publicly perform any film. 
-                You may not bypass DRM, payment controls, or access restrictions, or share account access beyond your household. Misuse may result in suspension or termination of access.
-              </p>
-            </div>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">6. Availability & Changes</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Availability depends on licensing, territory rights, and technical factors. Films may be added or removed without notice.
+              We may update features, pricing, or platform functionality at any time.
+            </p>
+          </div>
 
-            <div>
-              <h2 className="text-2xl font-bold text-white">7. Intellectual Property</h2>
-              <p className="mt-3 leading-relaxed">
-                All films, trailers, artwork, logos, trademarks, and platform content remain the property of 4th Ground, KC Company, filmmakers, studios, or other rights holders. 
-                No ownership or intellectual property rights are transferred to you by renting a film. For copyright concerns, see our{' '}
-                <Link href="/dmca" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">DMCA</Link> page.
-              </p>
-            </div>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">7. Refunds</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Rentals are final once playback starts due to the digital nature of the service.
+              For technical failures preventing access, contact <a href="mailto:support@4thground.com" className="underline">support@4thground.com</a>.
+              See our <Link href="/refund-policy" className="underline">Refund Policy</Link>.
+            </p>
+          </div>
 
-            <div>
-              <h2 className="text-2xl font-bold text-white">8. Privacy and Data</h2>
-              <p className="mt-3 leading-relaxed">
-                We process your data to provide rentals, process payments, and comply with South African POPIA requirements. For details on what we collect and how we use it, see our{' '}
-                <Link href="/privacy" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">Privacy Policy</Link> and{' '}
-                <Link href="/cookies" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">Cookie Policy</Link>.
-              </p>
-            </div>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">8. Acceptable Use</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Personal, non-commercial viewing only. You may not copy, record, share, resell, broadcast, or publicly perform content.
+              No VPN abuse, DRM circumvention, scraping, bots, or credential sharing. Misuse may lead to termination.
+            </p>
+          </div>
 
-            <div>
-              <h2 className="text-2xl font-bold text-white">9. Service Changes and Liability</h2>
-              <p className="mt-3 leading-relaxed">
-                4th Ground may update, pause, remove, or modify films, pricing, features, or technical functionality at any time. The service is provided "as is" without warranties. 
-                To the extent permitted by law, 4th Ground and KC Company are not liable for indirect or consequential damages, service interruptions, or content removal by rights holders.
-              </p>
-            </div>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">9. Intellectual Property</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              All films, trailers, logos, designs, and platform IP belong to 4th Ground, KC Company, filmmakers, or licensors.
+              For copyright claims see our <Link href="/dmca" className="underline">DMCA</Link> page. No IP rights are granted to you by renting.
+            </p>
+          </div>
 
-            <div>
-              <h2 className="text-2xl font-bold text-white">10. Governing Law and Contact</h2>
-              <p className="mt-3 leading-relaxed">
-                These Terms are governed by the laws of the Republic of South Africa. 4th Ground is a division of KC Company, Reg. No. 2023/664072/07, based in Johannesburg, South Africa. 
-                For questions, support, or legal notices, contact us at{' '}
-                <a href="mailto:support@4thground.com" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">support@4thground.com</a> or via our{' '}
-                <Link href="/support" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">Support</Link> page.
-              </p>
-            </div>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md md:col-span-3">
+            <h2 className="text-xl font-bold">10. Privacy & Data</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              We process data under POPIA to provide rentals, prevent fraud, and comply with licensing.
+              See our <Link href="/privacy" className="underline">Privacy Policy</Link> and <Link href="/cookies" className="underline">Cookie Policy</Link> for details.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md md:col-span-3">
+            <h2 className="text-xl font-bold">11. Disclaimers & Liability</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              The service is provided "as is" without warranties. To the maximum extent permitted by South African law,
+              4th Ground and KC Company are not liable for indirect, incidental, or consequential damages, or content removal by rights holders.
+              Our total liability is limited to the amount you paid for the rental.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md md:col-span-3">
+            <h2 className="text-xl font-bold">12. Changes, Law & Contact</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              We may update these Terms. Continued use means acceptance. These Terms are governed by the laws of South Africa.
+              Jurisdiction: Johannesburg courts. 4th Ground, a division of KC Company Reg. No. 2023/664072/07.
+              Contact: <a href="mailto:support@4thground.com" className="underline">support@4thground.com</a> or <Link href="/support" className="underline">Support</Link>.
+            </p>
           </div>
         </div>
 
-        <p className="mt-6 text-center text-xs leading-relaxed text-zinc-600">
-          
-        </p>
+        <div className="mt-12 rounded-3xl border-white/10 bg-zinc-950 p-6 md:p-8">
+          <h2 className="text-2xl font-bold">Legal Contact</h2>
+          <p className="mt-4 max-w-3xl text-zinc-400">
+            4th Ground, a division of KC Company Reg. No. 2023/664072/07. Johannesburg, South Africa.
+          </p>
+          <a href="mailto:support@4thground.com" className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">
+            support@4thground.com
+          </a>
+          <div className="mt-5 flex-wrap gap-4 text-sm">
+            <Link href="/privacy" className="text-zinc-400 hover:text-white underline">Privacy Policy</Link>
+            <Link href="/refund-policy" className="text-zinc-400 hover:text-white underline">Refund Policy</Link>
+            <Link href="/dmca" className="text-zinc-400 hover:text-white underline">DMCA</Link>
+            <Link href="/contact" className="text-zinc-400 hover:text-white underline">Contact</Link>
+          </div>
+        </div>
       </section>
 
       {/* Footer */}
