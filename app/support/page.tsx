@@ -48,53 +48,77 @@ export default function SupportPage() {
       </section>
 
       {/* Content */}
-      <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
+     <section className="mx-auto max-w-7xl px-5 pb-20 md:px-12">
+        <p className="mb-8 text-sm text-zinc-500">4th Ground, a division of KC Company Reg. No. 2023/664072/07. Johannesburg, South Africa.</p>
+
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
-            <h2 className="text-xl font-bold">Watching a Film</h2>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">1. Viewer Help: Rentals</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-              If your rented or purchased film is not playing correctly, please email us with
-              the film title, the device you are using, and a short description of the issue.
+              Issues with playback, 3-7 day window, receipts, or access? Email your order ID, film title, device, and a short description.
+              Email is required at checkout to deliver your rental and receipts.
             </p>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
-            <h2 className="text-xl font-bold">Payments</h2>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">2. Viewer Help: Payments</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-              For payment questions, failed transactions, duplicate charges, or access problems
-              after payment, contact us and include the email address used for the purchase.
+              Failed transaction, duplicate charge, or no access after payment? Include the email used for purchase.
+              We do not store full card details. Refunds follow our <Link href="/refund-policy" className="underline">Refund Policy</Link>.
             </p>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
-            <h2 className="text-xl font-bold">TVOD Access</h2>
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">3. TVOD Model</h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-              4th Ground currently operates as a TVOD platform. This means you rent or buy
-              individual films. We do not currently offer a subscription service.
+              4th Ground is TVOD only. Rent individual films for 3-7 days. No subscriptions.
+              All films are fully licensed, including music and artwork. "Coming soon" means license secured.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">4. Filmmaker Help: Submissions</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Rights holders: submit films via <a href="mailto:support@4thground.com" className="underline">support@4thground.com</a> Subject: "Film Submission".
+              Include EPK, license docs, and payout email. We only accept fully cleared content.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">5. Filmmaker Help: Payouts</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Missing payout or statement? Email with your film title and registered payout email.
+              Payouts require your email + banking/tax details. Data is stored separately per our <Link href="/privacy" className="underline">Privacy Policy</Link>.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md">
+            <h2 className="text-xl font-bold">6. Technical Issues</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              DRM, login, app, or browser problems? Include device, OS, browser, screenshot, and time of issue.
+              For account/POPIA requests, see Section 7.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border-white/10 bg-white/[0.06] p-6 backdrop-blur-md md:col-span-3">
+            <h2 className="text-xl font-bold">7. Account & POPIA Requests</h2>
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              Access, correct, or delete your data under POPIA. DMCA notice or counter-notice? 
+              Email <a href="mailto:support@4thground.com" className="underline">support@4thground.com</a> with Subject: "POPIA Request" or "DMCA Notice".
+              Response time: 48 hours for urgent access issues.
             </p>
           </div>
         </div>
 
-        <div className="mt-12 rounded-3xl border border-white/10 bg-zinc-950 p-6 md:p-8">
-          <h2 className="text-2xl font-bold">Contact</h2>
-
+        <div className="mt-12 rounded-3xl border-white/10 bg-zinc-950 p-6 md:p-8">
+          <h2 className="text-2xl font-bold">Contact Support</h2>
           <p className="mt-4 max-w-3xl text-zinc-400">
-            For support, please email:
+            4th Ground, a division of KC Company Reg. No. 2023/664072/07. Johannesburg, South Africa.
           </p>
-
-          <a
-            href="mailto:support@4thground.com"
-            className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white"
-          >
+          <a href="mailto:support@4thground.com" className="mt-3 inline-block text-lg font-semibold text-white underline decoration-white/30 underline-offset-4 transition hover:decoration-white">
             support@4thground.com
           </a>
-
-          <p className="mt-5 max-w-3xl text-sm leading-relaxed text-zinc-500">
-            Please include your name, email address used on 4th Ground, the film title,
-            and any screenshots or details that can help us understand the issue.
-          </p>
-        </div>
-      </section>
+          <p className="mt-5 max-w-3xl text-sm
 
       {/* Footer */}
       <footer className="border-t border-white/10 px-6 md:px-12 py-10 text-sm text-zinc-500">
