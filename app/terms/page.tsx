@@ -34,8 +34,8 @@ export default function TermsPage() {
           </h1>
 
           <p className="mt-6 max-w-2xl text-lg font-medium leading-relaxed text-zinc-300 md:text-xl">
-            These terms explain how you may access and use 4th Ground’s TVOD film service.
-          </p>
+  These terms explain how you may rent and access 4th Ground’s TVOD film service. All films are licensed and rented for a 3 to 7 day period.
+</p>
         </div>
       </section>
 
@@ -48,86 +48,88 @@ export default function TermsPage() {
             <div>
               <h2 className="text-2xl font-bold text-white">1. About 4th Ground</h2>
               <p className="mt-3 leading-relaxed">
-                4th Ground is a film distribution and digital viewing platform. At this stage,
-                4th Ground operates as a TVOD service, meaning users may rent or buy individual
-                films where available. We do not currently offer a subscription plan.
+                4th Ground is a TVOD, Transactional Video on Demand, streaming platform operated as a division of KC Company, Reg. No. 2023/664072/07. We are based in Johannesburg, South Africa, with acquisitions teams in New York, Los Angeles, and London, UK. 
+                All films on 4th Ground are legally licensed to us for streaming. We do not offer subscriptions or purchases. Access is rental-only.
               </p>
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-white">2. Rentals and Purchases</h2>
+              <h2 className="text-2xl font-bold text-white">2. Rentals Only</h2>
               <p className="mt-3 leading-relaxed">
-                When you rent or purchase a film on 4th Ground, you receive a limited,
-                personal, non-transferable viewing right for that film. The content is provided
-                for private viewing only and may not be copied, resold, shared, uploaded,
-                broadcast, or distributed without permission.
+                All films on 4th Ground are rented, not purchased. When you rent a film, you receive a limited, non-exclusive, non-transferable license for personal, private viewing only. 
+                Rental periods range from 3 to 7 days depending on the title and price shown at checkout. The specific rental window for each film will be displayed on the film page before you pay. 
+                Once the rental period starts, you may stream the film as many times as you like until the window expires.
               </p>
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-white">3. Availability</h2>
+              <h2 className="text-2xl font-bold text-white">3. Licensing and Availability</h2>
               <p className="mt-3 leading-relaxed">
-                Film availability may vary depending on licensing, territory, technical
-                requirements, and platform decisions. Some films may be available for rental,
-                purchase, or may be listed as coming soon.
+                Film availability depends on licensing agreements, territory rights, technical requirements, and rights holder approvals. Licensed films may be added or removed without notice. 
+                Some titles may be listed as "coming soon" if licensing is pending. We do not own the films. We are a licensed distributor only.
               </p>
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-white">4. Payments</h2>
+              <h2 className="text-2xl font-bold text-white">4. Payments and Taxes</h2>
               <p className="mt-3 leading-relaxed">
-                Prices are shown before checkout. By completing a transaction, you agree to pay
-                the listed price for the selected film access. Payment processing may be handled
-                by third-party payment providers.
+                Prices are shown in your local currency before checkout and may include applicable taxes or fees. By completing a transaction, you agree to pay the listed rental price. 
+                Payments are processed by third-party payment providers. 4th Ground does not store your full payment details.
               </p>
             </div>
 
             <div>
               <h2 className="text-2xl font-bold text-white">5. Refunds</h2>
               <p className="mt-3 leading-relaxed">
-                If you experience a technical issue that prevents access to a rented or purchased
-                film, contact us at support@4thground.com. Refund requests are reviewed on a
-                case-by-case basis.
+                All rentals are final. Due to the digital nature of the service, we generally do not offer refunds once playback has started. 
+                If you experience a technical issue that prevents access to a rented film, contact us at{' '}
+                <a href="mailto:support@4thground.com" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">support@4thground.com</a>. 
+                Refund requests for technical failures will be reviewed case-by-case. See our{' '}
+                <Link href="/refund-policy" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">Refund Policy</Link> for details.
               </p>
             </div>
 
             <div>
               <h2 className="text-2xl font-bold text-white">6. User Responsibilities</h2>
               <p className="mt-3 leading-relaxed">
-                You agree not to misuse the platform, attempt to bypass payment or access controls,
-                copy or record films, share private viewing links, interfere with the service,
-                or use 4th Ground for unlawful activity.
+                You agree to use 4th Ground for lawful, personal viewing only. You may not copy, record, screen-capture, resell, share, upload, broadcast, or publicly perform any film. 
+                You may not bypass DRM, payment controls, or access restrictions, or share account access beyond your household. Misuse may result in suspension or termination of access.
               </p>
             </div>
 
             <div>
               <h2 className="text-2xl font-bold text-white">7. Intellectual Property</h2>
               <p className="mt-3 leading-relaxed">
-                All films, artwork, trailers, logos, page designs, and related materials remain
-                the property of 4th Ground, its licensors, filmmakers, or rights holders. No
-                ownership rights are transferred to you through rental or purchase.
+                All films, trailers, artwork, logos, trademarks, and platform content remain the property of 4th Ground, KC Company, filmmakers, studios, or other rights holders. 
+                No ownership or intellectual property rights are transferred to you by renting a film. For copyright concerns, see our{' '}
+                <Link href="/dmca" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">DMCA</Link> page.
               </p>
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-white">8. Service Changes</h2>
+              <h2 className="text-2xl font-bold text-white">8. Privacy and Data</h2>
               <p className="mt-3 leading-relaxed">
-                4th Ground may update, remove, pause, or modify parts of the service when needed,
-                including film pages, pricing, availability, features, and technical functionality.
+                We process your data to provide rentals, process payments, and comply with South African POPIA requirements. For details on what we collect and how we use it, see our{' '}
+                <Link href="/privacy" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">Privacy Policy</Link> and{' '}
+                <Link href="/cookies" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">Cookie Policy</Link>.
               </p>
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-white">9. Contact</h2>
+              <h2 className="text-2xl font-bold text-white">9. Service Changes and Liability</h2>
               <p className="mt-3 leading-relaxed">
-                For questions about these terms, payments, access, or support, contact us at{' '}
-                <a
-                  href="mailto:support@4thground.com"
-                  className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white"
-                >
-                  support@4thground.com
-                </a>
-                .
+                4th Ground may update, pause, remove, or modify films, pricing, features, or technical functionality at any time. The service is provided "as is" without warranties. 
+                To the extent permitted by law, 4th Ground and KC Company are not liable for indirect or consequential damages, service interruptions, or content removal by rights holders.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-white">10. Governing Law and Contact</h2>
+              <p className="mt-3 leading-relaxed">
+                These Terms are governed by the laws of the Republic of South Africa. 4th Ground is a division of KC Company, Reg. No. 2023/664072/07, based in Johannesburg, South Africa. 
+                For questions, support, or legal notices, contact us at{' '}
+                <a href="mailto:support@4thground.com" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">support@4thground.com</a> or via our{' '}
+                <Link href="/support" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">Support</Link> page.
               </p>
             </div>
           </div>
