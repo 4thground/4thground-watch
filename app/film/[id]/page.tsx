@@ -10,10 +10,9 @@ type AccessState = {
   progress: number;
 };
 
-// PAYHIP - rent only, USD
-const PAYHIP_PRODUCTS = {
-  rent: '3YqxG' // Your Payhip product ID
-};
+const playerRef = useRef<HTMLIFrameElement | null>(null);
+const [checkoutOpen, setCheckoutOpen] = useState(false); // NEW
+const [checkoutUrl, setCheckoutUrl] = useState(''); // NEW
 
 export default function FilmPage({ params }: { params: { id: string } }) {
   const film = (films as any[]).find((f) => f.id === params.id);
@@ -24,40 +23,43 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const playerRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
-    if (!film) return;
+  if (!film) return;
 
-    // Check for existing access - no email needed
-    const key = `4g_access_${film.id}`;
-    const saved = localStorage.getItem(key);
-
-    if (saved) {
-      const { type, paidAt } = JSON.parse(saved);
-      const expires =
-        type === 'buy'? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000;
-
-      const progress = Number(
-        localStorage.getItem(`4g_progress_${film.id}`) || 0
-      );
-
-      if (expires > Date.now()) {
-        setAccess({ type, expires, progress });
-      } else {
-        localStorage.removeItem(key);
-      }
+  // 1. Check KV/Backend for existing access instead of Payhip URL params
+  const checkAccess = async () => {
+    const r = await fetch(`/api/ikhokha/access?filmId=${film.id}`);
+    const { expires } = await r.json();
+    if (expires && expires > Date.now()) {
+      const progress = Number(localStorage.getItem(`4g_progress_${film.id}`) || 0);
+      setAccess({ type: 'rent', expires, progress });
     }
+  };
+  checkAccess();
+}, [film]);
+  
+  const handleRent = async () => {
+  const res = await fetch('/api/ikhokha/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filmId: film!.id, amount: 3.99 })
+  });
+  const { checkout_url, session_id } = await res.json();
+  setCheckoutUrl(checkout_url);
+  setCheckoutOpen(true);
+  pollPayment(session_id, film!.id);
+};
 
-    // Check Payhip return for rent
-    const urlParams = new URLSearchParams(window.location.search);
-    const payhipSuccess = urlParams.get('payhip_success');
-    const payhipProduct = urlParams.get('product');
-
-    if (payhipSuccess === 'true' && payhipProduct === PAYHIP_PRODUCTS.rent) {
-      const key = `4g_access_${film.id}`;
-      localStorage.setItem(key, JSON.stringify({ type: 'rent', paidAt: Date.now() }));
-      window.history.replaceState({}, '', `/film/${film.id}`);
-      setTimeout(() => window.location.reload(), 100);
+const pollPayment = (session_id: string, filmId: string) => {
+  const int = setInterval(async () => {
+    const r = await fetch(`/api/ikhokha/status?session=${session_id}`);
+    const { status, expires } = await r.json();
+    if (status === 'paid') {
+      setAccess({ type: 'rent', expires, progress: 0 });
+      setCheckoutOpen(false);
+      clearInterval(int);
     }
-  }, [film]);
+  }, 3000);
+};
 
   useEffect(() => {
     const handleFullscreen = () => {
@@ -160,15 +162,12 @@ className="w-full h-full object-cover"
 
               <div className="flex justify-center">
                 {/* RENT BUTTON - NO EMAIL */}
-                <a
-                  href="https://payhip.com/b/3YqxG"
-                  className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
-                >
-                  Rent
-                </a>
+                <button onClick={handleRent} className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition">
+  Rent
+</button>
               </div>
               <p className="text-xs text-zinc-500 mt-4">
-                $3.99 - 7 days Access. You'll be redirected to Payhip for secure Checkout.
+                7 days Access. 
               </p>
             </div>
           </div>
@@ -219,17 +218,12 @@ className="w-full h-full object-cover"
           <div className="mb-12">
             <div className="flex flex-col sm:flex-row gap-3">
               {/* RENT BUTTON - NO EMAIL */}
-              <a
-                href="https://payhip.com/b/3YqxG"
-                className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
-              >
-                Rent ${film.price_usd}
-              </a>
+              <button onClick={handleRent} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center">
+  Rent $3.99
+</button>
             </div>
 
-            <p className="text-xs text-zinc-500 mt-3">
-              You'll be redirected to Payhip for secure checkout.
-            </p>
+            
           </div>
         )}
 
@@ -351,6 +345,18 @@ className="w-full h-full object-cover"
       <p className="text-xs text-zinc-600">All content and trademarks are property of their respective owners.</p>
     </div>
   </div>
+        {/* iKhokha Modal */}
+{checkoutOpen && (
+  <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] grid place-items-center p-4" onClick={() => setCheckoutOpen(false)}>
+    <div className="bg-zinc-900 rounded-2xl w-full max-w-lg h-[700px] border-white/10 overflow-hidden" onClick={e => e.stopPropagation()}>
+      <div className="flex justify-between items-center p-4 border-b border-white/10">
+        <h3 className="font-semibold">Complete Rental - $3.99</h3>
+        <button onClick={() => setCheckoutOpen(false)} className="text-zinc-400 hover:text-white text-xl">✕</button>
+      </div>
+      <iframe src={checkoutUrl} className="w-full h-[calc(100%-60px)]" />
+    </div>
+  </div>
+)}
 </footer>
 
       <style jsx global>{`
