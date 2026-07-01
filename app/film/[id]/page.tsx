@@ -4,8 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import films from '@/data/films.json';
 
-type AccessState = { type: string; expires: number; progress: number; };
-
 type Film = {
   id: string;
   title: string;
@@ -49,18 +47,38 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const price = film ? film.price_usd.toFixed(2) : '0.00';
   const valid = /\S+@\S+\.\S+/.test(email);
 
-  const unlockFilm = () => {
+  // =========================
+  // CHECK ACCESS FROM SERVER
+  // =========================
+  useEffect(() => {
     if (!film) return;
 
-    localStorage.setItem(
-      `4g_access_${film.id}`,
-      JSON.stringify({ type: 'rent', paidAt: Date.now() })
-    );
+    const checkAccess = async () => {
+      try {
+        const res = await fetch(`/api/access?filmId=${film.id}`);
+        const data = await res.json();
+        setHasAccess(!!data.hasAccess);
+      } catch {
+        setHasAccess(false);
+      }
+    };
 
-    setHasAccess(true);
-    setShowCheckout(false);
-  };
+    checkAccess();
+  }, [film]);
 
+  // =========================
+  // EMAIL STORAGE ONLY
+  // =========================
+  useEffect(() => {
+    setIsClient(true);
+
+    const savedEmail = localStorage.getItem('4g_email');
+    if (savedEmail) setEmail(savedEmail);
+  }, []);
+
+  // =========================
+  // PAYMENT HANDLER
+  // =========================
   const handleContinue = async () => {
     if (!film) return;
 
@@ -86,67 +104,34 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       const data = await res.json();
 
       if (!res.ok || !data.paymentUrl) {
-        throw new Error(data.error || 'No payment URL');
+        throw new Error(data.error || 'Payment URL missing');
       }
 
       localStorage.setItem('4g_email', email);
 
-      // 🔥 FIX: OPEN PAYMENT OUTSIDE (NO IFRAME)
-      window.open(
-        data.paymentUrl,
-        '_blank',
-        'width=420,height=720'
-      );
-
-      setShowCheckout(false);
-    } catch (e: any) {
-      setEmailError(e.message || 'Payment failed');
+      // 🔥 OPEN SECURE PAYMENT PAGE
+      window.location.href = data.paymentUrl;
+    } catch (err: any) {
+      setEmailError(err.message || 'Payment failed');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => setIsClient(true), []);
+  // =========================
+  // GUARD
+  // =========================
+  if (!film) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white">
+        Film not found
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (!isClient || !film) return;
-
-    const saved = localStorage.getItem(`4g_access_${film.id}`);
-    if (saved) {
-      setHasAccess(true);
-    }
-  }, [film, isClient]);
-
-  // 🔥 Webhook / postMessage unlock listener (fallback)
-  useEffect(() => {
-    const handler = (event: MessageEvent) => {
-      if (!event.origin.includes('ikhokha')) return;
-
-      if (
-        event.data?.status === 'success' ||
-        event.data?.event === 'payment_success'
-      ) {
-        unlockFilm();
-      }
-    };
-
-    window.addEventListener('message', handler);
-    return () => window.removeEventListener('message', handler);
-  }, [film]);
-
-  if (!film) return <div className="text-white">Film not found</div>;
-
-  const [hasAccess, setHasAccess] = useState(false);
-
-useEffect(() => {
-  if (!film) return;
-
-  fetch(`/api/access?filmId=${film.id}`)
-    .then(res => res.json())
-    .then(data => {
-      setHasAccess(data.hasAccess);
-    });
-}, [film]);
+  const videoIdToPlay = hasAccess
+    ? film.bunny_video_id
+    : film.bunny_trailer_id;
 
   return (
     <main className="bg-black text-white min-h-screen">
@@ -195,6 +180,7 @@ useEffect(() => {
 
             <div className="mt-6">
               <label className="text-sm text-zinc-400">Email</label>
+
               <input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -215,9 +201,6 @@ useEffect(() => {
               </button>
             </div>
 
-            <p className="text-xs text-zinc-500 mt-4">
-              You will be redirected to a secure payment page.
-            </p>
           </div>
         </div>
       )}
