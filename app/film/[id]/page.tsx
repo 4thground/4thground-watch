@@ -13,7 +13,7 @@ type Film = {
 };
 
 export default function FilmPage({ params }: { params: { id: string } }) {
-  const film = (films as Film[]).find((f) => f.id === params.id);
+  const film = (films as any[]).find((f) => f.id === params.id);
   const playerRef = useRef<HTMLDivElement | null>(null);
 
   const [access, setAccess] = useState<AccessState | null>(null);
