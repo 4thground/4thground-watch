@@ -416,12 +416,14 @@ className="w-full h-full object-cover"
   </div>
 )}
 
-{checkoutStep === 'payment' && (
-  <div className="mt-8 text-center">
-
-    <div className="text-5xl mb-4">
-      💳
-    </div>
+{checkoutStep === 'payment' && checkoutUrl && (
+  <div className="mt-6">
+    <iframe
+      src={checkoutUrl}
+      className="w-full h-[500px] rounded-xl border border-zinc-700"
+    />
+  </div>
+)}
 
     <h3 className="text-2xl font-semibold">
       Secure Checkout
