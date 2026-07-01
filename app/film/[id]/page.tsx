@@ -44,7 +44,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
 
-  const price = film ? film.price_usd.toFixed(2) : '0.00';
+  const price = film? film.price_usd.toFixed(2) : '0.00';
   const valid = /\S+@\S+\.\S+/.test(email);
 
   // =========================
@@ -71,13 +71,28 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   // =========================
   useEffect(() => {
     setIsClient(true);
-
     const savedEmail = localStorage.getItem('4g_email');
     if (savedEmail) setEmail(savedEmail);
   }, []);
 
   // =========================
-  // PAYMENT HANDLER
+  // KEY: LISTEN FOR POPUP TO TELL US PAYMENT IS DONE
+  // =========================
+  useEffect(() => {
+    if (!isClient ||!film) return;
+    const handler = (event: MessageEvent) => {
+      // iKhokha success page will send this
+      if (event.data?.status === 'payment_success' && event.data?.filmId === film.id) {
+        setHasAccess(true); // Unlock instantly, no refresh
+        setShowCheckout(false);
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [film, isClient]);
+
+  // =========================
+  // PAYMENT HANDLER - POPUP VERSION
   // =========================
   const handleContinue = async () => {
     if (!film) return;
@@ -97,20 +112,26 @@ export default function FilmPage({ params }: { params: { id: string } }) {
           email,
           filmId: film.id,
           amount: film.price_usd,
-          returnUrl: `${origin}/film/${film.id}`,
+          // KEY: Return to a /success page, not the film page
+          returnUrl: `${origin}/film/${film.id}/success?filmId=${film.id}`,
         }),
       });
 
       const data = await res.json();
 
-      if (!res.ok || !data.paymentUrl) {
+      if (!res.ok ||!data.paymentUrl) {
         throw new Error(data.error || 'Payment URL missing');
       }
 
       localStorage.setItem('4g_email', email);
 
-      // 🔥 OPEN SECURE PAYMENT PAGE
-      window.location.href = data.paymentUrl;
+      // 🔥 POPUP INSTEAD OF REDIRECT
+      const w = 500, h = 700;
+      const y = window.top!.outerHeight / 2 + window.top!.screenY - h / 2;
+      const x = window.top!.outerWidth / 2 + window.top!.screenX - w / 2;
+      window.open(data.paymentUrl, 'ikhokhaCheckout', `width=${w},height=${h},top=${y},left=${x}`);
+      setShowCheckout(false); // Close our modal
+
     } catch (err: any) {
       setEmailError(err.message || 'Payment failed');
     } finally {
@@ -118,28 +139,18 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     }
   };
 
-  // =========================
-  // GUARD
-  // =========================
   if (!film) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-white">
-        Film not found
-      </div>
-    );
+    return <div className="min-h-screen flex items-center justify-center text-white">Film not found</div>;
   }
 
-  const videoIdToPlay = hasAccess
-    ? film.bunny_video_id
-    : film.bunny_trailer_id;
+  const videoIdToPlay = hasAccess? film.bunny_video_id : film.bunny_trailer_id;
 
   return (
     <main className="bg-black text-white min-h-screen">
-
-      {/* PLAYER */}
       <section ref={playerRef} className="relative h-[100svh] w-full">
         {isClient && (
           <iframe
+            key={videoIdToPlay}
             src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoIdToPlay}`}
             className="absolute inset-0 w-full h-full"
             allow="autoplay; fullscreen"
@@ -148,7 +159,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         )}
       </section>
 
-      {/* RENT BUTTON */}
       {!hasAccess && film.available && (
         <button
           onClick={() => setShowCheckout(true)}
@@ -158,53 +168,23 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         </button>
       )}
 
-      {/* CHECKOUT MODAL */}
       {showCheckout && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">
           <div className="bg-zinc-900 p-6 rounded-2xl w-full max-w-lg relative">
-
-            <button
-              onClick={() => setShowCheckout(false)}
-              className="absolute top-4 right-4"
-            >
-              <XIcon />
-            </button>
-
-            <h2 className="text-2xl font-bold">
-              Rent {film.title}
-            </h2>
-
-            <p className="text-zinc-400 mt-2">
-              7-day access • ${price}
-            </p>
-
+            <button onClick={() => setShowCheckout(false)} className="absolute top-4 right-4"><XIcon /></button>
+            <h2 className="text-2xl font-bold">Rent {film.title}</h2>
+            <p className="text-zinc-400 mt-2">7-day access • ${price}</p>
             <div className="mt-6">
               <label className="text-sm text-zinc-400">Email</label>
-
-              <input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full mt-2 p-3 rounded bg-black border border-white/20"
-                placeholder="you@email.com"
-              />
-
-              {emailError && (
-                <p className="text-red-400 text-sm mt-2">{emailError}</p>
-              )}
-
-              <button
-                onClick={handleContinue}
-                disabled={loading}
-                className="w-full mt-4 bg-white text-black py-3 rounded font-bold"
-              >
-                {loading ? 'Processing...' : 'Continue to Payment'}
+              <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full mt-2 p-3 rounded bg-black border-white/20" placeholder="you@email.com" />
+              {emailError && <p className="text-red-400 text-sm mt-2">{emailError}</p>}
+              <button onClick={handleContinue} disabled={loading} className="w-full mt-4 bg-white text-black py-3 rounded font-bold">
+                {loading? 'Processing...' : 'Continue to Payment'}
               </button>
             </div>
-
           </div>
         </div>
       )}
-
     </main>
   );
 }
