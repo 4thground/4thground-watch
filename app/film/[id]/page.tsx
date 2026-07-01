@@ -155,7 +155,7 @@ className="w-full h-full object-cover"
 </button>
               </div>
               <p className="text-xs text-zinc-500 mt-4">
-                $3.99 - 7 days Access. You'll be redirected to Payhip for secure Checkout.
+                Secure checkout.
               </p>
             </div>
           </div>
@@ -215,7 +215,7 @@ className="w-full h-full object-cover"
             </div>
 
             <p className="text-xs text-zinc-500 mt-3">
-              You'll be redirected to Payhip for secure checkout.
+              Secure checkout.
             </p>
           </div>
         )}
