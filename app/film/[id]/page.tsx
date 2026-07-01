@@ -9,7 +9,8 @@ type Film = {
   id: string;
   title: string;
   description: string;
-  price_usd: number; // We only use USD now
+  price_usd: number; // Your JSON has this
+  rent_price_cents?: number; // Make optional so build passes
   available: boolean;
   bunny_library_id: string;
   bunny_video_id: string;
@@ -24,8 +25,6 @@ type Film = {
   cast?: string[];
 };
 
-const USD_MIN = 0.54; // = R10.00 at 18.5 rate. iKhokha live min
-
 export default function FilmPage({ params }: { params: { id: string } }) {
   const film = (films as Film[]).find((f) => f.id === params.id);
   const playerRef = useRef<HTMLDivElement | null>(null);
@@ -38,9 +37,9 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
 
-  // 1. Always use USD. Enforce $0.54 min for Live
-  const price_usd = film? Math.max(USD_MIN, Number(film.price_usd || 0)) : USD_MIN;
-  const price = price_usd.toFixed(2);
+  // Use rent_price_cents if exists, else fallback to price_usd
+  const price_cents = film? (film.rent_price_cents?? Math.round(film.price_usd * 100)) : 0;
+  const price = (price_cents / 100).toFixed(2);
   const valid = /\S+@\S+\.\S+/.test(email);
 
   const handleContinue = async () => {
@@ -58,7 +57,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         body: JSON.stringify({
           email,
           filmId: film.id,
-          amount: price_usd, // 2. SEND USD TO BACKEND. Backend does ZAR conversion
+          amount_cents: price_cents, // Send cents to Stripe
           returnUrl: `${origin}/film/${film.id}?status=success&film=${film.id}`,
         }),
       });
@@ -139,7 +138,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
           <p className="text-sm sm:text-base md:text-lg text-zinc-200 mb-6 md:mb-8 max-w-xl mx-auto md:mx-0 leading-relaxed">{film.description}</p>
 
           {!access && film.available && (
-            <button onClick={() => setShowCheckout(true)} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">Rent ${price}</button> // 3. Show $
+            <button onClick={() => setShowCheckout(true)} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">Rent ${price}</button>
           )}
           {access && (
             <button onClick={() => playerRef.current?.scrollIntoView({ behavior: 'smooth' })} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">
@@ -155,7 +154,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
           <h2 className="text-2xl font-bold mb-4">More from 4th Ground</h2>
           <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
             {otherFilms.map((f) => {
-              const other_price = Math.max(USD_MIN, Number(f.price_usd || 0)).toFixed(2); // 3. Show $
+              const other_price = ((f.rent_price_cents?? Math.round(f.price_usd * 100)) / 100).toFixed(2);
               return f.available? (
                 <Link key={f.id} href={`/film/${f.id}`} className="group flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2">
                   <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105"><img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover" /></div>
@@ -179,7 +178,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-6">
           <div className="w-full max-w-md rounded-3xl bg-zinc-900 border-zinc-800 shadow-2xl p-8">
             <h2 className="text-3xl font-bold">Rent {film.title}</h2>
-            <p className="text-zinc-400 mt-2">Watch instantly for 7 days in HD. ${price}</p> // 3. Show $
+            <p className="text-zinc-400 mt-2">Watch instantly for 7 days in HD. ${price}</p>
 
             {checkoutStep === 'email' && (
               <div className="mt-8">
@@ -194,26 +193,26 @@ export default function FilmPage({ params }: { params: { id: string } }) {
             )}
 
             <button
-              onClick={handleContinue}
-              disabled={loading}
-              className="w-full mt-8 bg-white text-black rounded-xl py-4 font-semibold hover:bg-zinc-200 transition disabled:opacity-50"
-            >
-              {checkoutStep === 'email'
-               ? loading? 'Processing...' : 'Continue'
-                : 'Redirecting...'}
-            </button>
+  onClick={handleContinue}
+  disabled={loading}
+  className="w-full mt-8 bg-white text-black rounded-xl py-4 font-semibold hover:bg-zinc-200 transition disabled:opacity-50"
+>
+  {checkoutStep === 'email'
+    ? loading ? 'Processing...' : 'Continue'
+    : 'Redirecting...'}
+</button>
 
-            <button
-              onClick={() => {
-                setShowCheckout(false);
-                setCheckoutStep('email');
-                setCheckoutUrl(null);
-                setEmailError('');
-              }}
-              className="w-full mt-3 text-zinc-400 hover:text-white"
-            >
-              Close
-            </button>
+<button
+  onClick={() => {
+    setShowCheckout(false);
+    setCheckoutStep('email');
+    setCheckoutUrl(null);
+    setEmailError('');
+  }}
+  className="w-full mt-3 text-zinc-400 hover:text-white"
+>
+  Close
+</button>
           </div>
         </div>
       )}
