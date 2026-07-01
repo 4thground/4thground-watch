@@ -332,7 +332,65 @@ className="w-full h-full object-cover"
           </div>
         </div>
       )}
+{showCheckout && (
+  <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-xl flex items-center justify-center p-6">
 
+    <div className="w-full max-w-md rounded-3xl bg-zinc-900 border border-zinc-800 shadow-2xl overflow-hidden">
+
+      <div className="p-8">
+
+        <h2 className="text-3xl font-bold">
+          Rent {film.title}
+        </h2>
+
+        <p className="text-zinc-400 mt-2">
+          Watch instantly for 7 days in HD.
+        </p>
+
+        <div className="mt-8">
+
+          <label className="block text-sm text-zinc-400 mb-2">
+            Email Address
+          </label>
+
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              localStorage.setItem('4g_email', e.target.value);
+            }}
+            placeholder="name@example.com"
+            className="w-full rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-4 outline-none focus:border-white"
+          />
+
+          {emailError && (
+            <p className="text-red-400 text-sm mt-2">
+              {emailError}
+            </p>
+          )}
+
+        </div>
+
+        <button
+          className="w-full mt-8 bg-white text-black rounded-xl py-4 font-semibold hover:bg-zinc-200 transition"
+        >
+          Continue
+        </button>
+
+        <button
+          onClick={() => setShowCheckout(false)}
+          className="w-full mt-3 text-zinc-400 hover:text-white"
+        >
+          Cancel
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+)}
       {/* Footer */}
       <footer className="border-t border-white/10 px-6 md:px-12 py-10 text-sm text-zinc-500">
   <div className="max-w-7xl mx-auto space-y-6">
