@@ -43,8 +43,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
   const [showCheckout, setShowCheckout] = useState(false);
   const [email, setEmail] = useState('');
-  const [checkoutStep, setCheckoutStep] = useState<'email' | 'payment'>('email');
-  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
 
@@ -61,8 +59,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
     setHasAccess(true);
     setShowCheckout(false);
-    setCheckoutStep('email');
-    setCheckoutUrl(null);
   };
 
   const handleContinue = async () => {
@@ -72,31 +68,39 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     if (!valid) return setEmailError('Enter a valid email.');
 
     setLoading(true);
-    setCheckoutStep('payment');
 
     try {
+      const origin = window.location.origin;
+
       const res = await fetch('/api/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
           filmId: film.id,
-          amount: film.price_usd
+          amount: film.price_usd,
+          returnUrl: `${origin}/film/${film.id}`,
         }),
       });
 
       const data = await res.json();
+
       if (!res.ok || !data.paymentUrl) {
-        throw new Error(data.error || 'No payment URL returned');
+        throw new Error(data.error || 'No payment URL');
       }
 
       localStorage.setItem('4g_email', email);
 
-      // 👇 IMPORTANT: we ONLY embed, never redirect
-      setCheckoutUrl(data.paymentUrl);
+      // 🔥 FIX: OPEN PAYMENT OUTSIDE (NO IFRAME)
+      window.open(
+        data.paymentUrl,
+        '_blank',
+        'width=420,height=720'
+      );
+
+      setShowCheckout(false);
     } catch (e: any) {
       setEmailError(e.message || 'Payment failed');
-      setCheckoutStep('email');
     } finally {
       setLoading(false);
     }
@@ -109,25 +113,14 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
     const saved = localStorage.getItem(`4g_access_${film.id}`);
     if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.type === 'rent') {
-        setHasAccess(true);
-      }
+      setHasAccess(true);
     }
-
-    const savedEmail = localStorage.getItem('4g_email');
-    if (savedEmail) setEmail(savedEmail);
   }, [film, isClient]);
 
-  /**
-   * ✅ NO REDIRECT RELIANCE:
-   * Only listens for embedded payment success message
-   */
+  // 🔥 Webhook / postMessage unlock listener (fallback)
   useEffect(() => {
     const handler = (event: MessageEvent) => {
-      const allowed = event.origin.includes('ikhokha');
-
-      if (!allowed) return;
+      if (!event.origin.includes('ikhokha')) return;
 
       if (
         event.data?.status === 'success' ||
@@ -160,7 +153,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         )}
       </section>
 
-      {/* RENTER BUTTON */}
+      {/* RENT BUTTON */}
       {!hasAccess && film.available && (
         <button
           onClick={() => setShowCheckout(true)}
@@ -182,43 +175,43 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               <XIcon />
             </button>
 
-            <h2 className="text-2xl font-bold">Rent {film.title}</h2>
+            <h2 className="text-2xl font-bold">
+              Rent {film.title}
+            </h2>
 
-            {checkoutStep === 'email' && (
-              <>
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email"
-                  className="w-full mt-4 p-3 rounded bg-black border border-white/20"
-                />
+            <p className="text-zinc-400 mt-2">
+              7-day access • ${price}
+            </p>
 
-                {emailError && (
-                  <p className="text-red-400 text-sm mt-2">{emailError}</p>
-                )}
-
-                <button
-                  onClick={handleContinue}
-                  disabled={loading}
-                  className="w-full mt-4 bg-white text-black py-3 rounded font-bold"
-                >
-                  {loading ? 'Processing...' : 'Continue'}
-                </button>
-              </>
-            )}
-
-            {/* 👇 EMBEDDED PAYMENT ONLY */}
-            {checkoutStep === 'payment' && checkoutUrl && (
-              <iframe
-                src={checkoutUrl}
-                className="w-full h-[500px] mt-4 rounded-xl"
-                allow="payment *"
+            <div className="mt-6">
+              <label className="text-sm text-zinc-400">Email</label>
+              <input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full mt-2 p-3 rounded bg-black border border-white/20"
+                placeholder="you@email.com"
               />
-            )}
 
+              {emailError && (
+                <p className="text-red-400 text-sm mt-2">{emailError}</p>
+              )}
+
+              <button
+                onClick={handleContinue}
+                disabled={loading}
+                className="w-full mt-4 bg-white text-black py-3 rounded font-bold"
+              >
+                {loading ? 'Processing...' : 'Continue to Payment'}
+              </button>
+            </div>
+
+            <p className="text-xs text-zinc-500 mt-4">
+              You will be redirected to a secure payment page.
+            </p>
           </div>
         </div>
       )}
+
     </main>
   );
 }
