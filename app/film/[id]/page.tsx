@@ -59,6 +59,7 @@ const [emailError, setEmailError] = useState('');
     }
 
     setCheckoutUrl(data.paymentUrl);
+setCheckoutStep('payment');
 
   } catch (err) {
     setEmailError('Payment failed. Try again.');
