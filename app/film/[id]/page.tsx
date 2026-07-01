@@ -249,7 +249,7 @@ if (savedEmail) {
             </div>
           </div>
         )}
-      </div>
+      
 
       {/* Content Section */}
       <div className="max-w-6xl mx-auto px-6 md:px-8 -mt-40 relative z-10">
