@@ -4,13 +4,14 @@ import crypto from 'crypto'
 const KEY = process.env.BUNNY_TOKEN_KEY!
 
 export async function POST(req: Request) {
-  const { libraryId, videoId, type, paidAt, isTrailer } = await req.json()
+  const { videoId, isTrailer, paidAt, type } = await req.json()
+  const libraryId = '694590' // <- Hardcode your library
 
-  if (!libraryId || !videoId) return NextResponse.json({ error: 'Missing ids' }, { status: 400 })
+  if (!videoId) return NextResponse.json({ error: 'Missing videoId' }, { status: 400 })
 
-  const expires = isTrailer 
+  const expires = isTrailer
    ? Math.floor(Date.now() / 1000) + 24 * 60 * 60 // 24hr trailer
-    : type === 'buy' 
+    : type === 'buy'
      ? Math.floor(Date.now() / 1000) + 100 * 365 * 24 * 60 * 60 // 100 years
       : Math.floor(paidAt / 1000) + 7 * 24 * 60 * 60 // 7 days
 
@@ -19,7 +20,7 @@ export async function POST(req: Request) {
   }
 
   const hash = crypto.createHash('sha256').update(`${KEY}${libraryId}${videoId}${expires}`).digest('hex')
-  const src = `https://iframe.mediadelivery.net/embed/${libraryId}/${videoId}?token=${hash}&expires=${expires}&autoplay=true&preload=true`
-  
+  const src = `https://iframe.mediadelivery.net/embed/${libraryId}/${videoId}?token=${hash}&expires=${expires}&autoplay=true&preload=true&start=0`
+
   return NextResponse.json({ src })
 }
