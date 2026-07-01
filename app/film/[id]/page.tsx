@@ -52,7 +52,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   // =========================
   useEffect(() => {
     if (!film) return;
-
     const checkAccess = async () => {
       try {
         const res = await fetch(`/api/access?filmId=${film.id}`);
@@ -62,7 +61,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         setHasAccess(false);
       }
     };
-
     checkAccess();
   }, [film]);
 
@@ -96,15 +94,12 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   // =========================
   const handleContinue = async () => {
     if (!film) return;
-
     setEmailError('');
     if (!valid) return setEmailError('Enter a valid email.');
-
     setLoading(true);
 
     try {
       const origin = window.location.origin;
-
       const res = await fetch('/api/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -112,24 +107,19 @@ export default function FilmPage({ params }: { params: { id: string } }) {
           email,
           filmId: film.id,
           amount: film.price_usd,
-          // KEY: Return to a /success page, not the film page
+          // KEY: Return to /success so popup can close itself
           returnUrl: `${origin}/film/${film.id}/success?filmId=${film.id}`,
         }),
       });
-
       const data = await res.json();
-
-      if (!res.ok ||!data.paymentUrl) {
-        throw new Error(data.error || 'Payment URL missing');
-      }
-
+      if (!res.ok ||!data.paymentUrl) throw new Error(data.error || 'Payment URL missing');
       localStorage.setItem('4g_email', email);
 
-      // 🔥 POPUP INSTEAD OF REDIRECT
+      // POPUP INSTEAD OF REDIRECT
       const w = 500, h = 700;
       const y = window.top!.outerHeight / 2 + window.top!.screenY - h / 2;
       const x = window.top!.outerWidth / 2 + window.top!.screenX - w / 2;
-      window.open(data.paymentUrl, 'ikhokhaCheckout', `width=${w},height=${h},top=${y},left=${x}`);
+      window.open(data.paymentUrl, 'ikhokhaCheckout', `width=${w},height=${h},top=${y},left=${x},resizable=no`);
       setShowCheckout(false); // Close our modal
 
     } catch (err: any) {
@@ -139,6 +129,9 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     }
   };
 
+  // =========================
+  // GUARD
+  // =========================
   if (!film) {
     return <div className="min-h-screen flex items-center justify-center text-white">Film not found</div>;
   }
@@ -147,6 +140,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
   return (
     <main className="bg-black text-white min-h-screen">
+      {/* PLAYER */}
       <section ref={playerRef} className="relative h-[100svh] w-full">
         {isClient && (
           <iframe
@@ -159,26 +153,39 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         )}
       </section>
 
+      {/* RENT BUTTON */}
       {!hasAccess && film.available && (
         <button
           onClick={() => setShowCheckout(true)}
-          className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-8 py-4 rounded-full font-bold"
+          className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-8 py-4 rounded-full font-bold z-20"
         >
           Rent ${price}
         </button>
       )}
 
+      {/* CHECKOUT MODAL */}
       {showCheckout && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">
           <div className="bg-zinc-900 p-6 rounded-2xl w-full max-w-lg relative">
-            <button onClick={() => setShowCheckout(false)} className="absolute top-4 right-4"><XIcon /></button>
+            <button onClick={() => setShowCheckout(false)} className="absolute top-4 right-4">
+              <XIcon />
+            </button>
             <h2 className="text-2xl font-bold">Rent {film.title}</h2>
             <p className="text-zinc-400 mt-2">7-day access • ${price}</p>
             <div className="mt-6">
               <label className="text-sm text-zinc-400">Email</label>
-              <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full mt-2 p-3 rounded bg-black border-white/20" placeholder="you@email.com" />
+              <input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full mt-2 p-3 rounded bg-black border-white/20"
+                placeholder="you@email.com"
+              />
               {emailError && <p className="text-red-400 text-sm mt-2">{emailError}</p>}
-              <button onClick={handleContinue} disabled={loading} className="w-full mt-4 bg-white text-black py-3 rounded font-bold">
+              <button
+                onClick={handleContinue}
+                disabled={loading}
+                className="w-full mt-4 bg-white text-black py-3 rounded font-bold disabled:opacity-50"
+              >
                 {loading? 'Processing...' : 'Continue to Payment'}
               </button>
             </div>
