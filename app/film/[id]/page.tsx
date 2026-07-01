@@ -27,7 +27,7 @@ const [email, setEmail] = useState('');
 const [loading, setLoading] = useState(false);
 
 const [emailError, setEmailError] = useState('');
-  
+  const valid = /\S+@\S+\.\S+/.test(email);
   useEffect(() => {
     if (!film) return;
 
