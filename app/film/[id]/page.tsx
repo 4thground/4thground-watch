@@ -189,7 +189,7 @@ if (savedEmail) {
           </Link>
       </div>
 
-      {/* Hero Player */}
+     
       {/* Hero Player */}
 <div className="relative w-full h-screen bg-black">
 
