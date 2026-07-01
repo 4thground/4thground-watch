@@ -6,14 +6,27 @@ import films from '@/data/films.json';
 
 type AccessState = { type: string; expires: number; progress: number; };
 type Film = {
-  id: string; title: string; description: string; rent_price_cents: number;
-  available: boolean; bunny_library_id: string; bunny_video_id: string; bunny_trailer_id: string;
-  poster_url?: string; backdrop_url?: string; rating?: string; year?: number; genre?: string;
-  language?: string; director?: string; cast?: string[];
+  id: string;
+  title: string;
+  description: string;
+  price_usd: number; // Your JSON has this
+  rent_price_cents?: number; // Make optional so build passes
+  available: boolean;
+  bunny_library_id: string;
+  bunny_video_id: string;
+  bunny_trailer_id: string;
+  poster_url?: string;
+  backdrop_url?: string;
+  rating?: string;
+  year?: number;
+  genre?: string;
+  language?: string;
+  director?: string;
+  cast?: string[];
 };
 
 export default function FilmPage({ params }: { params: { id: string } }) {
-  const film = (films as any[]).find((f) => f.id === params.id);
+  const film = (films as Film[]).find((f) => f.id === params.id);
   const playerRef = useRef<HTMLDivElement | null>(null);
 
   const [access, setAccess] = useState<AccessState | null>(null);
@@ -24,7 +37,9 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
 
-  const price = film? (film.rent_price_cents / 100).toFixed(2) : '0.00';
+  // Use rent_price_cents if exists, else fallback to price_usd
+  const price_cents = film? (film.rent_price_cents?? Math.round(film.price_usd * 100)) : 0;
+  const price = (price_cents / 100).toFixed(2);
   const valid = /\S+@\S+\.\S+/.test(email);
 
   const handleContinue = async () => {
@@ -40,7 +55,9 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email, filmId: film.id, amount_cents: film.rent_price_cents,
+          email,
+          filmId: film.id,
+          amount_cents: price_cents, // Send cents to Stripe
           returnUrl: `${origin}/film/${film.id}?status=success&film=${film.id}`,
         }),
       });
@@ -75,7 +92,9 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     if (params.get('status') === 'success' && params.get('film') === film.id) {
       localStorage.setItem(`4g_access_${film.id}`, JSON.stringify({ type: 'rent', paidAt: Date.now() }));
       setAccess({ type: 'rent', expires: Date.now() + 7 * 24 * 60 * 60 * 1000, progress: 0 });
-      setShowCheckout(false); setCheckoutStep('email'); setCheckoutUrl(null);
+      setShowCheckout(false);
+      setCheckoutStep('email');
+      setCheckoutUrl(null);
       window.history.replaceState({}, '', `/film/${film.id}`);
     }
   }, [film]);
@@ -134,19 +153,22 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
           <h2 className="text-2xl font-bold mb-4">More from 4th Ground</h2>
           <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-            {otherFilms.map((f) => f.available? (
-              <Link key={f.id} href={`/film/${f.id}`} className="group flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2">
-                <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105"><img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover" /></div>
-                <p className="font-semibold mt-3 text-base truncate">{f.title}</p>
-                <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">{f.year && <span>{f.year}</span>}{f.genre && <span>• {f.genre}</span>}</div>
-                <p className="text-sm text-zinc-400 mt-1">From ${(f.rent_price_cents / 100).toFixed(2)}</p>
-              </Link>
-            ) : (
-              <div key={f.id} className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg p-2">
-                <div className="rounded-lg overflow-hidden relative"><img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover blur-sm brightness-50" /><div className="absolute inset-0 flex items-center justify-center"><span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border-white/20">Coming Soon</span></div></div>
-                <p className="font-semibold mt-3 text-base truncate text-zinc-400">{f.title}</p>
-              </div>
-            ))}
+            {otherFilms.map((f) => {
+              const other_price = ((f.rent_price_cents?? Math.round(f.price_usd * 100)) / 100).toFixed(2);
+              return f.available? (
+                <Link key={f.id} href={`/film/${f.id}`} className="group flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2">
+                  <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105"><img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover" /></div>
+                  <p className="font-semibold mt-3 text-base truncate">{f.title}</p>
+                  <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">{f.year && <span>{f.year}</span>}{f.genre && <span>• {f.genre}</span>}</div>
+                  <p className="text-sm text-zinc-400 mt-1">From ${other_price}</p>
+                </Link>
+              ) : (
+                <div key={f.id} className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg p-2">
+                  <div className="rounded-lg overflow-hidden relative"><img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover blur-sm brightness-50" /><div className="absolute inset-0 flex items-center justify-center"><span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border-white/20">Coming Soon</span></div></div>
+                  <p className="font-semibold mt-3 text-base truncate text-zinc-400">{f.title}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
