@@ -11,7 +11,7 @@
     "bunny_library_id": "694590",
     "bunny_video_id": "c561937c-eaae-42b2-bafc-f9f934a668a0",
     "bunny_trailer_id": "24a1b8b6-8bd6-46f4-acd5-7d7525ba4b4b",
-    "price_usd": 10.00, // <- CHANGED: $10.00 = R185.00. Passes iKhokha min
+    "price_usd": 10.00,
     "available": true,
     "year": 2025,
     "language": "Spanish",
@@ -30,7 +30,7 @@
     "bunny_library_id": "694590",
     "bunny_video_id": "",
     "bunny_trailer_id": "",
-    "price_usd": 10.00, // <- CHANGED: Same here
+    "price_usd": 10.00,
     "available": false,
     "year": 2026,
     "language": "English",
