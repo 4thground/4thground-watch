@@ -2,50 +2,80 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
-    const { email, filmId, amount } = await req.json();
+    const { email, filmId, amount, returnUrl } = await req.json();
 
     if (!email || !filmId || !amount) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing fields' },
         { status: 400 }
       );
     }
 
-    // 🔐 IKHOKHA CREDENTIALS (store in .env later)
-    const API_KEY = process.env.IKHOKHA_API_KEY!;
-    const API_SECRET = process.env.IKHOKHA_API_SECRET!;
+    const API_KEY = process.env.IKHOKHA_API_KEY;
+    const API_SECRET = process.env.IKHOKHA_API_SECRET;
 
-    // 🧠 CREATE PAYMENT REQUEST
-    const response = await fetch('https://api.ikhokha.com/public-api/v1/payments', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`,
-      },
-      body: JSON.stringify({
-        amount: Math.round(Number(amount) * 100), // cents
-        currency: 'ZAR',
-        reference: `${filmId}-${Date.now()}`,
-        customer: {
-          email,
-        },
-        returnUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/film/${filmId}`,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error('iKhokha error:', data);
+    if (!API_KEY || !API_SECRET) {
       return NextResponse.json(
-        { error: 'Payment creation failed' },
+        { error: 'Missing API credentials' },
         { status: 500 }
       );
     }
 
-    // ⚡ THIS IS WHAT FRONTEND NEEDS
+    // -----------------------------
+    // STEP 1: CREATE TRANSACTION PAYLOAD
+    // -----------------------------
+    const payload = {
+      amount: Number(amount),
+      currency: 'ZAR',
+      reference: `${filmId}-${Date.now()}`,
+      returnUrl,
+      customer: {
+        email,
+      },
+    };
+
+    // -----------------------------
+    // STEP 2: SIGN REQUEST
+    // (iKhokha requires HMAC style signing in most setups)
+    // -----------------------------
+    const signatureBase = JSON.stringify(payload) + API_SECRET;
+
+    const encoder = new TextEncoder();
+    const data = encoder.encode(signatureBase);
+
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+    const signature = Array.from(new Uint8Array(hashBuffer))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+
+    // -----------------------------
+    // STEP 3: CALL IKHOKHA API
+    // -----------------------------
+    const res = await fetch('https://api.ikhokha.com/payments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+        'X-Signature': signature,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: data },
+        { status: 400 }
+      );
+    }
+
+    // -----------------------------
+    // STEP 4: EXTRACT PAYMENT URL
+    // -----------------------------
     const paymentUrl =
-      data?.checkoutUrl ||
+      data?.paymentUrl ||
       data?.redirectUrl ||
       data?.url;
 
@@ -56,10 +86,12 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ paymentUrl });
+    return NextResponse.json({
+      paymentUrl,
+      reference: payload.reference,
+    });
 
   } catch (err) {
-    console.error(err);
     return NextResponse.json(
       { error: 'Server error' },
       { status: 500 }
