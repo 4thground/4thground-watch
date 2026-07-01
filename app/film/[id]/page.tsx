@@ -391,11 +391,13 @@ className="w-full h-full object-cover"
 
         </div>
 
-        <button
-          className="w-full mt-8 bg-white text-black rounded-xl py-4 font-semibold hover:bg-zinc-200 transition"
-        >
-          Continue
-        </button>
+       <button
+  onClick={handleContinue}
+  disabled={loading}
+  className="w-full mt-8 bg-white text-black rounded-xl py-4 font-semibold hover:bg-zinc-200 transition disabled:opacity-50"
+>
+  {loading ? 'Please wait...' : 'Continue'}
+</button>
 
         <button
           onClick={() => setShowCheckout(false)}
