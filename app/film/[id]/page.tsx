@@ -68,7 +68,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         body: JSON.stringify({
           email,
           filmId: film.id,
-          amount: film.price_usd, // Must be $10.00 to avoid 400
+          amount: film.price_usd,
           returnUrl: `${origin}/film/${film.id}?status=success&film=${film.id}`,
           cancelUrl: `${origin}/film/${film.id}?status=cancelled`,
         }),
@@ -115,13 +115,11 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       setEmailError('Payment was cancelled. Try again.');
       window.history.replaceState({}, '', `/film/${film.id}`);
     }
-  }, [film, isClient]);
+  }, [film, isClient]); // <- FIX WAS HERE
 
-  // KEY: Listen for iKhokha postMessage to unlock without redirect
   useEffect(() => {
     if (!isClient) return;
     const handler = (event: MessageEvent) => {
-      // iKhokha sends { status: 'success' } on complete
       if (event.origin.includes('ikhokha.co.za') && (event.data?.status === 'success' || event.data?.event === 'payment_success')) {
         unlockFilm();
       }
@@ -216,7 +214,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         </section>
       )}
 
-      {/* ON-SITE CHECKOUT IFRAME */}
       {showCheckout && (
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-2xl flex items-center justify-center p-4">
           <div className="w-full max-w-lg rounded-3xl bg-zinc-900/80 backdrop-blur-2xl border-white/10 shadow-2xl p-8 relative">
@@ -236,7 +233,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
             {checkoutStep === 'payment' && checkoutUrl && (
               <div className="mt-6 rounded-xl overflow-hidden border-white/10">
-                <iframe src={checkoutUrl} className="w-full h-[520px]" /> // <- NO REDIRECT
+                <iframe src={checkoutUrl} className="w-full h-[520px]" />
               </div>
             )}
 
