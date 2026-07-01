@@ -7,7 +7,7 @@ export default function SuccessPage() {
 
   useEffect(() => {
     const filmId = params.get('filmId');
-    console.log('iKhokha Success. Film:', filmId); // <- Debug. Check console
+    console.log('iKhokha Success. Film:', filmId); // Check Vercel logs if stuck
 
     if (window.opener && filmId) {
       // 1. Tell parent window we are paid
@@ -15,7 +15,7 @@ export default function SuccessPage() {
       // 2. Close self immediately
       window.close();
     } else {
-      // If popup was blocked, redirect back
+      // Fallback if popup was blocked
       window.location.href = `/film/${filmId}?status=success&filmId=${filmId}`;
     }
   }, [params]);
