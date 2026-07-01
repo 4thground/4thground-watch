@@ -116,7 +116,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       </div>
 
       {/* HERO = Homepage Hero layout */}
-      <div ref={playerRef} className="relative w-full pt-16">
+      <div ref={playerRef} className="relative h-screen w-full">
         <iframe
           src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${access? film.bunny_video_id : film.bunny_trailer_id}`}
           className="absolute inset-0 w-full h-full"
