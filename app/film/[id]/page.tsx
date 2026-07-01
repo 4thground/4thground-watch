@@ -10,10 +10,7 @@ type AccessState = {
   progress: number;
 };
 
-// PAYHIP - rent only, USD
-const PAYHIP_PRODUCTS = {
-  rent: '3YqxG' // Your Payhip product ID
-};
+
 
 export default function FilmPage({ params }: { params: { id: string } }) {
   const film = (films as any[]).find((f) => f.id === params.id);
@@ -46,17 +43,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       }
     }
 
-    // Check Payhip return for rent
-    const urlParams = new URLSearchParams(window.location.search);
-    const payhipSuccess = urlParams.get('payhip_success');
-    const payhipProduct = urlParams.get('product');
-
-    if (payhipSuccess === 'true' && payhipProduct === PAYHIP_PRODUCTS.rent) {
-      const key = `4g_access_${film.id}`;
-      localStorage.setItem(key, JSON.stringify({ type: 'rent', paidAt: Date.now() }));
-      window.history.replaceState({}, '', `/film/${film.id}`);
-      setTimeout(() => window.location.reload(), 100);
-    }
+   
   }, [film]);
 
   useEffect(() => {
