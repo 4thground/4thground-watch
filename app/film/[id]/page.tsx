@@ -366,30 +366,50 @@ className="w-full h-full object-cover"
           Watch instantly for 7 days in HD.
         </p>
 
-        <div className="mt-8">
+        {checkoutStep === 'email' && (
+  <div className="mt-8">
 
-          <label className="block text-sm text-zinc-400 mb-2">
-            Email Address
-          </label>
+    <label className="block text-sm text-zinc-400 mb-2">
+      Email Address
+    </label>
 
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              localStorage.setItem('4g_email', e.target.value);
-            }}
-            placeholder="name@example.com"
-            className="w-full rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-4 outline-none focus:border-white"
-          />
+    <input
+      type="email"
+      value={email}
+      onChange={(e) => {
+        setEmail(e.target.value);
+        localStorage.setItem('4g_email', e.target.value);
+      }}
+      placeholder="name@example.com"
+      className="w-full rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-4 outline-none focus:border-white"
+    />
 
-          {emailError && (
-            <p className="text-red-400 text-sm mt-2">
-              {emailError}
-            </p>
-          )}
+    {emailError && (
+      <p className="text-red-400 text-sm mt-2">
+        {emailError}
+      </p>
+    )}
 
-        </div>
+  </div>
+)}
+
+{checkoutStep === 'payment' && (
+  <div className="mt-8 text-center">
+
+    <div className="text-5xl mb-4">
+      💳
+    </div>
+
+    <h3 className="text-2xl font-semibold">
+      Secure Checkout
+    </h3>
+
+    <p className="text-zinc-400 mt-3">
+      Preparing your secure payment...
+    </p>
+
+  </div>
+)}
 
        <button
   onClick={handleContinue}
