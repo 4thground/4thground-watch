@@ -192,11 +192,27 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               <div className="mt-6"><iframe src={checkoutUrl} className="w-full h-[600px] rounded-xl border-zinc-700" /></div>
             )}
 
-            <button onClick={handleContinue} disabled={loading || checkoutStep === 'payment'} className="w-full mt-8 bg-white text-black rounded-xl py-4 font-semibold hover:bg-zinc-200 transition disabled:opacity-50">
-              {loading? 'Please wait...' : checkoutStep === 'email'? 'Continue' : 'Redirecting...'}
-            </button>
+            <button
+  onClick={handleContinue}
+  disabled={loading}
+  className="w-full mt-8 bg-white text-black rounded-xl py-4 font-semibold hover:bg-zinc-200 transition disabled:opacity-50"
+>
+  {checkoutStep === 'email'
+    ? loading ? 'Processing...' : 'Continue'
+    : 'Redirecting...'}
+</button>
 
-            <button onClick={() => { setShowCheckout(false); setCheckoutStep('email'); setCheckoutUrl(null); }} className="w-full mt-3 text-zinc-400 hover:text-white">Close</button>
+<button
+  onClick={() => {
+    setShowCheckout(false);
+    setCheckoutStep('email');
+    setCheckoutUrl(null);
+    setEmailError('');
+  }}
+  className="w-full mt-3 text-zinc-400 hover:text-white"
+>
+  Close
+</button>
           </div>
         </div>
       )}
