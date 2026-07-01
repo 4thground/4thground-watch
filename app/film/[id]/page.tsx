@@ -244,7 +244,7 @@ if (savedEmail) {
           Secure checkout.
         </p>
       </div>
-    </div>
+    
   )}
 </div>
       
