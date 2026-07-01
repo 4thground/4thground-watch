@@ -28,6 +28,25 @@ const [loading, setLoading] = useState(false);
 
 const [emailError, setEmailError] = useState('');
   const valid = /\S+@\S+\.\S+/.test(email);
+
+  const handleContinue = async () => {
+  setEmailError('');
+
+  if (!valid) {
+    setEmailError('Please enter a valid email address.');
+    return;
+  }
+
+  setLoading(true);
+
+  // Later this is where we'll call /api/create-payment
+  // For now, just move to the payment step.
+
+  setTimeout(() => {
+    setCheckoutStep('payment');
+    setLoading(false);
+  }, 500);
+};
   
   useEffect(() => {
     if (!film) return;
