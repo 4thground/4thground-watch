@@ -21,6 +21,13 @@ const [isFullscreen, setIsFullscreen] = useState(false);
 
 const [showCheckout, setShowCheckout] = useState(false);
 const [email, setEmail] = useState('');
+
+  const [checkoutStep, setCheckoutStep] = useState<'email' | 'payment' | 'success'>('email');
+
+const [loading, setLoading] = useState(false);
+
+const [emailError, setEmailError] = useState('');
+  
   useEffect(() => {
     if (!film) return;
 
