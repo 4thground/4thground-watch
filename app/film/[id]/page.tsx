@@ -3,13 +3,10 @@
 import { useState, useEffect } from 'react';
 import films from '@/data/films.json';
 
-type Film = {
-  id: string;
-  title: string;
-};
+
 
 export default function FilmPage({ params }: { params: { id: string } }) {
-  const film = (films as Film[]).find((f) => f.id === params.id);
+  
 
   if (!film) return <div className="min-h-screen flex items-center justify-center text-white bg-black">Film not found</div>;
 
