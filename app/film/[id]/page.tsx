@@ -243,10 +243,10 @@ if (savedEmail) {
         <p className="text-xs text-zinc-500 mt-4">
           Secure checkout.
         </p>
-      </div>
-    
-  )}
-</div>
+              </div>  {/* closes inner text container */}
+
+      )}
+    </div>    {/* closes HERO wrapper */}
       
 
       {/* Content Section */}
