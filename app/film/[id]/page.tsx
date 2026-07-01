@@ -48,6 +48,7 @@ const [emailError, setEmailError] = useState('');
         email,
         filmId: film.id,
         amount: film.price_usd,
+        returnUrl: `${window.location.origin}/film/${film.id}?status=success&film=${film.id}`
       }),
     });
 
@@ -57,11 +58,7 @@ const [emailError, setEmailError] = useState('');
       throw new Error('No payment URL returned');
     }
 
-    // SAVE payment URL
     setCheckoutUrl(data.paymentUrl);
-
-    // MOVE to payment screen
-    setCheckoutStep('payment');
 
   } catch (err) {
     setEmailError('Payment failed. Try again.');
