@@ -14,7 +14,7 @@ export default function FilmPage() {
       {/* 2. CENTER STACK */}
       <div className="relative z-10 flex-col items-center gap-8">
 
-        {/* TIME THING: Single spinning ring */}
+        {/* TIME THING: Spinning ring */}
         <div className="w-20 h-20 rounded-full border-[2px] border-t-white border-r-white/20 border-b-white/20 border-l-white/20 animate-spin"
           style={{animationDuration: '1.5s'}} />
 
@@ -29,7 +29,7 @@ export default function FilmPage() {
           0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.9); }
           50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
         }
-       .animate-breathe { animation: breathe 6s ease-in-out infinite; }
+      .animate-breathe { animation: breathe 6s ease-in-out infinite; }
       `}</style>
     </main>
   );
