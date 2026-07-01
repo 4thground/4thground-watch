@@ -454,7 +454,7 @@ if (savedEmail) {
   <div className="mt-6">
     <iframe
       src={checkoutUrl}
-      className="w-full h-[500px] rounded-xl border border-zinc-700"
+      className="w-full h-[600px] rounded-xl border border-zinc-700"
     />
   </div>
 )}
