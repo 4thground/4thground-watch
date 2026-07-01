@@ -7,11 +7,18 @@ export default function SuccessPage() {
 
   useEffect(() => {
     const filmId = params.get('filmId');
+    console.log('iKhokha Success. Film:', filmId); // <- Debug. Check console
+
     if (window.opener && filmId) {
+      // 1. Tell parent window we are paid
       window.opener.postMessage({ status: 'payment_success', filmId }, '*');
-      window.close(); // Kill popup
+      // 2. Close self immediately
+      window.close();
+    } else {
+      // If popup was blocked, redirect back
+      window.location.href = `/film/${filmId}?status=success&filmId=${filmId}`;
     }
   }, [params]);
 
-  return <div className="bg-black text-white min-h-screen flex items-center justify-center">Payment successful. Closing window...</div>;
+  return <div className="bg-black text-white min-h-screen flex items-center justify-center text-xl">Payment Successful... Closing</div>;
 }
