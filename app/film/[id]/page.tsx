@@ -48,7 +48,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
           email,
           filmId: film.id,
           amount: film.price_usd,
-          returnUrl: `${window.location.origin}/film/${film.id}?status=success&film=${film.id}`
+          returnUrl: `${window.location.origin}/film/${film.id}?status=success&film=${film.id}`,
         }),
       });
 
@@ -57,7 +57,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       if (!data.paymentUrl) throw new Error('No payment URL');
 
       setCheckoutUrl(data.paymentUrl);
-    } catch (err) {
+    } catch {
       setEmailError('Payment failed. Try again.');
       setCheckoutStep('email');
     } finally {
@@ -75,9 +75,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       const { type, paidAt } = JSON.parse(saved);
 
       const expires =
-        type === 'buy'
-          ? Infinity
-          : paidAt + 7 * 24 * 60 * 60 * 1000;
+        type === 'buy' ? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000;
 
       const progress = Number(
         localStorage.getItem(`4g_progress_${film.id}`) || 0
@@ -85,13 +83,8 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
       if (expires > Date.now()) {
         setAccess({ type, expires, progress });
-      } else {
-        localStorage.removeItem(key);
       }
     }
-
-    const savedEmail = localStorage.getItem('4g_email');
-    if (savedEmail) setEmail(savedEmail);
   }, [film]);
 
   useEffect(() => {
@@ -100,10 +93,8 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     const filmId = params.get('film');
 
     if (status === 'success' && filmId === film?.id) {
-      const key = `4g_access_${film.id}`;
-
       localStorage.setItem(
-        key,
+        `4g_access_${film.id}`,
         JSON.stringify({ type: 'rent', paidAt: Date.now() })
       );
 
@@ -119,9 +110,8 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   }, [film]);
 
   useEffect(() => {
-    const handleFullscreen = () => {
+    const handleFullscreen = () =>
       setIsFullscreen(!!document.fullscreenElement);
-    };
 
     document.addEventListener('fullscreenchange', handleFullscreen);
     return () =>
@@ -129,8 +119,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   }, []);
 
   useEffect(() => {
-    if (!film) return;
-
     const handleMessage = (e: MessageEvent) => {
       if (e.origin !== 'https://iframe.mediadelivery.net') return;
 
@@ -155,7 +143,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   if (!film) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        Film not found.
+        Film not found
       </div>
     );
   }
@@ -164,42 +152,28 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-black text-white">
-
-      {/* TOP NAV */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-black/80 px-6 py-4">
+      {/* NAV */}
+      <div className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-gradient-to-b from-black via-black/80">
         <Link href="/" className="flex items-center gap-2">
           <img src="/logo.png" className="h-8" />
-          <span className="text-xs text-zinc-400">On DIGITAL</span>
         </Link>
       </div>
 
       {/* HERO */}
       <div ref={playerRef} className="relative w-full h-screen bg-black">
-
         <iframe
-          src={
-            access
-              ? `https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${film.bunny_video_id}`
-              : `https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${film.bunny_trailer_id}`
-          }
           className="w-full h-full"
-          allow="autoplay; encrypted-media; picture-in-picture"
+          src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${
+            access ? film.bunny_video_id : film.bunny_trailer_id
+          }`}
+          allow="autoplay; fullscreen"
           allowFullScreen
         />
-
-        {/* overlay icon */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-20 h-20 rounded-full bg-black/60 flex items-center justify-center">
-            ▶
-          </div>
-        </div>
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
 
         {showTrailerEnd && !access && (
           <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-4xl font-bold mb-4">Continue Watching</h2>
+              <h2 className="text-4xl mb-4">Continue Watching</h2>
               <button
                 onClick={() => setShowCheckout(true)}
                 className="bg-white text-black px-6 py-3 rounded-full"
@@ -212,65 +186,45 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       </div>
 
       {/* CONTENT */}
-      <div className="max-w-5xl mx-auto px-6 py-12">
-        <h1 className="text-5xl font-bold">{film.title}</h1>
+      <div className="max-w-6xl mx-auto px-6 -mt-40 relative z-10">
+        <h1 className="text-6xl font-bold mb-4">{film.title}</h1>
 
-        <p className="text-zinc-400 mt-4">{film.description}</p>
+        <p className="text-zinc-300 max-w-xl">{film.description}</p>
 
-        {!access && film.available && (
+        {!access && (
           <button
             onClick={() => setShowCheckout(true)}
-            className="mt-6 bg-white text-black px-6 py-3 rounded-full"
+            className="mt-6 bg-white text-black px-8 py-4 rounded-full"
           >
             Rent ${film.price_usd}
-          </button>
-        )}
-
-        {access && (
-          <button
-            onClick={() =>
-              playerRef.current?.scrollIntoView({ behavior: 'smooth' })
-            }
-            className="mt-6 bg-white text-black px-6 py-3 rounded-full"
-          >
-            Play
           </button>
         )}
       </div>
 
       {/* CHECKOUT */}
       {showCheckout && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="bg-zinc-900 p-6 rounded-xl w-[400px]">
-
-            <h2 className="text-xl font-bold mb-4">Rent {film.title}</h2>
-
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center">
+          <div className="bg-zinc-900 p-6 rounded-xl w-[90%] max-w-md">
             {checkoutStep === 'email' && (
-              <input
-                className="w-full p-3 rounded bg-zinc-800"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  localStorage.setItem('4g_email', e.target.value);
-                }}
-              />
+              <>
+                <input
+                  className="w-full p-3 rounded bg-zinc-800"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                {emailError && (
+                  <p className="text-red-400 mt-2">{emailError}</p>
+                )}
+              </>
             )}
 
             {checkoutStep === 'payment' && checkoutUrl && (
-              <iframe
-                src={checkoutUrl}
-                className="w-full h-[400px] mt-4"
-              />
-            )}
-
-            {emailError && (
-              <p className="text-red-400 text-sm mt-2">{emailError}</p>
+              <iframe className="w-full h-[500px]" src={checkoutUrl} />
             )}
 
             <button
               onClick={handleContinue}
-              disabled={loading}
               className="w-full mt-4 bg-white text-black py-3 rounded"
             >
               {loading ? 'Loading...' : 'Continue'}
@@ -286,6 +240,10 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         </div>
       )}
 
+      {/* FOOTER */}
+      <footer className="border-t border-white/10 mt-20 p-10 text-zinc-500 text-sm">
+        © 2026 4th Ground
+      </footer>
     </div>
   );
 }
