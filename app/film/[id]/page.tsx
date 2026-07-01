@@ -136,7 +136,17 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
   if (!film) return <div className="text-white">Film not found</div>;
 
-  const videoIdToPlay = hasAccess ? film.bunny_video_id : film.bunny_trailer_id;
+  const [hasAccess, setHasAccess] = useState(false);
+
+useEffect(() => {
+  if (!film) return;
+
+  fetch(`/api/access?filmId=${film.id}`)
+    .then(res => res.json())
+    .then(data => {
+      setHasAccess(data.hasAccess);
+    });
+}, [film]);
 
   return (
     <main className="bg-black text-white min-h-screen">
