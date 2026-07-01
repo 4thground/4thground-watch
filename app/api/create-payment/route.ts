@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       body: JSON.stringify(payload),
     });
 
-    const data = await res.json();
+    const resData = await res.json();
 
     if (!res.ok) {
       return NextResponse.json(
