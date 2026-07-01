@@ -423,60 +423,63 @@ if (savedEmail) {
           Watch instantly for 7 days in HD.
         </p>
 
+        {/* EMAIL STEP */}
         {checkoutStep === 'email' && (
-  <div className="mt-8">
+          <div className="mt-8">
 
-    <label className="block text-sm text-zinc-400 mb-2">
-      Email Address
-    </label>
+            <label className="block text-sm text-zinc-400 mb-2">
+              Email Address
+            </label>
 
-    <input
-      type="email"
-      value={email}
-      onChange={(e) => {
-        setEmail(e.target.value);
-        localStorage.setItem('4g_email', e.target.value);
-      }}
-      placeholder="name@example.com"
-      className="w-full rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-4 outline-none focus:border-white"
-    />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                localStorage.setItem('4g_email', e.target.value);
+              }}
+              placeholder="name@example.com"
+              className="w-full rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-4 outline-none focus:border-white"
+            />
 
-    {emailError && (
-      <p className="text-red-400 text-sm mt-2">
-        {emailError}
-      </p>
-    )}
+            {emailError && (
+              <p className="text-red-400 text-sm mt-2">
+                {emailError}
+              </p>
+            )}
+          </div>
+        )}
 
-  </div>
-)}
+        {/* PAYMENT STEP */}
+        {checkoutStep === 'payment' && checkoutUrl && (
+          <div className="mt-6">
+            <iframe
+              src={checkoutUrl}
+              className="w-full h-[600px] rounded-xl border border-zinc-700"
+            />
+          </div>
+        )}
 
-{checkoutStep === 'payment' && checkoutUrl && (
-  <div className="mt-6">
-    <iframe
-      src={checkoutUrl}
-      className="w-full h-[600px] rounded-xl border border-zinc-700"
-    />
-  </div>
-)}
+        {/* ALWAYS VISIBLE STATUS (FIXED) */}
+        <div className="mt-6">
+          <h3 className="text-2xl font-semibold">
+            Secure Checkout
+          </h3>
 
-    <h3 className="text-2xl font-semibold">
-      Secure Checkout
-    </h3>
+          <p className="text-zinc-400 mt-3">
+            {checkoutStep === 'email' && 'Enter your email to continue.'}
+            {checkoutStep === 'payment' && 'Redirecting to secure payment...'}
+          </p>
+        </div>
 
-    <p className="text-zinc-400 mt-3">
-      Preparing your secure payment...
-    </p>
-
-  </div>
-)}
-
-       <button
-  onClick={handleContinue}
-  disabled={loading}
-  className="w-full mt-8 bg-white text-black rounded-xl py-4 font-semibold hover:bg-zinc-200 transition disabled:opacity-50"
->
-  {loading ? 'Please wait...' : 'Continue'}
-</button>
+        {/* BUTTONS */}
+        <button
+          onClick={handleContinue}
+          disabled={loading}
+          className="w-full mt-8 bg-white text-black rounded-xl py-4 font-semibold hover:bg-zinc-200 transition disabled:opacity-50"
+        >
+          {loading ? 'Please wait...' : 'Continue'}
+        </button>
 
         <button
           onClick={() => setShowCheckout(false)}
@@ -486,9 +489,7 @@ if (savedEmail) {
         </button>
 
       </div>
-
     </div>
-
   </div>
 )}
       {/* Footer */}
