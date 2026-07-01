@@ -106,52 +106,47 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   return (
     <main className="bg-black text-white min-h-screen">
       {/* NAV = Homepage */}
-      {/* NAV = Fixed on top */}
-<header className="fixed top-0 left-0 right-0 z-50 h-16 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 flex items-center">
-  <div className="max-w-7xl mx-auto w-full flex items-center gap-2">
-    <Link href="/" className="flex items-center gap-2">
-      <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
-      <span className="text-xs font-semibold tracking-widest text-zinc-400 border border-zinc-700 px-2 py-0.5 rounded">On DIGITAL</span>
-    </Link>
-  </div>
-</header>
-
-{/* HERO = Starts right below nav, no gap */}
-<div ref={playerRef} className="relative w-full pt-16"> 
-  <div className="relative w-full aspect-video md:aspect-[16/9] lg:aspect-[21/9] bg-black">
-    <iframe
-      src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${access? film.bunny_video_id : film.bunny_trailer_id}`}
-      className="absolute inset-0 w-full h-full"
-      allow="autoplay; fullscreen; picture-in-picture"
-      allowFullScreen
-    />
-    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
-
-    <div className="absolute bottom-0 left-0 right-0 p-5 md:p-12 z-10">
-      <div className="max-w-3xl">
-        <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-3 tracking-tight">{film.title}</h1>
-
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs md:text-sm text-zinc-300 mb-3">
-          {film.rating && <span className="px-2 py-0.5 border-zinc-500 rounded text-xs">{film.rating}</span>}
-          {film.year && <span>{film.year}</span>}
-          {film.genre && <><span>•</span><span>{film.genre}</span></>}
-          <span>•</span><span>HD</span>
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
+        <div className="max-w-7xl mx-auto flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
+            <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded">On DIGITAL</span>
+          </Link>
         </div>
-
-        <p className="text-sm sm:text-base md:text-lg text-zinc-200 mb-6 max-w-xl leading-relaxed">{film.description}</p>
-
-        {!access && film.available && (
-          <button onClick={() => setShowCheckout(true)} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">Rent ${price}</button>
-        )}
-        {access && (
-          <button onClick={() => playerRef.current?.scrollIntoView({ behavior: 'smooth' })} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">
-            {access.progress > 30? `Resume ${Math.floor(access.progress / 60)}m` : 'Play Now'}
-          </button>
-        )}
       </div>
-    </div>
-  </div>
-</div>
+
+      {/* HERO = Homepage Hero layout */}
+      <div ref={playerRef} className="relative h-screen w-full">
+        <iframe
+          src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${access? film.bunny_video_id : film.bunny_trailer_id}`}
+          className="absolute inset-0 w-full h-full"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
+
+        <div className="absolute bottom-8 left-5 right-5 md:bottom-24 md:left-12 md:right-auto max-w-3xl text-center md:text-left z-10">
+          <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold mb-3 md:mb-4 tracking-tight">{film.title}</h1>
+
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 md:gap-x-4 gap-y-2 text-xs md:text-sm text-zinc-300 mb-3 md:mb-4">
+            {film.rating && <span className="px-2 py-0.5 border-zinc-500 rounded text-xs">{film.rating}</span>}
+            {film.year && <span>{film.year}</span>}
+            {film.genre && <><span>•</span><span>{film.genre}</span></>}
+            <span>•</span><span>HD</span>
+          </div>
+
+          <p className="text-sm sm:text-base md:text-lg text-zinc-200 mb-6 md:mb-8 max-w-xl mx-auto md:mx-0 leading-relaxed">{film.description}</p>
+
+          {!access && film.available && (
+            <button onClick={() => setShowCheckout(true)} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">Rent ${price}</button>
+          )}
+          {access && (
+            <button onClick={() => playerRef.current?.scrollIntoView({ behavior: 'smooth' })} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">
+              {access.progress > 30? `Resume ${Math.floor(access.progress / 60)}m` : 'Play Now'}
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* MORE FILMS = Homepage Row */}
       {otherFilms.length > 0 && (
