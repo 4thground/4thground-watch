@@ -190,7 +190,7 @@ if (savedEmail) {
       </div>
 
      
-      {/* Hero Player */}
+     
 {/* HERO SECTION */}
 <div className="relative w-full h-screen bg-black">
 
@@ -243,12 +243,10 @@ if (savedEmail) {
         <p className="text-xs text-zinc-500 mt-4">
           Secure checkout.
         </p>
-              </div>  {/* closes inner text container */}
-
-      )}
-    </div>    {/* closes HERO wrapper */}
-      
-
+      </div>
+    </div>
+  )}
+</div>
       {/* Content Section */}
       <div className="max-w-6xl mx-auto px-6 md:px-8 -mt-40 relative z-10">
         <div className="mb-8">
