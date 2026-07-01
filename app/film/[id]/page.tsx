@@ -1,178 +1,195 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import films from '@/data/films.json';
 
+type AccessState = { type: string; expires: number; progress: number; };
 type Film = {
-  id: string;
-  title: string;
-  description: string;
-  price_usd: number;
-  available: boolean;
-  bunny_library_id: string;
-  bunny_video_id: string;
-  bunny_trailer_id: string;
+  id: string; title: string; description: string; rent_price_cents: number;
+  available: boolean; bunny_library_id: string; bunny_video_id: string; bunny_trailer_id: string;
+  poster_url?: string; backdrop_url?: string; rating?: string; year?: number; genre?: string;
+  language?: string; director?: string; cast?: string[];
 };
-
-type Step = 'email' | 'payment';
 
 export default function FilmPage({ params }: { params: { id: string } }) {
   const film = (films as Film[]).find((f) => f.id === params.id);
+  const playerRef = useRef<HTMLDivElement | null>(null);
 
+  const [access, setAccess] = useState<AccessState | null>(null);
   const [showCheckout, setShowCheckout] = useState(false);
   const [email, setEmail] = useState('');
-  const [step, setStep] = useState<Step>('email');
+  const [checkoutStep, setCheckoutStep] = useState<'email' | 'payment'>('email');
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [access, setAccess] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
-  useEffect(() => {
-    const savedEmail = localStorage.getItem('4g_email');
-    if (savedEmail) setEmail(savedEmail);
-
-    const key = `4g_access_${params.id}`;
-    const savedAccess = localStorage.getItem(key);
-    if (savedAccess) setAccess(true);
-  }, [params.id]);
-
-  if (!film) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        Film not found
-      </div>
-    );
-  }
-
-  const videoSrc = access
-    ? `https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${film.bunny_video_id}`
-    : `https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${film.bunny_trailer_id}`;
+  const price = film? (film.rent_price_cents / 100).toFixed(2) : '0.00';
+  const valid = /\S+@\S+\.\S+/.test(email);
 
   const handleContinue = async () => {
-    if (!email.includes('@')) return;
+    if (!film) return;
+    setEmailError('');
+    if (!valid) return setEmailError('Please enter a valid email address.');
 
     setLoading(true);
-    setStep('payment');
-
+    setCheckoutStep('payment');
     try {
+      const origin = typeof window!== 'undefined'? window.location.origin : '';
       const res = await fetch('/api/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email,
-          filmId: film.id,
-          amount: film.price_usd,
-          returnUrl: `${window.location.origin}/payment/success?film=${film.id}`
+          email, filmId: film.id, amount_cents: film.rent_price_cents,
+          returnUrl: `${origin}/film/${film.id}?status=success&film=${film.id}`,
         }),
       });
-
       const data = await res.json();
-
-      if (data.paymentUrl) {
-        setCheckoutUrl(data.paymentUrl);
-      }
-    } catch (err) {
-      console.error(err);
-      setStep('email');
-    } finally {
-      setLoading(false);
-    }
+      if (!data.paymentUrl) throw new Error('No payment URL');
+      localStorage.setItem('4g_email', email);
+      setCheckoutUrl(data.paymentUrl);
+    } catch {
+      setEmailError('Payment failed. Try again.');
+      setCheckoutStep('email');
+    } finally { setLoading(false); }
   };
 
-  return (
-    <div className="min-h-screen bg-black text-white">
+  useEffect(() => {
+    if (!film) return;
+    const key = `4g_access_${film.id}`;
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      const { type, paidAt } = JSON.parse(saved);
+      const expires = type === 'buy'? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000;
+      const progress = Number(localStorage.getItem(`4g_progress_${film.id}`) || 0);
+      if (expires > Date.now()) setAccess({ type, expires, progress });
+      else localStorage.removeItem(key);
+    }
+    const savedEmail = localStorage.getItem('4g_email');
+    if (savedEmail) setEmail(savedEmail);
+  }, [film]);
 
-      {/* NAV */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur px-6 py-4 flex justify-between">
-        <Link href="/" className="font-bold">4th Ground</Link>
+  useEffect(() => {
+    if (typeof window === 'undefined' ||!film) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('status') === 'success' && params.get('film') === film.id) {
+      localStorage.setItem(`4g_access_${film.id}`, JSON.stringify({ type: 'rent', paidAt: Date.now() }));
+      setAccess({ type: 'rent', expires: Date.now() + 7 * 24 * 60 * 60 * 1000, progress: 0 });
+      setShowCheckout(false); setCheckoutStep('email'); setCheckoutUrl(null);
+      window.history.replaceState({}, '', `/film/${film.id}`);
+    }
+  }, [film]);
+
+  if (!film) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Film not found</div>;
+
+  const otherFilms = (films as Film[]).filter((f) => f.id!== film.id);
+
+  return (
+    <main className="bg-black text-white min-h-screen">
+      {/* NAV = Homepage */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
+        <div className="max-w-7xl mx-auto flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
+            <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded">On DIGITAL</span>
+          </Link>
+        </div>
       </div>
 
-      {/* PLAYER */}
-      <div className="relative w-full h-screen pt-16">
+      {/* HERO = Homepage Hero layout */}
+      <div ref={playerRef} className="relative h-screen w-full">
         <iframe
-          src={videoSrc}
-          className="w-full h-full"
+          src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${access? film.bunny_video_id : film.bunny_trailer_id}`}
+          className="absolute inset-0 w-full h-full"
+          allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
         />
-      </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
 
-      {/* INFO */}
-      <div className="max-w-5xl mx-auto px-6 py-10">
-        <h1 className="text-5xl font-bold">{film.title}</h1>
-        <p className="text-zinc-300 mt-4 max-w-2xl">{film.description}</p>
+        <div className="absolute bottom-8 left-5 right-5 md:bottom-24 md:left-12 md:right-auto max-w-3xl text-center md:text-left z-10">
+          <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold mb-3 md:mb-4 tracking-tight">{film.title}</h1>
 
-        {!access && film.available && (
-          <button
-            onClick={() => setShowCheckout(true)}
-            className="mt-6 bg-white text-black px-8 py-4 rounded-full font-semibold"
-          >
-            Rent ${film.price_usd}
-          </button>
-        )}
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 md:gap-x-4 gap-y-2 text-xs md:text-sm text-zinc-300 mb-3 md:mb-4">
+            {film.rating && <span className="px-2 py-0.5 border-zinc-500 rounded text-xs">{film.rating}</span>}
+            {film.year && <span>{film.year}</span>}
+            {film.genre && <><span>•</span><span>{film.genre}</span></>}
+            <span>•</span><span>HD</span>
+          </div>
 
-        {access && (
-          <p className="mt-6 text-green-400">
-            You have access to this film
-          </p>
-        )}
-      </div>
+          <p className="text-sm sm:text-base md:text-lg text-zinc-200 mb-6 md:mb-8 max-w-xl mx-auto md:mx-0 leading-relaxed">{film.description}</p>
 
-      {/* CHECKOUT MODAL */}
-      {showCheckout && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6">
-
-          <div className="bg-zinc-900 w-full max-w-md p-8 rounded-2xl">
-
-            <h2 className="text-2xl font-bold mb-4">
-              Rent {film.title}
-            </h2>
-
-            {step === 'email' && (
-              <>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    localStorage.setItem('4g_email', e.target.value);
-                  }}
-                  placeholder="Email"
-                  className="w-full p-3 bg-zinc-800 rounded mb-4"
-                />
-
-                <button
-                  onClick={handleContinue}
-                  disabled={loading}
-                  className="w-full bg-white text-black py-3 rounded font-semibold"
-                >
-                  {loading ? 'Loading...' : 'Continue'}
-                </button>
-              </>
-            )}
-
-            {step === 'payment' && checkoutUrl && (
-              <iframe
-                src={checkoutUrl}
-                className="w-full h-[500px] rounded"
-              />
-            )}
-
-            <button
-              onClick={() => setShowCheckout(false)}
-              className="w-full mt-4 text-zinc-400"
-            >
-              Close
+          {!access && film.available && (
+            <button onClick={() => setShowCheckout(true)} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">Rent ${price}</button>
+          )}
+          {access && (
+            <button onClick={() => playerRef.current?.scrollIntoView({ behavior: 'smooth' })} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">
+              {access.progress > 30? `Resume ${Math.floor(access.progress / 60)}m` : 'Play Now'}
             </button>
+          )}
+        </div>
+      </div>
 
+      {/* MORE FILMS = Homepage Row */}
+      {otherFilms.length > 0 && (
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
+          <h2 className="text-2xl font-bold mb-4">More from 4th Ground</h2>
+          <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+            {otherFilms.map((f) => f.available? (
+              <Link key={f.id} href={`/film/${f.id}`} className="group flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2">
+                <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105"><img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover" /></div>
+                <p className="font-semibold mt-3 text-base truncate">{f.title}</p>
+                <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">{f.year && <span>{f.year}</span>}{f.genre && <span>• {f.genre}</span>}</div>
+                <p className="text-sm text-zinc-400 mt-1">From ${(f.rent_price_cents / 100).toFixed(2)}</p>
+              </Link>
+            ) : (
+              <div key={f.id} className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg p-2">
+                <div className="rounded-lg overflow-hidden relative"><img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover blur-sm brightness-50" /><div className="absolute inset-0 flex items-center justify-center"><span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border-white/20">Coming Soon</span></div></div>
+                <p className="font-semibold mt-3 text-base truncate text-zinc-400">{f.title}</p>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* FOOTER */}
-      <footer className="border-t border-white/10 p-6 text-center text-zinc-500 text-sm">
-        © 2026 4th Ground
+      {/* CHECKOUT = Email -> Continue -> Pay -> Close */}
+      {showCheckout && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-6">
+          <div className="w-full max-w-md rounded-3xl bg-zinc-900 border-zinc-800 shadow-2xl p-8">
+            <h2 className="text-3xl font-bold">Rent {film.title}</h2>
+            <p className="text-zinc-400 mt-2">Watch instantly for 7 days in HD. ${price}</p>
+
+            {checkoutStep === 'email' && (
+              <div className="mt-8">
+                <label className="block text-sm text-zinc-400 mb-2">Email Address</label>
+                <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); localStorage.setItem('4g_email', e.target.value); }} className="w-full rounded-xl bg-zinc-800 border-zinc-700 px-4 py-4 outline-none focus:ring-2 focus:ring-white/50" placeholder="you@email.com" />
+                {emailError && <p className="text-red-400 text-sm mt-2">{emailError}</p>}
+              </div>
+            )}
+
+            {checkoutStep === 'payment' && checkoutUrl && (
+              <div className="mt-6"><iframe src={checkoutUrl} className="w-full h-[600px] rounded-xl border-zinc-700" /></div>
+            )}
+
+            <button onClick={handleContinue} disabled={loading || checkoutStep === 'payment'} className="w-full mt-8 bg-white text-black rounded-xl py-4 font-semibold hover:bg-zinc-200 transition disabled:opacity-50">
+              {loading? 'Please wait...' : checkoutStep === 'email'? 'Continue' : 'Redirecting...'}
+            </button>
+
+            <button onClick={() => { setShowCheckout(false); setCheckoutStep('email'); setCheckoutUrl(null); }} className="w-full mt-3 text-zinc-400 hover:text-white">Close</button>
+          </div>
+        </div>
+      )}
+
+      {/* FOOTER = Homepage */}
+      <footer className="border-t border-white/10 px-6 md:px-12 py-10 text-sm text-zinc-500">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2">
+            <Link href="/terms" className="hover:text-white transition">Terms</Link><Link href="/privacy" className="hover:text-white transition">Privacy</Link><Link href="/support" className="hover:text-white transition">Support</Link>
+          </div>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-white/5"><p>© 2026 4th Ground. All rights reserved.</p></div>
+        </div>
       </footer>
 
-    </div>
+      <style jsx global>{`.scrollbar-hide::-webkit-scrollbar { display: none; }.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
+    </main>
   );
 }
