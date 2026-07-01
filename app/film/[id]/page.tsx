@@ -147,12 +147,12 @@ className="w-full h-full object-cover"
 
               <div className="flex justify-center">
                 {/* RENT BUTTON - NO EMAIL */}
-                <a
-                  href="https://payhip.com/b/3YqxG"
-                  className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
-                >
-                  Rent
-                </a>
+                <button
+  onClick={() => setShowCheckout(true)}
+  className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
+>
+  Rent
+</button>
               </div>
               <p className="text-xs text-zinc-500 mt-4">
                 $3.99 - 7 days Access. You'll be redirected to Payhip for secure Checkout.
@@ -206,12 +206,12 @@ className="w-full h-full object-cover"
           <div className="mb-12">
             <div className="flex flex-col sm:flex-row gap-3">
               {/* RENT BUTTON - NO EMAIL */}
-              <a
-                href="https://payhip.com/b/3YqxG"
-                className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
-              >
-                Rent ${film.price_usd}
-              </a>
+              <button
+  onClick={() => setShowCheckout(true)}
+  className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg"
+>
+  Rent ${film.price_usd}
+</button>
             </div>
 
             <p className="text-xs text-zinc-500 mt-3">
