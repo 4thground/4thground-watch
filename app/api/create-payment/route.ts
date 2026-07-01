@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -22,62 +24,60 @@ export async function POST(req: Request) {
     }
 
     // -----------------------------
-    // STEP 1: CREATE TRANSACTION PAYLOAD
+    // STEP 1: PAYLOAD
     // -----------------------------
     const payload = {
       amount: Number(amount),
       currency: 'ZAR',
       reference: `${filmId}-${Date.now()}`,
       returnUrl,
-      customer: {
-        email,
-      },
+      customer: { email }
     };
 
     // -----------------------------
-    // STEP 2: SIGN REQUEST
-    // (iKhokha requires HMAC style signing in most setups)
+    // STEP 2: SIGNATURE (HMAC STYLE)
     // -----------------------------
     const signatureBase = JSON.stringify(payload) + API_SECRET;
 
     const encoder = new TextEncoder();
-    const data = encoder.encode(signatureBase);
-
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashBuffer = await crypto.subtle.digest(
+      'SHA-256',
+      encoder.encode(signatureBase)
+    );
 
     const signature = Array.from(new Uint8Array(hashBuffer))
       .map((b) => b.toString(16).padStart(2, '0'))
       .join('');
 
     // -----------------------------
-    // STEP 3: CALL IKHOKHA API
+    // STEP 3: CALL IKHOKHA
     // -----------------------------
     const res = await fetch('https://api.ikhokha.com/payments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`,
-        'X-Signature': signature,
+        Authorization: `Bearer ${API_KEY}`,
+        'X-Signature': signature
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
 
     const resData = await res.json();
 
     if (!res.ok) {
       return NextResponse.json(
-        { error: data },
+        { error: resData },
         { status: 400 }
       );
     }
 
     // -----------------------------
-    // STEP 4: EXTRACT PAYMENT URL
+    // STEP 4: PAYMENT URL
     // -----------------------------
     const paymentUrl =
-      data?.paymentUrl ||
-      data?.redirectUrl ||
-      data?.url;
+      resData?.paymentUrl ||
+      resData?.redirectUrl ||
+      resData?.url;
 
     if (!paymentUrl) {
       return NextResponse.json(
@@ -88,12 +88,12 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       paymentUrl,
-      reference: payload.reference,
+      reference: payload.reference
     });
 
-  } catch (err) {
+  } catch (err: any) {
     return NextResponse.json(
-      { error: 'Server error' },
+      { error: err.message },
       { status: 500 }
     );
   }
