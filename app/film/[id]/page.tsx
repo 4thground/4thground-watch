@@ -102,6 +102,33 @@ if (savedEmail) {
   }, [film]);
 
   useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+
+  const status = params.get('status');
+  const filmId = params.get('film');
+
+  if (status === 'success' && filmId === film?.id) {
+
+    const key = `4g_access_${film.id}`;
+
+    localStorage.setItem(key, JSON.stringify({
+      type: 'rent',
+      paidAt: Date.now()
+    }));
+
+    setAccess({
+      type: 'rent',
+      expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+      progress: 0
+    });
+
+    setShowCheckout(false);
+
+    window.history.replaceState({}, '', `/film/${film.id}`);
+  }
+}, [film]);
+
+  useEffect(() => {
     const handleFullscreen = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
