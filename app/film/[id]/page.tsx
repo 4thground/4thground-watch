@@ -191,8 +191,10 @@ if (savedEmail) {
 
      
       {/* Hero Player */}
+{/* HERO SECTION */}
 <div className="relative w-full h-screen bg-black">
 
+  {/* Video */}
   <iframe
     src={
       access
@@ -204,51 +206,47 @@ if (savedEmail) {
     allowFullScreen
   />
 
-</div>
-
-
-        {/* Trial Play Icon */}
-<div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      viewBox="0 0 24 24" 
-      fill="white" 
-      className="w-10 h-10 md:w-12 md:h-12 ml-1"
-    >
-      <path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.285L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
-    </svg>
+  {/* Trial Play Icon */}
+  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"
+        className="w-10 h-10 md:w-12 md:h-12 ml-1">
+        <path fillRule="evenodd"
+          d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.285L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+          clipRule="evenodd" />
+      </svg>
+    </div>
   </div>
+
+  {/* Gradient */}
+  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
+
+  {/* Trailer End Overlay */}
+  {showTrailerEnd && !access && (
+    <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="text-center max-w-lg">
+        <h3 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
+          Continue Watching
+        </h3>
+
+        <p className="text-zinc-300 text-lg mb-8">
+          Rent for 7 days to unlock the full film.
+        </p>
+
+        <button
+          onClick={() => setShowCheckout(true)}
+          className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
+        >
+          Rent
+        </button>
+
+        <p className="text-xs text-zinc-500 mt-4">
+          Secure checkout.
+        </p>
+      </div>
+    </div>
+  )}
 </div>
-        
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
-
-        {showTrailerEnd &&!access && (
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="text-center max-w-lg">
-              <h3 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
-                Continue Watching
-              </h3>
-              <p className="text-zinc-300 text-lg mb-8">
-                Rent for 7 days to unlock the full film.
-              </p>
-
-              <div className="flex justify-center">
-                {/* RENT BUTTON - NO EMAIL */}
-                <button
-  onClick={() => setShowCheckout(true)}
-  className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
->
-  Rent
-</button>
-              </div>
-              <p className="text-xs text-zinc-500 mt-4">
-                Secure checkout.
-              </p>
-            </div>
-          </div>
-        )}
       
 
       {/* Content Section */}
