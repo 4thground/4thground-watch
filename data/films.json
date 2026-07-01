@@ -8,12 +8,14 @@
     "description": "In the remote village of Los Nevados, Isidro Zambrano, a brilliant technologist, hides a dark past marked by the tragic loss of his parents and wife.",
     "poster_url": "/posters/3.png",
     "backdrop_url": "/posters/backdrop1.png",
+
     "bunny_library_id": "694590",
     "bunny_video_id": "c561937c-eaae-42b2-bafc-f9f934a668a0",
     "bunny_trailer_id": "24a1b8b6-8bd6-46f4-acd5-7d7525ba4b4b",
-    "rent_price_cents": 399,
-    "buy_price_cents": 16184,
+
+    "price_usd": 3.99,
     "available": true,
+
     "year": 2025,
     "language": "Spanish",
     "director": "Christian Márquez",
@@ -32,12 +34,14 @@
     "description": "Coming soon to 4th Ground.",
     "poster_url": "/posters/2.png",
     "backdrop_url": "/posters/backdrop2.png",
-  "bunny_library_id": null,
-"bunny_video_id": null,
-"bunny_trailer_id": null
-    "rent_price_cents": 3900,
-    "buy_price_cents": 9900,
+
+    "bunny_library_id": "684349",
+    "bunny_video_id": "",
+    "bunny_trailer_id": "",
+
+    "price_usd": 3.99,
     "available": false,
+
     "year": 2026,
     "language": "English",
     "director": "Scott Greenland",
