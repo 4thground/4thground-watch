@@ -21,7 +21,7 @@ const [isFullscreen, setIsFullscreen] = useState(false);
 
 const [showCheckout, setShowCheckout] = useState(false);
 const [email, setEmail] = useState('');
-
+const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const [checkoutStep, setCheckoutStep] = useState<'email' | 'payment' | 'success'>('email');
 
 const [loading, setLoading] = useState(false);
