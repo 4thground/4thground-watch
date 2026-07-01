@@ -165,12 +165,21 @@ if (savedEmail) {
       </div>
 
       {/* Hero Player */}
-      <div className="relative w-full h-screen bg-black">
-        <img
-src="/posters/backdrop1.png"
-alt="Film Backdrop"
-className="w-full h-full object-cover"
-/>
+      {/* Hero Player */}
+<div className="relative w-full h-screen bg-black">
+
+  <iframe
+    src={
+      access
+        ? `https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${film.bunny_video_id}`
+        : `https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${film.bunny_trailer_id}`
+    }
+    className="w-full h-full"
+    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+    allowFullScreen
+  />
+
+</div>
 
 
         {/* Trial Play Icon */}
