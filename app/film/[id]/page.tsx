@@ -27,6 +27,7 @@ const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox=
 export default function FilmPage({ params }: { params: { id: string } }) {
   const film = (films as Film[]).find((f) => f.id === params.id);
   const playerRef = useRef<HTMLDivElement | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   const [access, setAccess] = useState<AccessState | null>(null);
   const [showCheckout, setShowCheckout] = useState(false);
@@ -38,6 +39,16 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
   const price = film? film.price_usd.toFixed(2) : '0.00';
   const valid = /\S+@\S+\.\S+/.test(email);
+
+  const unlockFilm = () => {
+    if (!film) return;
+    localStorage.setItem(`4g_access_${film.id}`, JSON.stringify({ type: 'rent', paidAt: Date.now() }));
+    setAccess({ type: 'rent', expires: Date.now() + 7 * 24 * 60 * 60 * 1000, progress: 0 });
+    setShowCheckout(false);
+    setCheckoutStep('email');
+    setCheckoutUrl(null);
+    window.history.replaceState({}, '', `/film/${film.id}`);
+  }
 
   const handleContinue = async () => {
     if (!film) return;
@@ -54,7 +65,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         body: JSON.stringify({
           email,
           filmId: film.id,
-          amount: film.price_usd, // $10.00 USD
+          amount: film.price_usd,
           returnUrl: `${origin}/film/${film.id}?status=success&film=${film.id}`,
         }),
       });
@@ -68,6 +79,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     } finally { setLoading(false); }
   };
 
+  // 1. Load access on mount
   useEffect(() => {
     if (!film) return;
     const key = `4g_access_${film.id}`;
@@ -81,15 +93,25 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     if (savedEmail) setEmail(savedEmail);
   }, [film]);
 
+  // 2. Catch redirect:?status=success
   useEffect(() => {
     if (!film) return;
     const params = new URLSearchParams(window.location.search);
     if (params.get('status') === 'success' && params.get('film') === film.id) {
-      localStorage.setItem(`4g_access_${film.id}`, JSON.stringify({ type: 'rent', paidAt: Date.now() }));
-      setAccess({ type: 'rent', expires: Date.now() + 7 * 24 * 60 * 60 * 1000, progress: 0 });
-      setShowCheckout(false);
-      window.history.replaceState({}, '', `/film/${film.id}`);
+      unlockFilm();
     }
+  }, [film]);
+
+  // 3. FIX: Catch iKhokha postMessage from iframe
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      // iKhokha sends { status: 'success', paymentReference: '...' }
+      if (event.data?.status === 'success' || event.data?.event === 'payment_success') {
+        unlockFilm();
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
   }, [film]);
 
   if (!film) return <div className="min-h-screen bg-black text-white flex items-center justify-center font-sans">Film not found</div>;
@@ -191,7 +213,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
             )}
             {checkoutStep === 'payment' && checkoutUrl && (
               <div className="mt-6 rounded-xl overflow-hidden border-white/10">
-                <iframe src={checkoutUrl} className="w-full h-[500px]" />
+                <iframe ref={iframeRef} src={checkoutUrl} className="w-full h-[500px]" />
               </div>
             )}
             <button onClick={handleContinue} disabled={loading || checkoutStep === 'payment'} className="w-full mt-8 bg-white text-black rounded-xl py-4 text-lg font-semibold hover:bg-zinc-200 transition disabled:opacity-50">
