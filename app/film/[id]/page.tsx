@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { Play, X } from 'lucide-react'; // npm i lucide-react
 import films from '@/data/films.json';
 
 type AccessState = { type: string; expires: number; progress: number; };
@@ -9,8 +10,7 @@ type Film = {
   id: string;
   title: string;
   description: string;
-  price_usd: number; // Your JSON has this
-  rent_price_cents?: number; // Make optional so build passes
+  price_usd: number;
   available: boolean;
   bunny_library_id: string;
   bunny_video_id: string;
@@ -20,9 +20,6 @@ type Film = {
   rating?: string;
   year?: number;
   genre?: string;
-  language?: string;
-  director?: string;
-  cast?: string[];
 };
 
 export default function FilmPage({ params }: { params: { id: string } }) {
@@ -37,36 +34,34 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
 
-  // Use rent_price_cents if exists, else fallback to price_usd
-  const price_cents = film? (film.rent_price_cents?? Math.round(film.price_usd * 100)) : 0;
-  const price = (price_cents / 100).toFixed(2);
+  const price = film? film.price_usd.toFixed(2) : '0.00';
   const valid = /\S+@\S+\.\S+/.test(email);
 
   const handleContinue = async () => {
     if (!film) return;
     setEmailError('');
-    if (!valid) return setEmailError('Please enter a valid email address.');
+    if (!valid) return setEmailError('Enter a valid email.');
 
     setLoading(true);
     setCheckoutStep('payment');
     try {
-      const origin = typeof window!== 'undefined'? window.location.origin : '';
+      const origin = window.location.origin;
       const res = await fetch('/api/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
           filmId: film.id,
-          amount_cents: price_cents, // Send cents to Stripe
+          amount: film.price_usd, // $10.00 USD
           returnUrl: `${origin}/film/${film.id}?status=success&film=${film.id}`,
         }),
       });
       const data = await res.json();
-      if (!data.paymentUrl) throw new Error('No payment URL');
+      if (!res.ok ||!data.paymentUrl) throw new Error(data.error || 'No payment URL');
       localStorage.setItem('4g_email', email);
       setCheckoutUrl(data.paymentUrl);
-    } catch {
-      setEmailError('Payment failed. Try again.');
+    } catch (e: any) {
+      setEmailError(e.message || 'Payment failed.');
       setCheckoutStep('email');
     } finally { setLoading(false); }
   };
@@ -78,156 +73,161 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     if (saved) {
       const { type, paidAt } = JSON.parse(saved);
       const expires = type === 'buy'? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000;
-      const progress = Number(localStorage.getItem(`4g_progress_${film.id}`) || 0);
-      if (expires > Date.now()) setAccess({ type, expires, progress });
-      else localStorage.removeItem(key);
+      if (expires > Date.now()) setAccess({ type, expires, progress: 0 });
     }
     const savedEmail = localStorage.getItem('4g_email');
     if (savedEmail) setEmail(savedEmail);
   }, [film]);
 
   useEffect(() => {
-    if (typeof window === 'undefined' ||!film) return;
+    if (!film) return;
     const params = new URLSearchParams(window.location.search);
     if (params.get('status') === 'success' && params.get('film') === film.id) {
       localStorage.setItem(`4g_access_${film.id}`, JSON.stringify({ type: 'rent', paidAt: Date.now() }));
       setAccess({ type: 'rent', expires: Date.now() + 7 * 24 * 60 * 60 * 1000, progress: 0 });
       setShowCheckout(false);
-      setCheckoutStep('email');
-      setCheckoutUrl(null);
       window.history.replaceState({}, '', `/film/${film.id}`);
     }
   }, [film]);
 
-  if (!film) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Film not found</div>;
+  if (!film) return <div className="min-h-screen bg-black text-white flex items-center justify-center font-sans">Film not found</div>;
 
   const otherFilms = (films as Film[]).filter((f) => f.id!== film.id);
 
   return (
-    <main className="bg-black text-white min-h-screen">
-      {/* NAV = Homepage */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
-        <div className="max-w-7xl mx-auto flex items-center gap-2">
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
-            <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded">On DIGITAL</span>
+    <main className="bg-black text-white min-h-screen font-sans antialiased">
+      {/* NAV: Glass Apple TV */}
+      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-black/30 border-b border-white/10">
+        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3">
+            <img src="/logo.png" alt="4th Ground" className="h-7" />
+            <span className="text-[11px] font-semibold tracking-[0.2em] text-zinc-400">4TH GROUND</span>
           </Link>
         </div>
-      </div>
+      </nav>
 
-      {/* HERO = Homepage Hero layout */}
-      <div ref={playerRef} className="relative h-screen w-full">
+      {/* HERO: Cinematic Full Bleed */}
+      <section ref={playerRef} className="relative h-[100svh] w-full flex items-end">
         <iframe
-          src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${access? film.bunny_video_id : film.bunny_trailer_id}`}
-          className="absolute inset-0 w-full h-full"
+          src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${access? film.bunny_video_id : film.bunny_trailer_id}?autoplay=false&muted=1`}
+          className="absolute inset-0 w-full h-full object-cover"
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
 
-        <div className="absolute bottom-8 left-5 right-5 md:bottom-24 md:left-12 md:right-auto max-w-3xl text-center md:text-left z-10">
-          <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold mb-3 md:mb-4 tracking-tight">{film.title}</h1>
+        <div className="relative z-10 max-w-[1440px] mx-auto w-full px-6 lg:px-12 pb-24">
+          <div className="max-w-4xl">
+            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] mb-4">
+              {film.title}
+            </h1>
 
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 md:gap-x-4 gap-y-2 text-xs md:text-sm text-zinc-300 mb-3 md:mb-4">
-            {film.rating && <span className="px-2 py-0.5 border-zinc-500 rounded text-xs">{film.rating}</span>}
-            {film.year && <span>{film.year}</span>}
-            {film.genre && <><span>•</span><span>{film.genre}</span></>}
-            <span>•</span><span>HD</span>
+            <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-300 mb-6 font-medium">
+              {film.rating && <span className="px-2 py-1 border-white/20 rounded text-xs">{film.rating}</span>}
+              {film.year && <span>{film.year}</span>}
+              {film.genre && <><span className="text-white/30">•</span><span>{film.genre}</span></>}
+              <span className="text-white/30">•</span><span>HD</span>
+            </div>
+
+            <p className="text-base lg:text-lg text-zinc-200 mb-8 max-w-2xl leading-relaxed font-medium">
+              {film.description}
+            </p>
+
+            {!access && film.available && (
+              <button
+                onClick={() => setShowCheckout(true)}
+                className="group inline-flex items-center gap-3 bg-white text-black font-semibold px-10 py-4 rounded-full hover:bg-zinc-200 transition-all text-lg"
+              >
+                <Play className="w-5 h-5 fill-black" /> Rent ${price}
+              </button>
+            )}
+            {access && (
+              <button
+                onClick={() => playerRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                className="group inline-flex items-center gap-3 bg-white text-black font-semibold px-10 py-4 rounded-full hover:bg-zinc-200 transition-all text-lg"
+              >
+                <Play className="w-5 h-5 fill-black" /> Play Now
+              </button>
+            )}
           </div>
-
-          <p className="text-sm sm:text-base md:text-lg text-zinc-200 mb-6 md:mb-8 max-w-xl mx-auto md:mx-0 leading-relaxed">{film.description}</p>
-
-          {!access && film.available && (
-            <button onClick={() => setShowCheckout(true)} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">Rent ${price}</button>
-          )}
-          {access && (
-            <button onClick={() => playerRef.current?.scrollIntoView({ behavior: 'smooth' })} className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-base md:text-lg inline-block">
-              {access.progress > 30? `Resume ${Math.floor(access.progress / 60)}m` : 'Play Now'}
-            </button>
-          )}
         </div>
-      </div>
+      </section>
 
-      {/* MORE FILMS = Homepage Row */}
+      {/* MORE LIKE THIS: Apple TV Row */}
       {otherFilms.length > 0 && (
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
-          <h2 className="text-2xl font-bold mb-4">More from 4th Ground</h2>
-          <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-            {otherFilms.map((f) => {
-              const other_price = ((f.rent_price_cents?? Math.round(f.price_usd * 100)) / 100).toFixed(2);
-              return f.available? (
-                <Link key={f.id} href={`/film/${f.id}`} className="group flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2">
-                  <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105"><img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover" /></div>
-                  <p className="font-semibold mt-3 text-base truncate">{f.title}</p>
-                  <div className="flex items-center gap-2 text-xs text-zinc-500 mt-1">{f.year && <span>{f.year}</span>}{f.genre && <span>• {f.genre}</span>}</div>
-                  <p className="text-sm text-zinc-400 mt-1">From ${other_price}</p>
+        <section className="max-w-[1440px] mx-auto px-6 lg:px-12 py-20">
+          <h2 className="text-3xl font-bold mb-6 tracking-tight">More on 4th Ground</h2>
+          <div className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {otherFilms.map((f) => (
+              f.available? (
+                <Link key={f.id} href={`/film/${f.id}`} className="group flex-shrink-0 w-[75vw] sm:w-[45vw] md:w-[32vw] lg:w-[24vw] snap-start">
+                  <div className="rounded-2xl overflow-hidden transition-all group-hover:scale-[1.03] bg-zinc-900">
+                    <img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover w-full" />
+                  </div>
+                  <p className="font-semibold mt-3 text-lg truncate">{f.title}</p>
+                  <p className="text-sm text-zinc-500">${f.price_usd.toFixed(2)}</p>
                 </Link>
               ) : (
-                <div key={f.id} className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg p-2">
-                  <div className="rounded-lg overflow-hidden relative"><img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover blur-sm brightness-50" /><div className="absolute inset-0 flex items-center justify-center"><span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border-white/20">Coming Soon</span></div></div>
-                  <p className="font-semibold mt-3 text-base truncate text-zinc-400">{f.title}</p>
+                <div key={f.id} className="flex-shrink-0 w-[75vw] sm:w-[45vw] md:w-[32vw] lg:w-[24vw] snap-start opacity-60">
+                  <div className="rounded-2xl overflow-hidden relative bg-zinc-900">
+                    <img src={f.backdrop_url || f.poster_url} alt={f.title} className="aspect-video object-cover blur-sm brightness-50" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold">Coming Soon</span>
+                    </div>
+                  </div>
+                  <p className="font-semibold mt-3 text-lg truncate text-zinc-400">{f.title}</p>
                 </div>
-              );
-            })}
+              )
+            ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* CHECKOUT = Email -> Continue -> Pay -> Close */}
+      {/* CHECKOUT: Apple TV Modal */}
       {showCheckout && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-6">
-          <div className="w-full max-w-md rounded-3xl bg-zinc-900 border-zinc-800 shadow-2xl p-8">
-            <h2 className="text-3xl font-bold">Rent {film.title}</h2>
-            <p className="text-zinc-400 mt-2">Watch instantly for 7 days in HD. ${price}</p>
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-2xl flex items-center justify-center p-4 animate-in fade-in">
+          <div className="w-full max-w-lg rounded-3xl bg-zinc-900/80 backdrop-blur-2xl border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] p-8 relative">
+            <button onClick={() => setShowCheckout(false)} className="absolute top-6 right-6 text-zinc-400 hover:text-white">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-4xl font-black tracking-tighter">Rent {film.title}</h2>
+            <p className="text-zinc-400 mt-2 text-lg">7-day access in HD. ${price}</p>
 
             {checkoutStep === 'email' && (
               <div className="mt-8">
-                <label className="block text-sm text-zinc-400 mb-2">Email Address</label>
-                <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); localStorage.setItem('4g_email', e.target.value); }} className="w-full rounded-xl bg-zinc-800 border-zinc-700 px-4 py-4 outline-none focus:ring-2 focus:ring-white/50" placeholder="you@email.com" />
+                <label className="block text-sm text-zinc-400 mb-2 font-medium">Email for your receipt</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); localStorage.setItem('4g_email', e.target.value); }}
+                  className="w-full rounded-xl bg-black/50 border border-white/10 px-5 py-4 text-lg outline-none focus:ring-2 focus:ring-white/30 transition"
+                  placeholder="you@email.com"
+                />
                 {emailError && <p className="text-red-400 text-sm mt-2">{emailError}</p>}
               </div>
             )}
 
             {checkoutStep === 'payment' && checkoutUrl && (
-              <div className="mt-6"><iframe src={checkoutUrl} className="w-full h-[600px] rounded-xl border-zinc-700" /></div>
+              <div className="mt-6 rounded-xl overflow-hidden border-white/10">
+                <iframe src={checkoutUrl} className="w-full h-[500px]" />
+              </div>
             )}
 
             <button
-  onClick={handleContinue}
-  disabled={loading}
-  className="w-full mt-8 bg-white text-black rounded-xl py-4 font-semibold hover:bg-zinc-200 transition disabled:opacity-50"
->
-  {checkoutStep === 'email'
-    ? loading ? 'Processing...' : 'Continue'
-    : 'Redirecting...'}
-</button>
-
-<button
-  onClick={() => {
-    setShowCheckout(false);
-    setCheckoutStep('email');
-    setCheckoutUrl(null);
-    setEmailError('');
-  }}
-  className="w-full mt-3 text-zinc-400 hover:text-white"
->
-  Close
-</button>
+              onClick={handleContinue}
+              disabled={loading || checkoutStep === 'payment'}
+              className="w-full mt-8 bg-white text-black rounded-xl py-4 text-lg font-semibold hover:bg-zinc-200 transition disabled:opacity-50"
+            >
+              {checkoutStep === 'email'? loading? 'Processing...' : 'Continue' : 'Complete Payment'}
+            </button>
           </div>
         </div>
       )}
 
-      {/* FOOTER = Homepage */}
-      <footer className="border-t border-white/10 px-6 md:px-12 py-10 text-sm text-zinc-500">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2">
-            <Link href="/terms" className="hover:text-white transition">Terms</Link><Link href="/privacy" className="hover:text-white transition">Privacy</Link><Link href="/support" className="hover:text-white transition">Support</Link>
-          </div>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-white/5"><p>© 2026 4th Ground. All rights reserved.</p></div>
-        </div>
+      <footer className="border-t border-white/10 px-6 lg:px-12 py-12 text-sm text-zinc-500">
+        <div className="max-w-[1440px] mx-auto">© 2026 4th Ground. All rights reserved.</div>
       </footer>
-
-      <style jsx global>{`.scrollbar-hide::-webkit-scrollbar { display: none; }.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
     </main>
   );
 }
