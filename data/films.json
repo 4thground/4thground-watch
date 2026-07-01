@@ -32,9 +32,9 @@
     "description": "Coming soon to 4th Ground.",
     "poster_url": "/posters/2.png",
     "backdrop_url": "/posters/backdrop2.png",
-    "bunny_library_id": "684349",
-    "bunny_video_id": "",
-    "bunny_trailer_id": "",
+  "bunny_library_id": null,
+"bunny_video_id": null,
+"bunny_trailer_id": null
     "rent_price_cents": 3900,
     "buy_price_cents": 9900,
     "available": false,
