@@ -1,100 +1,129 @@
 export const runtime = 'nodejs';
 
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
+
+const API_URL = 'https://api.ikhokha.com/public-api/v1/api/payment';
+const API_PATH = '/public-api/v1/api/payment';
+
+function escapePayload(str: string) {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\u0000/g, '\\0');
+}
 
 export async function POST(req: Request) {
   try {
     const { email, filmId, amount, returnUrl } = await req.json();
 
-    if (!email || !filmId || !amount) {
+    if (!email || !filmId || amount === undefined) {
       return NextResponse.json(
-        { error: 'Missing fields' },
+        { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    const API_KEY = process.env.IKHOKHA_API_KEY;
-    const API_SECRET = process.env.IKHOKHA_API_SECRET;
+    const APP_ID = process.env.IKHOKHA_API_KEY;
+    const APP_SECRET = process.env.IKHOKHA_API_SECRET;
+    const SITE = process.env.NEXT_PUBLIC_SITE_URL;
 
-    if (!API_KEY || !API_SECRET) {
+    if (!APP_ID || !APP_SECRET || !SITE) {
       return NextResponse.json(
-        { error: 'Missing API credentials' },
+        { error: 'Missing server environment variables.' },
         { status: 500 }
       );
     }
 
-    // -----------------------------
-    // STEP 1: PAYLOAD
-    // -----------------------------
+    // Convert USD -> ZAR cents
+    // Set USD_TO_ZAR_RATE in Vercel (example: 18.50)
+    const RATE = Number(process.env.USD_TO_ZAR_RATE || 18.5);
+
+    const amountInCents = Math.round(Number(amount) * RATE * 100);
+
+    const externalTransactionID =
+      `${filmId}-${Date.now()}`;
+
     const payload = {
-      amount: Number(amount),
+      entityID: APP_ID,
+      externalEntityID: filmId,
+      amount: amountInCents,
       currency: 'ZAR',
-      reference: `${filmId}-${Date.now()}`,
-      returnUrl,
-      customer: { email }
+      requesterUrl: SITE,
+      description: `Rental - ${filmId}`,
+      paymentReference: externalTransactionID,
+      mode: 'live',
+      externalTransactionID,
+
+      urls: {
+        callbackUrl: `${SITE}/api/ikhokha/webhook`,
+        successPageUrl: `${SITE}/payment/success`,
+        failurePageUrl: `${SITE}/payment/failed`,
+        cancelUrl: `${SITE}/film/${filmId}`
+      }
     };
 
-    // -----------------------------
-    // STEP 2: SIGNATURE (HMAC STYLE)
-    // -----------------------------
-    const signatureBase = JSON.stringify(payload) + API_SECRET;
+    const requestBody = JSON.stringify(payload);
 
-    const encoder = new TextEncoder();
-    const hashBuffer = await crypto.subtle.digest(
-      'SHA-256',
-      encoder.encode(signatureBase)
-    );
+    const payloadToSign =
+      escapePayload(API_PATH + requestBody);
 
-    const signature = Array.from(new Uint8Array(hashBuffer))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
+    const signature = crypto
+      .createHmac('sha256', APP_SECRET.trim())
+      .update(payloadToSign)
+      .digest('hex');
 
-    // -----------------------------
-    // STEP 3: CALL IKHOKHA
-    // -----------------------------
-    const res = await fetch('https://api.ikhokha.com/payments', {
+    const response = await fetch(API_URL, {
       method: 'POST',
+
       headers: {
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${API_KEY}`,
-        'X-Signature': signature
+
+        'IK-APPID': APP_ID.trim(),
+        'IK-SIGN': signature
       },
-      body: JSON.stringify(payload)
+
+      body: requestBody
     });
 
-    const resData = await res.json();
+    const result = await response.json();
 
-    if (!res.ok) {
+    if (!response.ok) {
       return NextResponse.json(
-        { error: resData },
-        { status: 400 }
+        result,
+        { status: response.status }
       );
     }
 
-    // -----------------------------
-    // STEP 4: PAYMENT URL
-    // -----------------------------
-    const paymentUrl =
-      resData?.paymentUrl ||
-      resData?.redirectUrl ||
-      resData?.url;
-
-    if (!paymentUrl) {
+    if (
+      result.responseCode !== '00' ||
+      !result.paylinkUrl
+    ) {
       return NextResponse.json(
-        { error: 'No payment URL returned from iKhokha' },
-        { status: 500 }
+        {
+          error:
+            result.message ??
+            'Unable to create payment link.'
+        },
+        { status: 400 }
       );
     }
 
     return NextResponse.json({
-      paymentUrl,
-      reference: payload.reference
+      paymentUrl: result.paylinkUrl,
+      paylinkID: result.paylinkID,
+      externalTransactionID
     });
 
   } catch (err: any) {
     return NextResponse.json(
-      { error: err.message },
-      { status: 500 }
+      {
+        error: err.message
+      },
+      {
+        status: 500
+      }
     );
   }
 }
