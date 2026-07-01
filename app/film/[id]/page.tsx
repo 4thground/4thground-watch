@@ -27,9 +27,11 @@ const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox=
 export default function FilmPage({ params }: { params: { id: string } }) {
   const film = (films as Film[]).find((f) => f.id === params.id);
   const playerRef = useRef<HTMLDivElement | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   const [access, setAccess] = useState<AccessState | null>(null);
+  const [hasAccess, setHasAccess] = useState(false); // <- NEW: boolean flag
+  const [isClient, setIsClient] = useState(false); // <- NEW: wait for mount
+
   const [showCheckout, setShowCheckout] = useState(false);
   const [email, setEmail] = useState('');
   const [checkoutStep, setCheckoutStep] = useState<'email' | 'payment'>('email');
@@ -44,6 +46,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     if (!film) return;
     localStorage.setItem(`4g_access_${film.id}`, JSON.stringify({ type: 'rent', paidAt: Date.now() }));
     setAccess({ type: 'rent', expires: Date.now() + 7 * 24 * 60 * 60 * 1000, progress: 0 });
+    setHasAccess(true); // <- NEW
     setShowCheckout(false);
     setCheckoutStep('email');
     setCheckoutUrl(null);
@@ -79,44 +82,57 @@ export default function FilmPage({ params }: { params: { id: string } }) {
     } finally { setLoading(false); }
   };
 
-  // 1. Load access on mount
+  // 1. Must be on client to read localStorage
   useEffect(() => {
-    if (!film) return;
+    setIsClient(true);
+  }, []);
+
+  // 2. Load access on mount
+  useEffect(() => {
+    if (!isClient ||!film) return;
     const key = `4g_access_${film.id}`;
     const saved = localStorage.getItem(key);
     if (saved) {
       const { type, paidAt } = JSON.parse(saved);
       const expires = type === 'buy'? Infinity : paidAt + 7 * 24 * 60 * 60 * 1000;
-      if (expires > Date.now()) setAccess({ type, expires, progress: 0 });
+      if (expires > Date.now()) {
+        setAccess({ type, expires, progress: 0 });
+        setHasAccess(true); // <- NEW
+      } else {
+        localStorage.removeItem(key);
+      }
     }
     const savedEmail = localStorage.getItem('4g_email');
     if (savedEmail) setEmail(savedEmail);
-  }, [film]);
+  }, [film, isClient]);
 
-  // 2. Catch redirect:?status=success
+  // 3. Catch redirect:?status=success
   useEffect(() => {
-    if (!film) return;
+    if (!isClient ||!film) return;
     const params = new URLSearchParams(window.location.search);
     if (params.get('status') === 'success' && params.get('film') === film.id) {
       unlockFilm();
     }
-  }, [film]);
+  }, [film, isClient]);
 
-  // 3. FIX: Catch iKhokha postMessage from iframe
+  // 4. Catch iKhokha postMessage from new tab
   useEffect(() => {
+    if (!isClient) return;
     const handler = (event: MessageEvent) => {
-      // iKhokha sends { status: 'success', paymentReference: '...' }
       if (event.data?.status === 'success' || event.data?.event === 'payment_success') {
         unlockFilm();
       }
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [film]);
+  }, [film, isClient]);
 
   if (!film) return <div className="min-h-screen bg-black text-white flex items-center justify-center font-sans">Film not found</div>;
 
   const otherFilms = (films as Film[]).filter((f) => f.id!== film.id);
+
+  // FIX: Never render iframe until client. Default to trailer.
+  const videoIdToPlay = hasAccess? film.bunny_video_id : film.bunny_trailer_id;
 
   return (
     <main className="bg-black text-white min-h-screen font-sans antialiased">
@@ -130,12 +146,15 @@ export default function FilmPage({ params }: { params: { id: string } }) {
       </nav>
 
       <section ref={playerRef} className="relative h-[100svh] w-full flex items-end">
-        <iframe
-          src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${access? film.bunny_video_id : film.bunny_trailer_id}?autoplay=false&muted=1`}
-          className="absolute inset-0 w-full h-full object-cover"
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowFullScreen
-        />
+        {isClient && ( // <- FIX: only render iframe on client
+          <iframe
+            key={videoIdToPlay} // <- Force re-render when access changes
+            src={`https://iframe.mediadelivery.net/embed/${film.bunny_library_id}/${videoIdToPlay}?autoplay=false&muted=1&preload=true`}
+            className="absolute inset-0 w-full h-full object-cover"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
 
@@ -153,12 +172,12 @@ export default function FilmPage({ params }: { params: { id: string } }) {
             <p className="text-base lg:text-lg text-zinc-200 mb-8 max-w-2xl leading-relaxed font-medium">
               {film.description}
             </p>
-            {!access && film.available && (
+            {!hasAccess && film.available && (
               <button onClick={() => setShowCheckout(true)} className="group inline-flex items-center gap-3 bg-white text-black font-semibold px-10 py-4 rounded-full hover:bg-zinc-200 transition-all text-lg">
                 <PlayIcon /> Rent ${price}
               </button>
             )}
-            {access && (
+            {hasAccess && (
               <button onClick={() => playerRef.current?.scrollIntoView({ behavior: 'smooth' })} className="group inline-flex items-center gap-3 bg-white text-black font-semibold px-10 py-4 rounded-full hover:bg-zinc-200 transition-all text-lg">
                 <PlayIcon /> Play Now
               </button>
@@ -204,6 +223,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
             </button>
             <h2 className="text-4xl font-black tracking-tighter">Rent {film.title}</h2>
             <p className="text-zinc-400 mt-2 text-lg">7-day access in HD. ${price}</p>
+
             {checkoutStep === 'email' && (
               <div className="mt-8">
                 <label className="block text-sm text-zinc-400 mb-2 font-medium">Email for your receipt</label>
@@ -211,14 +231,20 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                 {emailError && <p className="text-red-400 text-sm mt-2">{emailError}</p>}
               </div>
             )}
+
             {checkoutStep === 'payment' && checkoutUrl && (
-              <div className="mt-6 rounded-xl overflow-hidden border-white/10">
-                <iframe ref={iframeRef} src={checkoutUrl} className="w-full h-[500px]" />
+              <div className="mt-6 text-center">
+                <p className="text-zinc-300 mb-4">You’re being redirected to secure payment...</p>
+                <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="w-full inline-block bg-white text-black rounded-xl py-4 text-lg font-semibold hover:bg-zinc-200 transition">Open Secure Checkout</a>
+                <p className="text-xs text-zinc-500 mt-3">After paying, return here. Access unlocks automatically.</p>
               </div>
             )}
-            <button onClick={handleContinue} disabled={loading || checkoutStep === 'payment'} className="w-full mt-8 bg-white text-black rounded-xl py-4 text-lg font-semibold hover:bg-zinc-200 transition disabled:opacity-50">
-              {checkoutStep === 'email'? loading? 'Processing...' : 'Continue' : 'Complete Payment'}
-            </button>
+
+            {checkoutStep === 'email' && (
+              <button onClick={handleContinue} disabled={loading} className="w-full mt-8 bg-white text-black rounded-xl py-4 text-lg font-semibold hover:bg-zinc-200 transition disabled:opacity-50">
+                {loading? 'Processing...' : 'Continue'}
+              </button>
+            )}
           </div>
         </div>
       )}
