@@ -16,10 +16,11 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const film = (films as any[]).find((f) => f.id === params.id);
 
   const [access, setAccess] = useState<AccessState | null>(null);
-  const [showTrailerEnd, setShowTrailerEnd] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const playerRef = useRef<HTMLIFrameElement | null>(null);
+const [showTrailerEnd, setShowTrailerEnd] = useState(false);
+const [isFullscreen, setIsFullscreen] = useState(false);
+
 const [showCheckout, setShowCheckout] = useState(false);
+const [email, setEmail] = useState('');
   useEffect(() => {
     if (!film) return;
 
