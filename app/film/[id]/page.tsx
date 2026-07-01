@@ -28,6 +28,7 @@ const [loading, setLoading] = useState(false);
 
 const [emailError, setEmailError] = useState('');
   const valid = /\S+@\S+\.\S+/.test(email);
+  
   useEffect(() => {
     if (!film) return;
 
@@ -50,7 +51,11 @@ const [emailError, setEmailError] = useState('');
         localStorage.removeItem(key);
       }
     }
+const savedEmail = localStorage.getItem('4g_email');
 
+if (savedEmail) {
+  setEmail(savedEmail);
+}
    
   }, [film]);
 
