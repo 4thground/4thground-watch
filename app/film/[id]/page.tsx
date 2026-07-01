@@ -38,14 +38,37 @@ const [emailError, setEmailError] = useState('');
   }
 
   setLoading(true);
+  setCheckoutStep('payment');
 
-  // Later this is where we'll call /api/create-payment
-  // For now, just move to the payment step.
+  try {
+    const res = await fetch('/api/create-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        filmId: film.id,
+        amount: film.price_usd,
+      }),
+    });
 
-  setTimeout(() => {
+    const data = await res.json();
+
+    if (!data.paymentUrl) {
+      throw new Error('No payment URL returned');
+    }
+
+    // SAVE payment URL
+    setCheckoutUrl(data.paymentUrl);
+
+    // MOVE to payment screen
     setCheckoutStep('payment');
+
+  } catch (err) {
+    setEmailError('Payment failed. Try again.');
+    setCheckoutStep('email');
+  } finally {
     setLoading(false);
-  }, 500);
+  }
 };
   
   useEffect(() => {
