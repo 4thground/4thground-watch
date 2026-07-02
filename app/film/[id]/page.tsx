@@ -226,7 +226,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
             onClick={() => setShowRentModal(false)}
           >
             <div
-              className="relative w-full max-w-md rounded-[32px] border-white/10 bg-white/5 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] p-8 animate-in zoom-in-95 duration-200"
+              className="relative w-full max-w-md rounded-[32px] border-white/10 bg-white/5 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] p-8 animate-in zoom-in-95 duration-200 transition-all duration-300 hover:border-white/30 hover:shadow-[0_0_20px_rgba(255,255,255,0.08)]"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close X */}
