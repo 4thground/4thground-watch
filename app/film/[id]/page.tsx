@@ -213,7 +213,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               </button>
             </div>
 
-            <p className="text-xs text-zinc-500 mt-3">
+            <p className="text-xs text-zinc-500 mt-3 text-center">
               No handrails. Just great films. Stream Now.
             </p>
           </div>
