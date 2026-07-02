@@ -205,77 +205,23 @@ export default function FilmPage({ params }: { params: { id: string } }) {
           </p>
         </div>
 
-      {!access && film.available && (
-  <div className="mb-12">
-    <div className="flex flex-col sm:flex-row gap-3">
-      {/* RENT BUTTON */}
-      <button
-        onClick={() => setShowRentModal(true)}
-        className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
-      >
-        Rent
-      </button>
-    </div>
-  </div>
-)}
+        {!access && film.available && (
+          <div className="mb-12">
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* RENT BUTTON - NO EMAIL */}
+              <a
+                href="https://payhip.com/b/3YqxG"
+                className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
+              >
+                Rent
+              </a>
+            </div>
 
-{/* APPLE TV STYLE RENT MODAL */}
-{showRentModal && (
-  <div
-    className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xl p-4 animate-in fade-in duration-200"
-    onClick={() => setShowRentModal(false)}
-  >
-    <div
-      className="relative w-full max-w-md rounded-[32px] border-white/10 bg-white/5 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] p-8 animate-in zoom-in-95 duration-200"
-      onClick={(e) => e.stopPropagation()}
-    >
-      {/* Close X */}
-      <button
-        onClick={() => setShowRentModal(false)}
-        className="absolute top-5 right-5 text-white/50 hover:text-white transition"
-        aria-label="Close"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-
-      <h3 className="text-3xl font-bold tracking-tight mb-3 text-white">
-        Confirm Rental
-      </h3>
-      <p className="text-white/70 text-lg mb-8">
-        You’re about to rent a film at $3.99 - 7 days Access.
-      </p>
-
-      {/* Continue Button - Apple Pill */}
-      <a
-        href="https://payhip.com/b/3YqxG"
-        className="w-full block bg-white text-black font-semibold px-6 py-4 rounded-full hover:bg-zinc-200 active:scale-[0.98] transition text-center text-lg mb-4"
-      >
-        Continue
-      </a>
-
-      <p className="text-xs text-white/40 text-center mb-5">
-        You may be redirected to our Checkout partner Payhip for Secure Payments.
-      </p>
-
-      {/* Footer Links */}
-      <div className="flex justify-center items-center gap-3 text-sm text-white/50">
-        <a href="https://watch.4thground.com/terms" target="_blank" rel="noopener noreferrer" className="hover:text-white transition underline-offset-4">
-          Terms
-        </a>
-        <span className="text-white/20">•</span>
-        <a href="https://watch.4thground.com/refund" target="_blank" rel="noopener noreferrer" className="hover:text-white transition underline-offset-4">
-          Refund
-        </a>
-        <span className="text-white/20">•</span>
-        <a href="https://watch.4thground.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-white transition underline-offset-4">
-          Privacy
-        </a>
-      </div>
-    </div>
-    </div>
-)}
+            <p className="text-xs text-zinc-500 mt-3">
+              You'll be redirected to Payhip for secure checkout.
+            </p>
+          </div>
+        )}
 
         {!film.available && (
           <div className="mb-12">
@@ -307,7 +253,8 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               </p>
             )}
           </div>
-     
+        )}
+      </div>
 
       {!isFullscreen && otherFilms.length > 0 && (
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
