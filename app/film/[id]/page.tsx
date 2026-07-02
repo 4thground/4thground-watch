@@ -12,6 +12,7 @@ type AccessState = {
 
 // PAYHIP - rent only, USD
 const PAYHIP_PRODUCTS = {
+ rent: '3YqxG' 
    // Your Payhip product ID
 };
 
