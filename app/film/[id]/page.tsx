@@ -313,8 +313,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               </p>
             )}
           </div>
-        )}
-      </div>
+     
 
       {!isFullscreen && otherFilms.length > 0 && (
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
