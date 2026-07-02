@@ -260,7 +260,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               </a>
 
               <p className="text-xs text-white/40 text-center mb-5">
-                You may be redirected to our Checkout partner Payhip for Secure Payments.
+                You'll be redirected to Payhip to complete your secure checkout.
               </p>
 
               {/* Footer Links */}
