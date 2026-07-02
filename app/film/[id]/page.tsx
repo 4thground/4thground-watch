@@ -240,7 +240,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                 </svg>
               </button>
 
-              <h3 className="text-3xl font-bold tracking-tight mb-3 text-white">
+              <h3 className="text-3xl font-bold tracking-tight mb-3 text-white text-center">
                 Confirm Rental
               </h3>
               <p className="text-white/70 text-lg mb-8 text-center">
