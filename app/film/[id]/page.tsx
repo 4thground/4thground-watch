@@ -214,7 +214,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
             </div>
 
             <p className="text-xs text-zinc-500 mt-3">
-              $3.99 - 7 days Access
+              No handrails. Just great films. Stream Now.
             </p>
           </div>
         )}
@@ -265,7 +265,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                   Terms
                 </a>
                 <span className="text-white/20">•</span>
-                <a href="https://watch.4thground.com/refund" target="_blank" rel="noopener noreferrer" className="hover:text-white transition underline-offset-4">
+                <a href="https://watch.4thground.com/refund-policy" target="_blank" rel="noopener noreferrer" className="hover:text-white transition underline-offset-4">
                   Refund
                 </a>
                 <span className="text-white/20">•</span>
