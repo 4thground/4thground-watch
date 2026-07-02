@@ -167,7 +167,7 @@ export default function Home() {
                   </div>
 
                   <p className="text-sm text-zinc-400 mt-1">
-                    From ${(film.rent_price_cents / 100).toFixed(2)}
+                    From ${film.price_usd?.toFixed(2)} 
                   </p>
                 </Link>
               ))}
