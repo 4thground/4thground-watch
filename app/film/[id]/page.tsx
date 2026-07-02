@@ -170,7 +170,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-300 mb-4">
             {film.rating && (
-              <span className="px-2 py-0.5 border-zinc-500 rounded text-xs">
+              <span className="px-2 py-0.5 border border-zinc-500 rounded text-xs">
                 {film.rating}
               </span>
             )}
