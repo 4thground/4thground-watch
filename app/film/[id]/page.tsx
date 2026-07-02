@@ -247,7 +247,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                 You’re about to rent  {film.title} | FILM at ${film.price_usd?.toFixed(2)}
               </p>
               <p className="text-xs text-zinc-500 mb-2 text-center -mt-1">
-              7 days Access
+              {film.access_days} days Access
             </p>
 
               {/* Continue Button - Apple Pill */}
