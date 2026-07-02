@@ -244,7 +244,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         Confirm Rental
       </h3>
       <p className="text-white/70 text-lg mb-8">
-        You’re about to rent a film at $3.99.
+        You’re about to rent a film at $3.99 - 7 days Access.
       </p>
 
       {/* Continue Button - Apple Pill */}
