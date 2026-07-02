@@ -133,12 +133,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         />
 
 
-        {/* Trial Play Icon */}
-<div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
-  
-  </div>
-</div>
+        
         
 
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
