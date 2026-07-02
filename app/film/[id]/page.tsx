@@ -21,6 +21,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   const [access, setAccess] = useState<AccessState | null>(null);
   const [showTrailerEnd, setShowTrailerEnd] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showRentModal, setShowRentModal] = useState(false); // <- NEW: for Apple TV popup
   const playerRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
@@ -113,13 +114,13 @@ export default function FilmPage({ params }: { params: { id: string } }) {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Top Nav */}
-              <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
-            <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded">
-              On DIGITAL
-            </span>
-          </Link>
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black via-black/80 to-transparent px-6 md:px-12 py-4">
+        <Link href="/" className="flex items-center gap-2">
+          <img src="/logo.png" alt="4th Ground" className="h-8 rounded-md" />
+          <span className="text-xs font-semibold tracking-widest text-zinc-400 border-zinc-700 px-2 py-0.5 rounded">
+            On DIGITAL
+          </span>
+        </Link>
       </div>
 
       {/* Hero Player */}
@@ -131,10 +132,6 @@ export default function FilmPage({ params }: { params: { id: string } }) {
           allow="autoplay; fullscreen"
           allowFullScreen
         />
-
-
-        
-        
 
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
 
@@ -149,13 +146,12 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               </p>
 
               <div className="flex justify-center">
-                {/* RENT BUTTON - NO EMAIL */}
-                <a
-                  href="https://payhip.com/b/3YqxG"
+                <button
+                  onClick={() => setShowRentModal(true)}
                   className="bg-white text-black font-semibold px-8 py-3 rounded-full hover:bg-zinc-200 transition"
                 >
                   Rent
-                </a>
+                </button>
               </div>
               <p className="text-xs text-zinc-500 mt-4">
                 $3.99 - 7 days Access. You'll be redirected to Payhip for secure Checkout.
@@ -174,7 +170,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-300 mb-4">
             {film.rating && (
-              <span className="px-2 py-0.5 border border-zinc-500 rounded text-xs">
+              <span className="px-2 py-0.5 border-zinc-500 rounded text-xs">
                 {film.rating}
               </span>
             )}
@@ -208,18 +204,76 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         {!access && film.available && (
           <div className="mb-12">
             <div className="flex flex-col sm:flex-row gap-3">
-              {/* RENT BUTTON - NO EMAIL */}
-              <a
-                href="https://payhip.com/b/3YqxG"
+              {/* RENT BUTTON -> opens modal now */}
+              <button
+                onClick={() => setShowRentModal(true)}
                 className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg text-center"
               >
                 Rent
-              </a>
+              </button>
             </div>
 
             <p className="text-xs text-zinc-500 mt-3">
-              You'll be redirected to Payhip for secure checkout.
+              $3.99 - 7 days Access
             </p>
+          </div>
+        )}
+
+        {/* APPLE TV STYLE RENT MODAL */}
+        {showRentModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xl p-4 animate-in fade-in duration-200"
+            onClick={() => setShowRentModal(false)}
+          >
+            <div
+              className="relative w-full max-w-md rounded-[32px] border-white/10 bg-white/5 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] p-8 animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close X */}
+              <button
+                onClick={() => setShowRentModal(false)}
+                className="absolute top-5 right-5 text-white/50 hover:text-white transition"
+                aria-label="Close"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <h3 className="text-3xl font-bold tracking-tight mb-3 text-white">
+                Confirm Rental
+              </h3>
+              <p className="text-white/70 text-lg mb-8">
+                You’re about to rent a film at $3.99 - 7 days Access.
+              </p>
+
+              {/* Continue Button - Apple Pill */}
+              <a
+                href="https://payhip.com/b/3YqxG"
+                className="w-full block bg-white text-black font-semibold px-6 py-4 rounded-full hover:bg-zinc-200 active:scale-[0.98] transition text-center text-lg mb-4"
+              >
+                Continue
+              </a>
+
+              <p className="text-xs text-white/40 text-center mb-5">
+                You may be redirected to our Checkout partner Payhip for Secure Payments.
+              </p>
+
+              {/* Footer Links */}
+              <div className="flex justify-center items-center gap-3 text-sm text-white/50">
+                <a href="https://watch.4thground.com/terms" target="_blank" rel="noopener noreferrer" className="hover:text-white transition underline-offset-4">
+                  Terms
+                </a>
+                <span className="text-white/20">•</span>
+                <a href="https://watch.4thground.com/refund" target="_blank" rel="noopener noreferrer" className="hover:text-white transition underline-offset-4">
+                  Refund
+                </a>
+                <span className="text-white/20">•</span>
+                <a href="https://watch.4thground.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-white transition underline-offset-4">
+                  Privacy
+                </a>
+              </div>
+            </div>
           </div>
         )}
 
@@ -243,7 +297,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition text-lg"
             >
               {access.progress > 30
-               ? `Resume from ${Math.floor(access.progress / 60)}m`
+              ? `Resume from ${Math.floor(access.progress / 60)}m`
                 : 'Play'}
             </button>
 
@@ -292,7 +346,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
               ) : (
                 <div
                   key={f.id}
-                  className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
+                  className="flex-shrink-0 w-[70vw] sm:w-[40vw] md:w-[30vw] lg:w-[23vw] snap-start border-neutral-800 rounded-lg hover:border-neutral-600 transition-colors p-2"
                 >
                   <div className="rounded-lg overflow-hidden relative">
                     <img
@@ -302,7 +356,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
                     />
 
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
+                      <span className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold border-white/20">
                         Coming Soon
                       </span>
                     </div>
@@ -325,30 +379,30 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
       {/* Footer */}
       <footer className="border-t border-white/10 px-6 md:px-12 py-10 text-sm text-zinc-500">
-  <div className="max-w-7xl mx-auto space-y-6">
-    <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2">
-      <Link href="/terms" className="hover:text-white transition">Terms of Service</Link>
-      <Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link>
-      <Link href="/cookies" className="hover:text-white transition">Cookie Policy</Link>
-      <Link href="/refund-policy" className="hover:text-white transition">Refund Policy</Link>
-      <Link href="/dmca" className="hover:text-white transition">DMCA</Link>
-      <Link href="/support" className="hover:text-white transition">Support</Link>
-      <Link href="/contact" className="hover:text-white transition">Contact</Link>
-    </div>
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2">
+            <Link href="/terms" className="hover:text-white transition">Terms of Service</Link>
+            <Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link>
+            <Link href="/cookies" className="hover:text-white transition">Cookie Policy</Link>
+            <Link href="/refund-policy" className="hover:text-white transition">Refund Policy</Link>
+            <Link href="/dmca" className="hover:text-white transition">DMCA</Link>
+            <Link href="/support" className="hover:text-white transition">Support</Link>
+            <Link href="/contact" className="hover:text-white transition">Contact</Link>
+          </div>
 
-    <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-white/5">
-      <p>© 2026 4th Ground. All rights reserved.</p>
-      <p className="text-xs text-zinc-600">All content and trademarks are property of their respective owners.</p>
-    </div>
-  </div>
-</footer>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-white/5">
+            <p>© 2026 4th Ground. All rights reserved.</p>
+            <p className="text-xs text-zinc-600">All content and trademarks are property of their respective owners.</p>
+          </div>
+        </div>
+      </footer>
 
       <style jsx global>{`
-       .scrollbar-hide::-webkit-scrollbar {
+      .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
 
-       .scrollbar-hide {
+      .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
