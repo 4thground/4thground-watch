@@ -252,7 +252,7 @@ export default function FilmPage({ params }: { params: { id: string } }) {
 
               {/* Continue Button - Apple Pill */}
               <a
-                href="https://payhip.com/b/3YqxG"
+                href="https://payhip.com/buy?s=1&cart_links%5B%5D=3YqxG&qty%5B3YqxG%5D=1"
                 className="w-full block bg-white text-black font-semibold px-6 py-4 rounded-full hover:bg-zinc-200 active:scale-[0.98] transition text-center text-lg mb-4"
               >
                 Continue
