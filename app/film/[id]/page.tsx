@@ -274,14 +274,8 @@ export default function FilmPage({ params }: { params: { id: string } }) {
         </a>
       </div>
     </div>
-  </div>
+    </div>
 )}
-
-            <p className="text-xs text-zinc-500 mt-3">
-              $3.99 - 7 days Access
-            </p>
-          </div>
-        )}
 
         {!film.available && (
           <div className="mb-12">
